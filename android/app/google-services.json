@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "121960648355",
+    "project_id": "yoyomiles-50eea",
+    "storage_bucket": "yoyomiles-50eea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:121960648355:android:0a53c3b611b6ee0d627916",
+        "android_client_info": {
+          "package_name": "com.foundercode.port_karo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQOYo8GcMKxWSH9-z0XFp9AnzNChZWjN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
