@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:port_karo/view_model/update_ride_status_view_model.dart';
 import 'package:port_karo/generated/assets.dart';
 import 'package:port_karo/res/app_fonts.dart';
 import 'package:port_karo/res/const_with_polyline_map.dart';
 import 'package:port_karo/res/constant_color.dart';
 import 'package:port_karo/res/constant_text.dart';
 import 'package:port_karo/view/bottom_nav_bar.dart' show BottomNavigationPage;
-import 'package:port_karo/view/driver_searching/address_card.dart';
-import 'package:port_karo/view/driver_searching/collect_payment_dialog.dart';
-import 'package:port_karo/view/driver_searching/dotted_line_painter.dart';
-import 'package:port_karo/view/driver_searching/driver_info_card.dart';
-import 'package:port_karo/view/driver_searching/otp_section_card.dart';
-import 'package:port_karo/view/driver_searching/payment_container.dart';
-import 'package:port_karo/view/driver_searching/single_address_detail.dart';
 import 'package:port_karo/view/payment_summary_screen.dart';
-import 'package:port_karo/view_model/update_ride_status_view_model.dart';
 import 'package:provider/provider.dart';
 
 class DriverSearchingScreen extends StatefulWidget {
@@ -223,13 +216,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                             onTap: _selectedIndex == null
                                 ? null
                                 : () {
-                                    updateRideStatusVm.updateRideApi(
-                                      context,
-                                      widget.orderData?['document_id'],
-                                      "7",
-                                    );
-                                    Navigator.of(context).pop();
-                                  },
+                              updateRideStatusVm.updateRideApi(
+                                context,
+                                widget.orderData?['document_id'],
+                                "7",
+                              );
+                              Navigator.of(context).pop();
+                            },
                             child: Container(
                               height: 40,
                               decoration: BoxDecoration(
@@ -367,7 +360,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     MaterialPageRoute(
                       builder: (context) => BottomNavigationPage(),
                     ),
-                    (route) => false,
+                        (route) => false,
                   );
                 },
                 child: const Text(
@@ -436,7 +429,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     MaterialPageRoute(
                       builder: (context) => BottomNavigationPage(),
                     ),
-                    (route) => false,
+                        (route) => false,
                   );
                 },
                 child: const Text(
@@ -496,17 +489,17 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       child: ConstWithPolylineMap(
         data: orderData != null
             ? [
-                {
-                  'id': orderData['document_id'] ?? 'unknown',
-                  'pickup_address': orderData['pickup_address'],
-                  'pickup_latitute': orderData['pickup_latitute'],
-                  'pick_longitude': orderData['pick_longitude'],
-                  'drop_address': orderData['drop_address'],
-                  'drop_latitute': orderData['drop_latitute'],
-                  'drop_logitute': orderData['drop_logitute'],
-                  'ride_status': _safeToInt(orderData['ride_status']) ?? 0,
-                },
-              ]
+          {
+            'id': orderData['document_id'] ?? 'unknown',
+            'pickup_address': orderData['pickup_address'],
+            'pickup_latitute': orderData['pickup_latitute'],
+            'pick_longitude': orderData['pick_longitude'],
+            'drop_address': orderData['drop_address'],
+            'drop_latitute': orderData['drop_latitute'],
+            'drop_logitute': orderData['drop_logitute'],
+            'ride_status': _safeToInt(orderData['ride_status']) ?? 0,
+          },
+        ]
             : null,
         rideStatus: _safeToInt(orderData?['ride_status']) ?? 0,
         backIconAllowed: false,
@@ -574,6 +567,15 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           final firebaseOrderId = orderId;
           final otp = orderData['otp']?.toString() ?? "N/A";
 
+          // ✅ DEBUG PRINT
+          print("""
+🔍 ORDER STATUS UPDATE:
+   - Ride Status: $rideStatus (${_getRideStatusText(rideStatus)})
+   - Driver ID: $driverId
+   - Payment Mode: $payMode (${_getPaymentMethodText(payMode)})
+   - OTP: $otp
+   - Amount: $amount
+""");
 
           // ✅ REAL-TIME ORDER DATA UPDATE WITH SAFE CONVERSIONS
           final updatedOrderData = {
@@ -608,9 +610,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
           // 🔥 CONDITION 2: Cash payment completed - show ride completed dialog
           if (rideStatus == 5 && payMode == 1 && !_showCollectPaymentDialog) {
-            print(
-              "💵 STREAMBUILDER: Reached destination with cash payment - show collect payment dialog!",
-            );
+            print("💵 STREAMBUILDER: Reached destination with cash payment - show collect payment dialog!");
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _showCollectPaymentDialogMethod();
             });
@@ -665,19 +665,10 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               }
 
               final driverData =
-                  driverSnapshot.data!.data() as Map<String, dynamic>;
+              driverSnapshot.data!.data() as Map<String, dynamic>;
 
               return _buildMainLayout(
-                middleSection: DriverInfoCard(
-                  name: driverData['driver_name'] ?? "Unknown Driver",
-                  phone: driverData['phone']?.toString() ?? "N/A",
-                  vehicleNumber: driverData['vehicle_no'] ?? "N/A",
-                  vehicleType: driverData['vehicle_type_name'] ?? "Vehicle",
-                  imageUrl:
-                      driverData['owner_selfie'] ??
-                      driverData['vehicle_type_image'] ??
-                      'assets/images/driver_avatar.png',
-                ),
+                middleSection: _buildDriverInfo(driverData),
                 orderData: updatedOrderData,
                 driverData: driverData,
               );
@@ -695,7 +686,72 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const CollectPaymentDialog(),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: PortColor.gold, width: 2),
+          ),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 8,
+          shadowColor: Colors.black26,
+          title: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.green[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green[100]!, width: 1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.location_on, color: Colors.white, size: 18),
+                ),
+                SizedBox(width: 10),
+                TextConst(
+                  title: "Reached Destination",
+                  size: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green[800],
+                ),
+              ],
+            ),
+          ),
+          content: Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[200]!, width: 1),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.payment, color: PortColor.grey, size: 14),
+                    SizedBox(width: 6),
+                    TextConst(
+                      title: "Make Payment of Trip",
+                      color: PortColor.blackLight,
+                      size: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     ).then((value) {
       _showCollectPaymentDialog = false;
     });
@@ -802,38 +858,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
                     middleSection,
 
-                    if (showOtpSection)
-                      OtpSectionCard(otp: widget.orderData?['otp'] ?? "0000"),
+                    if (showOtpSection) _buildOtpSection(otp),
 
                     // Address card
-                    AddressCard(
-                      senderName:
-                          widget.orderData?['sender_name'] ?? "Tanisha Sharma",
-                      senderPhone:
-                          widget.orderData?['sender_phone']?.toString() ??
-                          "7235947667",
-                      senderAddress:
-                          widget.orderData?['pickup_address'] ??
-                          "Naya Khera, Jankipuram Extension,...",
-
-                      receiverName:
-                          widget.orderData?['reciver_name'] ?? "Tanisha Sharma",
-                      receiverPhone:
-                          widget.orderData?['reciver_phone']?.toString() ??
-                          "7235947667",
-                      receiverAddress:
-                          widget.orderData?['drop_address'] ??
-                          "Tedhi Pulia, Sector H, Jankipuram, ...",
-                    ),
+                    buildAddressCard(),
 
                     // Payment container
-                    PaymentContainer(
-                      payMode: _safeToInt(orderData?['pay_mode']) ?? 1,
-                      amount: _safeToDouble(orderData?['amount']) ?? 0.0,
-                      iconAsset: Assets.assetsRupeetwo,
-                      getPaymentMethodText: _getPaymentMethodText,
-                    ),
-
+                    buildPaymentContainer(payMode),
 
                     if (showOtpAndCancel)
                       GestureDetector(
@@ -998,6 +1029,380 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       ),
     );
   }
+
+  // OTP Section - ENHANCED WITH BETTER UI
+  Widget _buildOtpSection(String otp) {
+    print("🔑 OTP Section Called - OTP Value: $otp");
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        border: Border.all(color: Colors.blue),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Lock Icon with background
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.lock, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+
+              // OTP Label
+              TextConst(
+                title: "Your Trip OTP",
+                color: Colors.blue[800],
+                fontWeight: FontWeight.w600,
+                size: 16,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // OTP Display
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue),
+            ),
+            child: Text(
+              otp,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[800],
+                fontFamily: AppFonts.kanitReg,
+                letterSpacing: 4,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          Text(
+            "Share this OTP with driver at pickup time",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.blue[700], fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Driver Info
+  Widget _buildDriverInfo(Map<String, dynamic> driverData) {
+    final name = driverData['driver_name'] ?? "Unknown Driver";
+    final phone = driverData['phone']?.toString() ?? "N/A";
+    final vehicle = driverData['vehicle_no'] ?? "N/A";
+    final vehicleType = driverData['vehicle_type_name'] ?? "Vehicle";
+    final driverImage =
+        driverData['owner_selfie'] ??
+            driverData['vehicle_type_image'] ??
+            'assets/images/driver_avatar.png';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: PortColor.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundImage: driverImage.startsWith('http')
+                ? NetworkImage(driverImage) as ImageProvider
+                : AssetImage(driverImage),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextConst(
+                  title: "$vehicleType - $vehicle",
+                  fontWeight: FontWeight.bold,
+                  size: 15,
+                ),
+                Row(
+                  children: [
+                    TextConst(title: name, color: PortColor.blackLight),
+                    SizedBox(width: screenWidth * 0.02),
+                    TextConst(title: "• $phone", color: PortColor.blackLight),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 35,
+            width: 35,
+            decoration: BoxDecoration(
+              color: PortColor.gold.withOpacity(0.7),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(Icons.call, color: PortColor.black, size: 18),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Address Card
+  Widget buildAddressCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: PortColor.white,
+        border: Border.all(color: PortColor.grey),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Circles + Dotted Line
+              Column(
+                children: [
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.green,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_upward,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ),
+                  Container(
+                    width: 2,
+                    height: 50,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: CustomPaint(painter: DottedLinePainter()),
+                  ),
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_downward,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _singleAddressDetail(
+                      name:
+                      widget.orderData?['sender_name'] ?? "Tanisha Sharma",
+                      phone:
+                      widget.orderData?['sender_phone']?.toString() ??
+                          "7235947667",
+                      address:
+                      widget.orderData?['pickup_address'] ??
+                          "Naya Khera, Jankipuram Extension,...",
+                    ),
+                    const SizedBox(height: 12),
+                    _singleAddressDetail(
+                      name:
+                      widget.orderData?['reciver_name'] ?? "Tanisha Sharma",
+                      phone:
+                      widget.orderData?['reciver_phone']?.toString() ??
+                          "7235947667",
+                      address:
+                      widget.orderData?['drop_address'] ??
+                          "Tedhi Pulia, Sector H, Jankipuram, ...",
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: screenHeight * 0.02),
+        ],
+      ),
+    );
+  }
+
+  Widget _singleAddressDetail({
+    required String name,
+    required String phone,
+    required String address,
+  }) {
+    final orderType = widget.orderData?['order_type']?.toString() ?? "1";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+
+        // ⭐ SHOW ONLY IF order_type == 1
+        if (orderType == "1") ...[
+          Row(
+            children: [
+              Text(
+                name,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  fontFamily: AppFonts.kanitReg,
+                  color: PortColor.gold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "• $phone",
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                  fontFamily: AppFonts.kanitReg,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+        ],
+
+        // ⭐ Address always visible
+        Text(
+          address,
+          style: TextStyle(
+            color: Colors.grey[700],
+            fontSize: 14,
+            fontFamily: AppFonts.kanitReg,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+
+
+  // Updated Payment Container with dynamic payment method
+  Widget buildPaymentContainer(int payMode) {
+    final paymentMethod = _getPaymentMethodText(payMode);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: PortColor.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: PortColor.grey),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Image.asset(Assets.assetsRupeetwo, height: 50, width: 50),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextConst(
+                title: paymentMethod,
+                size: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Payment method",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey,
+                  fontFamily: AppFonts.kanitReg,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          Text(
+            "₹ ${widget.orderData?['amount'] ?? '456'}",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: PortColor.gold,
+              fontFamily: AppFonts.kanitReg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // Dotted Line
+class DottedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+
+    const double dashWidth = 3;
+    const double dashSpace = 4;
+    double startY = 0;
+
+    while (startY < size.height) {
+      canvas.drawLine(Offset(0, startY), Offset(0, startY + dashWidth), paint);
+      startY += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

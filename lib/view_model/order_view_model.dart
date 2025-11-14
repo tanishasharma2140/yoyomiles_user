@@ -113,12 +113,15 @@ class OrderViewModel with ChangeNotifier {
 
 
         final documentId = response["documentId"] ?? response["id"] ?? "";
+        final orderTypeFromApi = response["order_type"] ?? "";
 
         print("📄 Order Document ID: $documentId");
+        print("🟡 Order Type from API: $orderTypeFromApi");
 
         final updatedOrderData = {
           ...?_currentOrderData,
           "document_id": documentId,
+          "order_type": orderTypeFromApi,
         };
 
         await FirebaseFirestore.instance

@@ -192,8 +192,6 @@ class _PassengerBookingState extends State<PassengerBooking> {
 
   @override
   Widget build(BuildContext context) {
-    final orderViewModel = Provider.of<OrderViewModel>(context);
-    final profileViewModel = Provider.of<ProfileViewModel>(context);
 
     return SafeArea(
       top: false,
@@ -297,12 +295,6 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    if (pickupLat != null && pickupLng != null)
-                                      TextConst(
-                                        title: "Lat: ${pickupLat!.toStringAsFixed(6)}, Lng: ${pickupLng!.toStringAsFixed(6)}",
-                                        size: 10,
-                                        color: Colors.grey[500],
-                                      ),
                                   ],
                                 ),
                               ),
@@ -360,12 +352,6 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    if (dropLat != null && dropLng != null)
-                                      TextConst(
-                                        title: "Lat: ${dropLat!.toStringAsFixed(6)}, Lng: ${dropLng!.toStringAsFixed(6)}",
-                                        size: 10,
-                                        color: Colors.grey[500],
-                                      ),
                                   ],
                                 ),
                               ),

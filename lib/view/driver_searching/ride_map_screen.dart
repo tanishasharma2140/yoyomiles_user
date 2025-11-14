@@ -1,14 +1,19 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:port_karo/generated/assets.dart';
 import 'package:port_karo/main.dart';
+import 'package:port_karo/res/app_btn.dart';
 import 'package:port_karo/res/app_fonts.dart';
 import 'package:port_karo/res/constant_color.dart';
 import 'package:port_karo/res/constant_text.dart';
+import 'package:port_karo/view_model/order_view_model.dart';
 import 'package:port_karo/view_model/select_vehicles_view_model.dart';
 import 'package:port_karo/view_model/service_type_view_model.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +48,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
   double distance = 0.0;
   List<Map<String, dynamic>> vehicles = [];
   bool isFetchingVehicles = false;
+  int selectedPayment = 1; // default = online
 
   @override
   void initState() {
@@ -72,6 +78,24 @@ class _RideMapScreenState extends State<RideMapScreen> {
     return earthRadius * c;
   }
 
+  Future<BitmapDescriptor> resizeMarkerIcon(String assetPath, int targetWidth) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final Uint8List bytes = data.buffer.asUint8List();
+
+    final ui.Codec codec = await ui.instantiateImageCodec(
+      bytes,
+      targetWidth: targetWidth,
+    );
+    final ui.FrameInfo fi = await codec.getNextFrame();
+
+    final ByteData? byteData =
+    await fi.image.toByteData(format: ui.ImageByteFormat.png);
+    final Uint8List resizedBytes = byteData!.buffer.asUint8List();
+
+    return BitmapDescriptor.fromBytes(resizedBytes);
+  }
+
+
   // Fetch vehicles from API
   Future<void> _fetchVehicles() async {
     if (isFetchingVehicles) return;
@@ -95,8 +119,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
         serviceTypeViewModel.selectedVehicleId!,
         distance.toStringAsFixed(2),
         serviceTypeViewModel.selectedVehicleType!,
-        widget.pickupLat,  // Pass pickup latitude
-        widget.pickupLng,  // Pass pickup longitude// Pass drop longitude
+        widget.pickupLat,
+        widget.pickupLng,
         context,
       );
 
@@ -114,6 +138,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
             'selected_status': vehicle.selectedStatus,
             'type': vehicle.type,
             'comment': vehicle.comment,
+            'vehicle_body_details_id': vehicle.vehicleBodyDetailsId,
+            'vehicle_body_types_id': vehicle.vehicleBodyTypesId,
           })
               .toList();
         });
@@ -165,18 +191,17 @@ class _RideMapScreenState extends State<RideMapScreen> {
       // Calculate distance
       distance = _calculateDistance(pickupLatLng, dropLatLng);
       print("📍 Calculated Distance: ${distance.toStringAsFixed(2)} km");
-
-      final BitmapDescriptor pickupIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(100, 100)), // size can be adjusted
+      final pickupIcon = await resizeMarkerIcon(
         Assets.assetsRedLocationPin,
+        80, // marker width → change size here
       );
 
-      final BitmapDescriptor dropIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(100, 100)),
+      final dropIcon = await resizeMarkerIcon(
         Assets.assetsPicupYoyo,
+        65,
       );
 
-      // Add markers
+// Add markers
       markers.add(
         Marker(
           markerId: const MarkerId('pickup'),
@@ -203,8 +228,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
         polylines.add(
           Polyline(
             polylineId: const PolylineId('route'),
-            color: PortColor.gold,
-            width: 3,
+            color: PortColor.containerBlue,
+            width: 4,
             points: routePoints,
           ),
         );
@@ -215,8 +240,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
         polylines.add(
           Polyline(
             polylineId: const PolylineId('route'),
-            color: PortColor.gold,
-            width: 3,
+            color: PortColor.containerBlue,
+            width: 4,
             points: [pickupLatLng, dropLatLng],
           ),
         );
@@ -647,6 +672,15 @@ class _RideMapScreenState extends State<RideMapScreen> {
   }
 
   void _showVehicleConfirmation(Map<String, dynamic> vehicle) {
+    final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+    final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(
+      context,
+      listen: false,
+    );
+
+    // Reset payment selection every time sheet opens
+    selectedPayment = 1;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -655,196 +689,252 @@ class _RideMapScreenState extends State<RideMapScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          height: screenHeight * 0.55,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Confirm ${vehicle['vehicle_name'] ?? 'Ride'}',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: AppFonts.kanitReg,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: vehicle['vehicle_image'] != null
-                        ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        vehicle['vehicle_image'],
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.directions_car,
-                            color: Colors.blue[600],
-                            size: 24,
-                          );
-                        },
-                      ),
-                    )
-                        : Icon(
-                      Icons.directions_car,
-                      color: Colors.blue[600],
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        vehicle['vehicle_name'] ?? 'Vehicle',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: AppFonts.kanitReg,
+        return StatefulBuilder(
+          builder: (context, setStateBottom) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              height: screenHeight * 0.64,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Drag Bar
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      Text(
-                        vehicle['body_detail'] ?? '',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontFamily: AppFonts.kanitReg,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Text(
-                    '₹${vehicle['amount'] ?? '0'}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: AppFonts.kanitReg,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Route Details',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: AppFonts.kanitReg,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
+                    const SizedBox(height: 24),
+
+                    // Title
+                    Text(
+                      "Confirm ${vehicle['vehicle_name'] ?? 'Ride'}",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: AppFonts.kanitReg,
                       ),
-                      Container(
-                        width: 2,
-                        height: 30,
-                        color: Colors.grey[300],
-                      ),
-                      Icon(
-                        Icons.location_on,
-                        color: Colors.red[400],
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Vehicle Info Row
+                    Row(
                       children: [
-                        Text(
-                          widget.pickupLocation,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontFamily: AppFonts.kanitReg,
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          child: vehicle['vehicle_image'] != null
+                              ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              vehicle['vehicle_image'],
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                              : Icon(Icons.directions_car,
+                              color: Colors.blue[600]),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(width: 12),
+
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              vehicle['vehicle_name'] ?? 'Vehicle',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: AppFonts.kanitReg,
+                              ),
+                            ),
+                            Text(
+                              vehicle['body_detail'] ?? '',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontFamily: AppFonts.kanitReg,
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const Spacer(),
+
                         Text(
-                          widget.dropLocation,
+                          "₹${vehicle['amount'] ?? '0'}",
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                             fontFamily: AppFonts.kanitReg,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Distance: ${distance.toStringAsFixed(1)} km',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green[600],
-                  fontFamily: AppFonts.kanitReg,
+
+                    const SizedBox(height: 24),
+
+                    // Route Details
+                    Text(
+                      "Route Details",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: AppFonts.kanitReg,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        Column(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: const BoxDecoration(
+                                color: Colors.green,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            Container(
+                              width: 2,
+                              height: 30,
+                              color: Colors.grey[300],
+                            ),
+                            Icon(Icons.location_on,
+                                size: 16, color: Colors.red[400]),
+                          ],
+                        ),
+                        const SizedBox(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(widget.pickupLocation,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis),
+                              const SizedBox(height: 24),
+                              Text(widget.dropLocation,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      "Distance: ${distance.toStringAsFixed(1)} km",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green[600],
+                        fontFamily: AppFonts.kanitReg,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ⭐ PAYMENT MODE SECTION ⭐
+                    Text(
+                      "Payment Mode",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: AppFonts.kanitReg,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // ONLINE
+                        Row(
+                          children: [
+                            Radio<int>(
+                              value: 1,
+                              groupValue: selectedPayment,
+                              onChanged: (value) {
+                                setStateBottom(() {
+                                  selectedPayment = value!;
+                                });
+                              },
+                              activeColor: PortColor.gold,
+                            ),
+                            Text(
+                              "Online Payment",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+
+                        // COD
+                        Row(
+                          children: [
+                            Radio<int>(
+                              value: 2,
+                              groupValue: selectedPayment,
+                              onChanged: (value) {
+                                setStateBottom(() {
+                                  selectedPayment = value!;
+                                });
+                              },
+                              activeColor:PortColor.gold,
+                            ),
+                            Text(
+                              "Cash on Delivery",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                     SizedBox(height: screenHeight*0.01,),
+                     AppBtn(title: "Continue Ride", onTap: (){
+                          orderViewModel.orderApi(
+                              vehicle["vehicle_id"],
+                              widget.pickupLocation,
+                              widget.dropLocation,
+                              widget.dropLat,
+                              widget.dropLng,
+                              widget.pickupLat,
+                              widget.pickupLng,
+                              "",
+                              "",
+                              "",
+                              "",
+                              vehicle["amount"],
+                              distance.toStringAsFixed(1),
+                              selectedPayment,
+                              [],
+                              serviceTypeViewModel.selectedVehicleType,
+                              // serviceTypeViewModel.setSelectedVehicleType(vehicle.type ?? 0),//order_type
+                              "",
+                              "",
+                              "",
+                              vehicle['vehicle_body_details_id'],
+                              vehicle["vehicle_body_types_id"],
+                              context
+                          );
+                            }),
+                  ],
                 ),
               ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _handleRideConfirmation(vehicle);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[600],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Confirm Ride',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: AppFonts.kanitReg,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
