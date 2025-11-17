@@ -248,90 +248,127 @@ class _OrderPageState extends State<OrderPage> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  children: [
-                                    Container(
-                                      width: screenWidth * 0.04,
-                                      height: screenHeight * 0.01,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.green,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    Column(
-                                      children: List.generate(
-                                        12,
-                                            (index) => Container(
-                                          width: screenWidth * 0.003,
-                                          height: screenHeight * 0.0025,
-                                          margin:
-                                          const EdgeInsets.symmetric(vertical: 1),
-                                          color: PortColor.gray,
+                                Padding(
+                                  padding:  EdgeInsets.only(top: 10),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: screenWidth * 0.04,
+                                        height: screenHeight * 0.01,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.green,
+                                          shape: BoxShape.circle,
                                         ),
                                       ),
-                                    ),
-                                    Icon(
-                                      Icons.location_on_rounded,
-                                      color: PortColor.red,
-                                      size: screenHeight * 0.024,
-                                    ),
-                                  ],
+                                      Column(
+                                        children: List.generate(
+                                          14,
+                                              (index) => Container(
+                                            width: screenWidth * 0.003,
+                                            height: screenHeight * 0.0025,
+                                            margin:
+                                            const EdgeInsets.symmetric(vertical: 1),
+                                            color: PortColor.gray,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.location_on_rounded,
+                                        color: PortColor.red,
+                                        size: screenHeight * 0.024,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 SizedBox(width: screenWidth * 0.03),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      children: [
-                                        TextConst(
-                                          title: history.senderName ?? "",
-                                          color: PortColor.black,
-                                          fontFamily: AppFonts.kanitReg,
-                                        ),
-                                        SizedBox(width: screenWidth * 0.015),
-                                        TextConst(
-                                          title: history.senderPhone.toString(),
+                                    // ⭐ Sender Details
+                                    if (history.orderType != 2) ...[
+                                      Row(
+                                        children: [
+                                          TextConst(
+                                            title: history.senderName ?? "",
+                                            color: PortColor.black,
+                                            fontFamily: AppFonts.kanitReg,
+                                          ),
+                                          SizedBox(width: screenWidth * 0.015),
+                                          TextConst(
+                                            title: history.senderPhone.toString(),
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.poppinsReg,
+                                            size: 13,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: screenWidth * 0.7,
+                                        child: TextConst(
+                                          title: history.pickupAddress ?? "",
                                           color: PortColor.gray,
                                           fontFamily: AppFonts.poppinsReg,
-                                          size: 13,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          size: 12,
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.7,
-                                      child: TextConst(
-                                        title: history.pickupAddress ?? "",
-                                        color: PortColor.gray,
-                                        fontFamily: AppFonts.poppinsReg,
-                                        size: 12,
                                       ),
-                                    ),
+                                    ] else ...[
+                                      // ⭐ order_type = 2 → NO NAME/NUMBER
+                                      SizedBox(
+                                        width: screenWidth * 0.7,
+                                        child: TextConst(
+                                          title: history.pickupAddress ?? "",
+                                          color: PortColor.gray,
+                                          fontFamily: AppFonts.poppinsReg,
+                                          size: 12,
+                                        ),
+                                      ),
+                                    ],
+
                                     SizedBox(height: screenHeight * 0.02),
-                                    Row(
-                                      children: [
-                                        TextConst(
-                                          title: history.reciverName ?? "",
-                                          color: PortColor.black,
-                                          fontFamily: AppFonts.kanitReg,
-                                        ),
-                                        SizedBox(width: screenWidth * 0.015),
-                                        TextConst(
-                                          title: history.reciverPhone.toString(),
+
+                                    // ⭐ Receiver Details
+                                    if (history.orderType != 2) ...[
+                                      Row(
+                                        children: [
+                                          TextConst(
+                                            title: history.reciverName ?? "",
+                                            color: PortColor.black,
+                                            fontFamily: AppFonts.kanitReg,
+                                          ),
+                                          SizedBox(width: screenWidth * 0.015),
+                                          TextConst(
+                                            title: history.reciverPhone.toString(),
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.poppinsReg,
+                                            size: 13,
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: screenWidth * 0.7,
+                                        child: TextConst(
+                                          title: history.dropAddress ?? "",
                                           color: PortColor.gray,
                                           fontFamily: AppFonts.poppinsReg,
-                                          size: 13,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          size: 12,
                                         ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      width: screenWidth * 0.7,
-                                      child: TextConst(
-                                        title: history.dropAddress ?? "",
-                                        color: PortColor.gray,
-                                        fontFamily: AppFonts.poppinsReg,
-                                        size: 12,
                                       ),
-                                    ),
+                                    ] else ...[
+                                      // ⭐ order_type = 2 → NO NAME/NUMBER (ONLY Address)
+                                      SizedBox(
+                                        width: screenWidth * 0.7,
+                                        child: TextConst(
+                                          title: history.dropAddress ?? "",
+                                          color: PortColor.gray,
+                                          fontFamily: AppFonts.poppinsReg,
+                                          size: 12,
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                               ],

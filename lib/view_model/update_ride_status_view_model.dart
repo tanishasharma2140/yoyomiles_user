@@ -25,7 +25,7 @@ class UpdateRideStatusViewModel with ChangeNotifier {
       setLoading(false);
       if (value['success'] == true) {
         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>BottomNavigationPage()),    (route) => false,);
-        Utils.showSuccessMessage(context, "Cancel Ride!!");
+        Utils.showSuccessMessage(context, value["message"]);
       } else {
         Utils.showErrorMessage(context, value["message"]);
       }

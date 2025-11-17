@@ -3,27 +3,28 @@ import 'package:flutter_cashfree_pg_sdk/api/cfpayment/cfwebcheckoutpayment.dart'
 import 'package:flutter_cashfree_pg_sdk/api/cfpaymentgateway/cfpaymentgatewayservice.dart';
 import 'package:flutter_cashfree_pg_sdk/api/cfsession/cfsession.dart';
 import 'package:flutter_cashfree_pg_sdk/utils/cfenums.dart';
+import 'package:port_karo/model/cash_free_gateway_model.dart';
+import 'package:port_karo/res/constant_color.dart';
 import 'package:port_karo/view_model/packer_mover_call_back_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-import '../model/cash_free_gateway_model.dart';
-import '../res/constant_color.dart' show PortColor;
 
-class PackerMoverCashfreeScreen extends StatefulWidget {
+
+class AddMoneyCashfreeScreen extends StatefulWidget {
   final String amount;
   final CashFreeGatewayModel data;
 
-  const PackerMoverCashfreeScreen({
+  const AddMoneyCashfreeScreen({
     super.key,
     required this.amount,
     required this.data,
   });
 
   @override
-  State<PackerMoverCashfreeScreen> createState() => _PackerMoverCashfreeScreenState();
+  State<AddMoneyCashfreeScreen> createState() => _AddMoneyCashfreeScreenState();
 }
 
-class _PackerMoverCashfreeScreenState extends State<PackerMoverCashfreeScreen> {
+class _AddMoneyCashfreeScreenState extends State<AddMoneyCashfreeScreen> {
   final CFPaymentGatewayService cfPaymentGatewayService =
   CFPaymentGatewayService();
 
@@ -33,7 +34,7 @@ class _PackerMoverCashfreeScreenState extends State<PackerMoverCashfreeScreen> {
     // Setup callbacks
     cfPaymentGatewayService.setCallback(
           (orderId) async {
-        // _showMessage("Payment Success for Order ID: $orderId");
+        _showMessage("Payment Success for Order ID: $orderId");
         final callBackVm = Provider.of<PackerMoverCallBackViewmodel>(
           context,
           listen: false,

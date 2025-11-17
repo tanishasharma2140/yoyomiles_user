@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:port_karo/main.dart';
@@ -6,7 +7,10 @@ import 'package:port_karo/res/constant_color.dart';
 import 'package:port_karo/res/constant_text.dart';
 import 'package:port_karo/utils/utils.dart';
 import 'package:port_karo/view/payment/widgets/payment_porter_credit.dart';
+import 'package:port_karo/view_model/add_money_payment_view_model.dart';
 import 'package:port_karo/view_model/add_wallet_view_model.dart';
+import 'package:port_karo/view_model/packer_mover_payment_view_model.dart';
+import 'package:port_karo/view_model/profile_view_model.dart';
 import 'package:provider/provider.dart';
 
 class PaymentsPage extends StatefulWidget {
@@ -66,7 +70,8 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final addWalletViewModel = Provider.of<AddWalletViewModel>(context);
+    final addMoneyPaymentVm = Provider.of<AddMoneyPaymentViewModel>(context);
+    final profileVm = Provider.of<ProfileViewModel>(context);
 
     return PopScope(
       onPopInvokedWithResult: (val, res) {
@@ -102,7 +107,8 @@ class _PaymentsPageState extends State<PaymentsPage> {
                     title: "Payment",
                     color: PortColor.black,
                     fontFamily: AppFonts.kanitReg,
-                    size: 17,fontWeight: FontWeight.w600,
+                    size: 17,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
@@ -125,7 +131,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             );
                           },
                           child: TextConst(
-                            title: "Courier credits",
+                            title: "Yoyomiles credits",
                             color: PortColor.black,
                             fontFamily: AppFonts.poppinsReg,
                           ),
@@ -166,7 +172,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                       ],
                     ),
                     TextConst(
-                      title: "Balance ₹0",
+                      title: "Balance ₹${profileVm.profileModel?.data?.wallet??"e"}",
                       color: PortColor.gray,
                       size: 13,
                     ),
@@ -265,10 +271,17 @@ class _PaymentsPageState extends State<PaymentsPage> {
                                 double enteredAmount =
                                     double.tryParse(_controller.text) ?? 0;
                                 if (enteredAmount >= 10) {
-                                  addWalletViewModel.addWalletApi(
+                                  addMoneyPaymentVm.paymentApi(
                                     context,
                                     _controller.text,
+                                    "",
                                   );
+                                  // await packerPaymentVm.paymentApi(context, totalCharges, "");
+
+                                  // addWalletViewModel.addWalletApi(
+                                  //   context,
+                                  //   _controller.text,
+                                  // );
                                 } else {
                                   Utils.showErrorMessage(
                                     context,
@@ -284,16 +297,12 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             gradient: isProceedEnabled
                                 ? PortColor.subBtn
                                 : const LinearGradient(
-                                    colors: [
-                                      PortColor.grey,
-                                      PortColor
-                                          .grey,
-                                    ],
+                                    colors: [PortColor.grey, PortColor.grey],
                                   ),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Center(
-                            child: !addWalletViewModel.loading
+                            child: !addMoneyPaymentVm.loading
                                 ? TextConst(
                                     title: "Proceed",
                                     fontFamily: AppFonts.kanitReg,
@@ -301,8 +310,10 @@ class _PaymentsPageState extends State<PaymentsPage> {
                                         ? PortColor.black
                                         : PortColor.gray,
                                   )
-                                : const CircularProgressIndicator(
-                                    color: PortColor.gold,
+                                : const CupertinoActivityIndicator(
+                                    radius: 14, // size set karna ho to
+                                    color: PortColor
+                                        .white // iOS loader bhi color support karta hai (Flutter 3.7+)
                                   ),
                           ),
                         ),

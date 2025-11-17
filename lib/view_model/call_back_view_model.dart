@@ -87,9 +87,7 @@ class CallBackViewModel with ChangeNotifier {
         print("✅ ride_status updated to 6 for order ID: $firebaseOrderId");
       } else {
         print("⚠️ Order not found in Firestore: $firebaseOrderId");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order not found in Firestore.')),
-        );
+        Utils.showErrorMessage(context, 'Order not found in Firestore.');
       }
     } catch (e) {
       print("❌ Error updating ride_status: $e");

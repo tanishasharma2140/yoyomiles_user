@@ -1179,7 +1179,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   // Address Card
   Widget buildAddressCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: PortColor.white,
@@ -1216,7 +1216,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   ),
                   Container(
                     width: 2,
-                    height: 50,
+                    height: widget.orderData?['order_type'] == 2 ? 30 : 50,
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     child: CustomPaint(painter: DottedLinePainter()),
                   ),
@@ -1266,7 +1266,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               ),
             ],
           ),
-          SizedBox(height: screenHeight * 0.02),
+          // SizedBox(height: screenHeight * 0.02),
         ],
       ),
     );

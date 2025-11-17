@@ -10,6 +10,8 @@ import 'package:port_karo/utils/routes/routes.dart';
 import 'package:port_karo/utils/routes/routes_name.dart';
 import 'package:port_karo/view_model/active_ride_view_model.dart';
 import 'package:port_karo/view_model/add_address_view_model.dart';
+import 'package:port_karo/view_model/add_money_callback_view_model.dart';
+import 'package:port_karo/view_model/add_money_payment_view_model.dart';
 import 'package:port_karo/view_model/add_wallet_view_model.dart';
 import 'package:port_karo/view_model/address_delete_view_model.dart';
 import 'package:port_karo/view_model/address_show_view_model.dart';
@@ -45,6 +47,7 @@ import 'package:port_karo/view_model/select_vehicles_view_model.dart';
 import 'package:port_karo/view_model/service_type_view_model.dart';
 import 'package:port_karo/view_model/update_ride_status_view_model.dart';
 import 'package:port_karo/view_model/user_history_view_model.dart';
+import 'package:port_karo/view_model/user_transaction_view_model.dart';
 import 'package:port_karo/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -150,6 +153,9 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> PackerMoverOrderHistoryViewModel()),
           ChangeNotifierProvider(create: (context)=> PackerMoverTermsViewModel()),
           ChangeNotifierProvider(create: (context)=> ContactListViewModel()),
+          ChangeNotifierProvider(create: (context)=> AddMoneyPaymentViewModel()),
+          ChangeNotifierProvider(create: (context)=> AddMoneyCallbackViewModel()),
+          ChangeNotifierProvider(create: (context)=> UserTransactionViewModel()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

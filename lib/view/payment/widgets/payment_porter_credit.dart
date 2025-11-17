@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:port_karo/generated/assets.dart';
 import 'package:port_karo/res/app_fonts.dart';
 import 'package:port_karo/res/constant_color.dart';
 import 'package:port_karo/res/constant_text.dart';
+import 'package:port_karo/view_model/profile_view_model.dart';
+import 'package:port_karo/view_model/user_transaction_view_model.dart';
 import 'package:port_karo/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -17,33 +20,34 @@ class PaymentPorterCredit extends StatefulWidget {
 }
 
 class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final walletHistoryViewModel =
-      Provider.of<WalletHistoryViewModel>(context, listen: false);
-      walletHistoryViewModel.walletHistoryApi();
+      print("trabsactuyon");
+      final userTransactionVm = Provider.of<UserTransactionViewModel>(
+        context,
+        listen: false,
+      );
+      userTransactionVm.userTransactionApi(context);
     });
   }
 
-
-
-  final List transactions = [
-    {
-      "date": "Dec 23, 2024",
-      "amount": "1.0",
-    },
-    {
-      "date": "Dec 23, 2024",
-      "amount": "1.0",
-    },
-    {
-      "date": "Dec 23, 2024",
-      "amount": "1.0",
-    },
-  ];
+  //
+  // final List transactions = [
+  //   {
+  //     "date": "Dec 23, 2024",
+  //     "amount": "1.0",
+  //   },
+  //   {
+  //     "date": "Dec 23, 2024",
+  //     "amount": "1.0",
+  //   },
+  //   {
+  //     "date": "Dec 23, 2024",
+  //     "amount": "1.0",
+  //   },
+  // ];
 
   final TextEditingController _controller = TextEditingController();
   bool isBottomSheetVisible = false;
@@ -76,7 +80,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
         height: 40,
         width: 50,
         decoration: BoxDecoration(
-          border: Border.all(color: PortColor.gold,width: 0.5),
+          border: Border.all(color: PortColor.gold, width: 0.5),
           color: PortColor.blue.withOpacity(0.1),
           borderRadius: BorderRadius.circular(15),
         ),
@@ -90,11 +94,19 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
       ),
     );
   }
+  String formatDate(String date) {
+    try {
+      DateTime dt = DateTime.parse(date);
+      return "${dt.day}-${dt.month}-${dt.year}";
+    } catch (e) {
+      return date;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final walletHistoryViewModel = Provider.of<WalletHistoryViewModel>(context);
-
+    final userTransactionVm = Provider.of<UserTransactionViewModel>(context);
+    final profileVm = Provider.of<ProfileViewModel>(context);
 
     return Scaffold(
       backgroundColor: PortColor.bg,
@@ -128,7 +140,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                   ),
                 ),
                 SizedBox(width: screenWidth * 0.28),
-                TextConst(title: "Courier Credits", color: PortColor.black),
+                TextConst(title: "Yoyomiles Credits", color: PortColor.black),
               ],
             ),
           ),
@@ -143,199 +155,296 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
               child: Row(
                 children: [
-                  TextConst(title: "Balance ₹0", color: PortColor.black),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        isBottomSheetVisible = true;
-                      });
-                    },
-                    child: TextConst(
-                      title: "Add Money",
-                      color: PortColor.gold,
-                      fontFamily: AppFonts.kanitReg,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  TextConst(
+                    title:
+                        "Balance ₹${profileVm.profileModel?.data?.wallet ?? "e"}",
+                    color: PortColor.black,
                   ),
+                  const Spacer(),
                 ],
               ),
             ),
           ),
-          SizedBox(
-            height: screenHeight * 0.01,
-          ),
+          SizedBox(height: screenHeight * 0.01),
           Expanded(
-            child: walletHistoryViewModel.loading
-                ? const Center(
-              child: CircularProgressIndicator(color: PortColor.gold),
-            )
-                : (walletHistoryViewModel.walletHistoryModel?.data?.isNotEmpty ?? false)
-                ? Container(
-              width: screenWidth,
-              color: PortColor.white,
-              child: ListView.builder(
-                itemCount: walletHistoryViewModel.walletHistoryModel!.data!.length,
-                itemBuilder: (context, index) {
-                  final transaction = walletHistoryViewModel.walletHistoryModel!.data![index];
+            child: userTransactionVm.loading
+                ? const Center(child: CupertinoActivityIndicator(radius: 14))
+                : (userTransactionVm.userTransactionModel?.data?.isNotEmpty ??
+                      false)
+                ? ListView.builder(
+                    padding: EdgeInsets.only(top: screenHeight * 0.01),
+                    itemCount:
+                        userTransactionVm.userTransactionModel!.data!.length,
+                    itemBuilder: (context, index) {
+                      final txn =
+                          userTransactionVm.userTransactionModel!.data![index];
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.03,
-                          vertical: screenHeight * 0.01,
-                        ),
-                        child: TextConst(
-                          title: transaction.datetime.toString(),
-                          color: PortColor.gray,
-                        ),
-                      ),
-                      Divider(
-                        thickness: screenWidth * 0.002,
-                        color: PortColor.grey,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.035,
-                        ),
-                        child: Row(
-                          children: [
-                            Image(
-                              image: AssetImage(Assets.assetsRuppee),
-                              height: screenHeight * 0.07,
-                              width: screenWidth * 0.13,
+                      // ⭐ STATUS LOGIC
+                      int status = txn.paymentGatewayStatus ?? 0;
+
+                      String statusText = status == 1
+                          ? "Success"
+                          : status == 2
+                          ? "Failed"
+                          : "Pending";
+
+                      Color statusColor = status == 1
+                          ? Colors.green
+                          : status == 2
+                          ? Colors.red
+                          : Colors.orange;
+
+                      // ⭐ AMOUNT LOGIC (Recharge = +, Other = - if needed)
+                      bool isAdded =
+                          double.tryParse(txn.amount.toString()) != 0.0;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // DATE
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.005,
                             ),
-                            SizedBox(width: screenWidth * 0.02),
-                            TextConst(
-                              title: "Wallet Recharge",
-                              color: PortColor.black,
+                            child: Text(
+                              formatDate(txn.createdAt.toString()),
+                              style: TextStyle(
+                                color: PortColor.gray,
+                                fontFamily: AppFonts.poppinsReg,
+                                fontSize: 12,
+                              ),
                             ),
-                            const Spacer(),
-                            TextConst(
-                              title: "₹${transaction.amount.toString()}",
-                              color: Colors.green,
+                          ),
+
+                          // TRANSACTION CARD
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: screenWidth * 0.04,
+                              vertical: screenHeight * 0.015,
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            )
+                            margin: EdgeInsets.only(
+                              bottom: screenHeight * 0.008,
+                            ),
+                            color: Colors.white,
+                            child: Row(
+                              children: [
+                                // ⭐ ICON BOX
+                                Container(
+                                  height: screenHeight * 0.055,
+                                  width: screenHeight * 0.055,
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    isAdded
+                                        ? Icons.arrow_circle_down
+                                        : Icons.arrow_circle_up,
+                                    color: statusColor,
+                                    size: 30,
+                                  ),
+                                ),
+
+                                SizedBox(width: screenWidth * 0.04),
+
+                                // ⭐ DETAILS
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      txn.subType == 1
+                                          ? "Wallet Recharge"
+                                          : "Wallet Transaction",
+                                      style: TextStyle(
+                                        fontFamily: AppFonts.kanitReg,
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    SizedBox(height: screenHeight * 0.004),
+                                    Text(
+                                      "Order ID: ${txn.orderId}",
+                                      style: TextStyle(
+                                        fontFamily: AppFonts.poppinsReg,
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      "Platform Fee: ${txn.platformFee}",
+                                      style: TextStyle(
+                                        fontFamily: AppFonts.poppinsReg,
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const Spacer(),
+
+                                // ⭐ AMOUNT + STATUS BADGE
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "₹${txn.totalAmount}", // show total_amount
+                                      style: TextStyle(
+                                        color: statusColor,
+                                        fontFamily: AppFonts.kanitReg,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+
+                                    SizedBox(height: screenHeight * 0.004),
+
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      child: Text(
+                                        statusText,
+                                        style: TextStyle(
+                                          color: statusColor,
+                                          fontSize: 10,
+                                          fontFamily: AppFonts.poppinsReg,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  )
                 : Center(
-              child: TextConst(title: "No Data Found",fontFamily: AppFonts.kanitReg,),
-            ),
-          )
-
+                    child: TextConst(
+                      title: "No Transactions Found",
+                      fontFamily: AppFonts.kanitReg,
+                      size: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+          ),
         ],
       ),
       bottomSheet: isBottomSheetVisible
           ? Container(
-        height: screenHeight * 0.26,
-        width: screenWidth,
-        decoration: BoxDecoration(
-          color: PortColor.white,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: PortColor.gray.withOpacity(0.3),
-              offset: const Offset(0, 2),
-              blurRadius: 10,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: screenHeight * 0.015),
-              TextConst(title: "Add Money", color: PortColor.black),
-              SizedBox(height: screenHeight * 0.012),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      cursorColor: PortColor.gray,
-                      controller: _controller,
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) => _updateProceedButton(),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      decoration: InputDecoration(
-                        hintText: 'Enter Amount',
-                        hintStyle: const TextStyle(color: PortColor.gray),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                          const BorderSide(color: PortColor.gray),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                          const BorderSide(color: PortColor.gray),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                              color: PortColor.gray, width: 1.5),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
-                        ),
-                      ),
-                      style: const TextStyle(fontSize: 14),
-                    ),
+              height: screenHeight * 0.26,
+              width: screenWidth,
+              decoration: BoxDecoration(
+                color: PortColor.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: PortColor.gray.withOpacity(0.3),
+                    offset: const Offset(0, 2),
+                    blurRadius: 10,
+                    spreadRadius: 1,
                   ),
-                  SizedBox(width: screenWidth * 0.04),
-                  _quickAddButton("+500", 500),
-                  SizedBox(width: screenWidth * 0.04),
-                  _quickAddButton("+1000", 1000),
-                  SizedBox(width: screenWidth * 0.04),
-                  _quickAddButton("+2000", 2000),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.055),
-              GestureDetector(
-                onTap: isProceedEnabled ? () {} : null,
-                child: Container(
-                  height: screenHeight * 0.06,
-                  width: screenWidth * 0.88,
-                  decoration: BoxDecoration(
-                    gradient: isProceedEnabled
-                        ? PortColor.subBtn
-                        : const LinearGradient(
-                      colors: [
-                        PortColor.grey,
-                        PortColor.grey,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: screenHeight * 0.015),
+                    TextConst(title: "Add Money", color: PortColor.black),
+                    SizedBox(height: screenHeight * 0.012),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            cursorColor: PortColor.gray,
+                            controller: _controller,
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) => _updateProceedButton(),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            decoration: InputDecoration(
+                              hintText: 'Enter Amount',
+                              hintStyle: const TextStyle(color: PortColor.gray),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: PortColor.gray,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: PortColor.gray,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: PortColor.gray,
+                                  width: 1.5,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                                horizontal: 12,
+                              ),
+                            ),
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                        SizedBox(width: screenWidth * 0.04),
+                        _quickAddButton("+500", 500),
+                        SizedBox(width: screenWidth * 0.04),
+                        _quickAddButton("+1000", 1000),
+                        SizedBox(width: screenWidth * 0.04),
+                        _quickAddButton("+2000", 2000),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Center(
-                    child: TextConst(
-                      title: "Proceed",
-                      fontFamily: AppFonts.kanitReg,
-                      fontWeight: FontWeight.w600,
-                      color: isProceedEnabled ? PortColor.black : PortColor.gray,
+                    SizedBox(height: screenHeight * 0.055),
+                    GestureDetector(
+                      onTap: isProceedEnabled ? () {} : null,
+                      child: Container(
+                        height: screenHeight * 0.06,
+                        width: screenWidth * 0.88,
+                        decoration: BoxDecoration(
+                          gradient: isProceedEnabled
+                              ? PortColor.subBtn
+                              : const LinearGradient(
+                                  colors: [PortColor.grey, PortColor.grey],
+                                ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: TextConst(
+                            title: "Proceed",
+                            fontFamily: AppFonts.kanitReg,
+                            fontWeight: FontWeight.w600,
+                            color: isProceedEnabled
+                                ? PortColor.black
+                                : PortColor.gray,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              )
-
-            ],
-          ),
-        ),
-      )
+              ),
+            )
           : null,
     );
   }

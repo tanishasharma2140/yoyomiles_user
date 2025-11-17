@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'dart:ui' as ui;
+import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
@@ -47,7 +48,6 @@ class _RideMapScreenState extends State<RideMapScreen> {
   bool isLoading = true;
   double distance = 0.0;
   List<Map<String, dynamic>> vehicles = [];
-  bool isFetchingVehicles = false;
   int selectedPayment = 1; // default = online
 
   @override
@@ -98,11 +98,11 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
   // Fetch vehicles from API
   Future<void> _fetchVehicles() async {
-    if (isFetchingVehicles) return;
-
-    setState(() {
-      isFetchingVehicles = true;
-    });
+    // if (isFetchingVehicles) return;
+    //
+    // setState(() {
+    //   isFetchingVehicles = true;
+    // });
 
     try {
       final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(
@@ -155,7 +155,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
       // _setSampleVehicles();
     } finally {
       setState(() {
-        isFetchingVehicles = false;
+        // isFetchingVehicles = false;
       });
     }
   }
@@ -383,6 +383,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectVehicleVm = Provider.of<SelectVehiclesViewModel>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -536,9 +537,11 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                   // Vehicle List
                   Expanded(
-                    child: isFetchingVehicles
+                    child: selectVehicleVm.loading
                         ? const Center(
-                      child: CircularProgressIndicator(),
+                      child: CupertinoActivityIndicator(
+                        radius: 14,
+                      ),
                     )
                         : vehicles.isEmpty
                         ? Center(
@@ -548,14 +551,14 @@ class _RideMapScreenState extends State<RideMapScreen> {
                           Icon(
                             Icons.car_repair,
                             size: 64,
-                            color: Colors.grey[400],
+                            color: Colors.grey,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             "No vehicles available",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey[600],
+                              color: Colors.grey,
                               fontFamily: AppFonts.kanitReg,
                             ),
                           ),
@@ -570,7 +573,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
                         return _buildVehicleCard(vehicle);
                       },
                     ),
-                  ),
+                  )
+
                 ],
               ),
             ),
@@ -862,10 +866,11 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         // ONLINE
+                        // ONLINE PAYMENT
                         Row(
                           children: [
                             Radio<int>(
-                              value: 1,
+                              value: 2,   // ⭐ Online = 2
                               groupValue: selectedPayment,
                               onChanged: (value) {
                                 setStateBottom(() {
@@ -881,18 +886,18 @@ class _RideMapScreenState extends State<RideMapScreen> {
                           ],
                         ),
 
-                        // COD
+// CASH ON DELIVERY
                         Row(
                           children: [
                             Radio<int>(
-                              value: 2,
+                              value: 1,   // ⭐ COD = 1
                               groupValue: selectedPayment,
                               onChanged: (value) {
                                 setStateBottom(() {
                                   selectedPayment = value!;
                                 });
                               },
-                              activeColor:PortColor.gold,
+                              activeColor: PortColor.gold,
                             ),
                             Text(
                               "Cash on Delivery",
@@ -900,37 +905,70 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             ),
                           ],
                         ),
+
                       ],
                     ),
                      SizedBox(height: screenHeight*0.01,),
-                     AppBtn(title: "Continue Ride", onTap: (){
-                          orderViewModel.orderApi(
-                              vehicle["vehicle_id"],
-                              widget.pickupLocation,
-                              widget.dropLocation,
-                              widget.dropLat,
-                              widget.dropLng,
-                              widget.pickupLat,
-                              widget.pickupLng,
-                              "",
-                              "",
-                              "",
-                              "",
-                              vehicle["amount"],
-                              distance.toStringAsFixed(1),
-                              selectedPayment,
-                              [],
-                              serviceTypeViewModel.selectedVehicleType,
-                              // serviceTypeViewModel.setSelectedVehicleType(vehicle.type ?? 0),//order_type
-                              "",
-                              "",
-                              "",
-                              vehicle['vehicle_body_details_id'],
-                              vehicle["vehicle_body_types_id"],
-                              context
-                          );
-                            }),
-                  ],
+              Consumer<OrderViewModel>(
+                builder: (context, orderViewModel, child) {
+                  return GestureDetector(
+                    onTap: () {
+                      if (!orderViewModel.loading) {
+                        orderViewModel.orderApi(
+                          vehicle["vehicle_id"],
+                          widget.pickupLocation,
+                          widget.dropLocation,
+                          widget.dropLat,
+                          widget.dropLng,
+                          widget.pickupLat,
+                          widget.pickupLng,
+                          "",
+                          "",
+                          "",
+                          "",
+                          vehicle["amount"],
+                          distance.toStringAsFixed(1),
+                          selectedPayment,
+                          [],
+                          serviceTypeViewModel.selectedVehicleType,
+                          "",
+                          "",
+                          "",
+                          vehicle['vehicle_body_details_id'],
+                          vehicle["vehicle_body_types_id"],
+                          context,
+                        );
+                      }
+                    },
+                    child: Container(
+                      height: screenHeight * 0.06,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: PortColor.gold,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      alignment: Alignment.center,
+                      child: orderViewModel.loading
+                          ? CupertinoActivityIndicator(
+                        radius: 12,
+                        color: Colors.white,
+                      )
+                          : Text(
+                        "Continue Ride",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontFamily: AppFonts.kanitReg,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+
+              ],
                 ),
               ),
             );

@@ -35,23 +35,26 @@ class Data {
   String? bodyDetail;
   String? vehicleImage;
   String? measurementsImg;
-  int? amount;
+
+  double? amount; // 🔥 CHANGED TO DOUBLE
+
   int? selectedStatus;
   int? type;
   dynamic comment;
 
-  Data(
-      {this.vehicleId,
-        this.vehicleName,
-        this.vehicleBodyTypesId,
-        this.vehicleBodyDetailsId,
-        this.bodyDetail,
-        this.vehicleImage,
-        this.measurementsImg,
-        this.amount,
-        this.selectedStatus,
-        this.type,
-        this.comment});
+  Data({
+    this.vehicleId,
+    this.vehicleName,
+    this.vehicleBodyTypesId,
+    this.vehicleBodyDetailsId,
+    this.bodyDetail,
+    this.vehicleImage,
+    this.measurementsImg,
+    this.amount,
+    this.selectedStatus,
+    this.type,
+    this.comment,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     vehicleId = json['vehicle_id'];
@@ -61,7 +64,9 @@ class Data {
     bodyDetail = json['body_detail'];
     vehicleImage = json['vehicle_image'];
     measurementsImg = json['measurements_img'];
-    amount = json['amount'];
+
+    amount = (json['amount'] as num?)?.toDouble(); // 🔥 SAFE DOUBLE PARSING
+
     selectedStatus = json['selected_status'];
     type = json['type'];
     comment = json['comment'];
@@ -76,7 +81,9 @@ class Data {
     data['body_detail'] = bodyDetail;
     data['vehicle_image'] = vehicleImage;
     data['measurements_img'] = measurementsImg;
-    data['amount'] = amount;
+
+    data['amount'] = amount; // 🔥 now double
+
     data['selected_status'] = selectedStatus;
     data['type'] = type;
     data['comment'] = comment;
