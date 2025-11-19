@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/home/widgets/pickup/all_india_enter_pickup_detail.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/all_india_enter_pickup_detail.dart';
 
 /// Replace with your Google Maps API Key
 const String googleApiKey = "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA";

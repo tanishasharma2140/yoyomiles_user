@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
 class CategoryGridOne extends StatelessWidget {
   const CategoryGridOne({super.key});
 

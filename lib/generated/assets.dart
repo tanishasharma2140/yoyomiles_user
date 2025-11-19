@@ -57,7 +57,7 @@ class Assets {
   static const String assetsPickup = 'assets/pickup.png';
   static const String assetsPicupYoyo = 'assets/picup_yoyo.png';
   static const String assetsPop = 'assets/pop.png';
-  static const String assetsPortKaroLogo = 'assets/port_karo_logo.png';
+  static const String assetsPortKaroLogo = 'assets/yoyomiles_logo.png';
   static const String assetsPorter = 'assets/porter.png';
   static const String assetsPorterenterprises = 'assets/porterenterprises.jpg';
   static const String assetsPortericon = 'assets/portericon.png';

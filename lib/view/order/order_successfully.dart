@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
 
 class OrderSuccessfully extends StatefulWidget {
   const OrderSuccessfully({super.key});

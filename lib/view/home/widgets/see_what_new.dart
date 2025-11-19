@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/home/widgets/registration.dart';
-import 'package:port_karo/view/home/widgets/packer_mover.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/home/widgets/registration.dart';
+import 'package:yoyomiles/view/home/widgets/packer_mover.dart';
 
 class SeeWhatNew extends StatefulWidget {
   const SeeWhatNew({super.key});

@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/model/user_transaction_model.dart';
-import 'package:port_karo/repo/user_transaction_repo.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/model/user_transaction_model.dart';
+import 'package:yoyomiles/repo/user_transaction_repo.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class UserTransactionViewModel with ChangeNotifier {
   final _userTransactionRepo = UserTransactionRepo();

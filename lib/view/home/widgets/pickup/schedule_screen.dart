@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/model/daily_slot_model.dart';
-import 'package:port_karo/model/final_summary_model.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/home/widgets/packer_mover_terms_condition.dart';
-import 'package:port_karo/view_model/daily_slot_view_model.dart';
-import 'package:port_karo/view_model/final_summary_view_model.dart';
-import 'package:port_karo/view_model/proceed_order_view_model.dart';
-import 'package:port_karo/view_model/profile_view_model.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/model/daily_slot_model.dart';
+import 'package:yoyomiles/model/final_summary_model.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/home/widgets/packer_mover_terms_condition.dart';
+import 'package:yoyomiles/view_model/daily_slot_view_model.dart';
+import 'package:yoyomiles/view_model/final_summary_view_model.dart';
+import 'package:yoyomiles/view_model/proceed_order_view_model.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:provider/provider.dart';
 import '../../../../res/constant_color.dart' show PortColor;
 

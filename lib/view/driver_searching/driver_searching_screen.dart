@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:port_karo/view_model/update_ride_status_view_model.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/const_with_polyline_map.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/bottom_nav_bar.dart' show BottomNavigationPage;
-import 'package:port_karo/view/payment_summary_screen.dart';
+import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/const_with_polyline_map.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart' show BottomNavigationPage;
+import 'package:yoyomiles/view/payment_summary_screen.dart';
 import 'package:provider/provider.dart';
 
 class DriverSearchingScreen extends StatefulWidget {

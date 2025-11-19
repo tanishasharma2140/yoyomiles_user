@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/utils/routes/routes.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/utils/routes/routes.dart';
 
 class RatingsFeedbackScreen extends StatefulWidget {
   const RatingsFeedbackScreen({super.key});

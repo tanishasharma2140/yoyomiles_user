@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/service_type_model.dart';
-import 'package:port_karo/repo/service_type_repo.dart';
+import 'package:yoyomiles/model/service_type_model.dart';
+import 'package:yoyomiles/repo/service_type_repo.dart';
 
 class ServiceTypeViewModel with ChangeNotifier {
   final _serviceTypeRepo = ServiceTypeRepo();

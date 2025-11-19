@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/packer_mover_terms_model.dart';
-import 'package:port_karo/model/policy_model.dart';
-import 'package:port_karo/repo/packer_mover_terms_condition_repo.dart';
-import 'package:port_karo/repo/policy_repo.dart';
+import 'package:yoyomiles/model/packer_mover_terms_model.dart';
+import 'package:yoyomiles/model/policy_model.dart';
+import 'package:yoyomiles/repo/packer_mover_terms_condition_repo.dart';
+import 'package:yoyomiles/repo/policy_repo.dart';
 
 class PackerMoverTermsViewModel with ChangeNotifier {
   final _packerMoverTermsConditionRepo = PackerMoverTermsConditionRepo();

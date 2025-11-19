@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/requirement_model.dart';
-import 'package:port_karo/repo/requirement_repo.dart';
+import 'package:yoyomiles/model/requirement_model.dart';
+import 'package:yoyomiles/repo/requirement_repo.dart';
 
 class RequirementViewModel with ChangeNotifier {
   final _requirementRepo = RequirementRepo();

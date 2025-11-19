@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:port_karo/repo/call_back_repo.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view/bottom_nav_bar.dart';
-import 'package:port_karo/view_model/profile_view_model.dart';
-import 'package:port_karo/view_model/update_ride_status_view_model.dart';
+import 'package:yoyomiles/repo/call_back_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
+import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
 import 'package:provider/provider.dart';
 
 class CallBackViewModel with ChangeNotifier {

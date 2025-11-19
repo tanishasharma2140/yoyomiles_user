@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/goods_type_model.dart';
-import 'package:port_karo/repo/goods_type_repo.dart';
+import 'package:yoyomiles/model/goods_type_model.dart';
+import 'package:yoyomiles/repo/goods_type_repo.dart';
 
 class GoodsTypeViewModel with ChangeNotifier {
   final _goodsTypeRepo = GoodsTypeRepo();

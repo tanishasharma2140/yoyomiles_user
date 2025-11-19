@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/daily_slot_model.dart';
-import 'package:port_karo/repo/daily_slots_repo.dart';
+import 'package:yoyomiles/model/daily_slot_model.dart';
+import 'package:yoyomiles/repo/daily_slots_repo.dart';
 
 class DailySlotViewModel with ChangeNotifier {
   final _dailySlotsRepo = DailySlotsRepo();

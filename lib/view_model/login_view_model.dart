@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/login_repo.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/utils/routes/routes.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view/bottom_nav_bar.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/repo/login_repo.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/utils/routes/routes.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class AuthViewModel with ChangeNotifier {
   final _loginRepo = AuthRepository();

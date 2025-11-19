@@ -3,9 +3,9 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/model/select_vehicles_model.dart';
-import 'package:port_karo/repo/select_vehicles_repo.dart';
-import 'package:port_karo/utils/utils.dart';
+import 'package:yoyomiles/model/select_vehicles_model.dart';
+import 'package:yoyomiles/repo/select_vehicles_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
 
 class SelectVehiclesViewModel with ChangeNotifier {
   final _selectVehicleRepo = SelectVehiclesRepo();

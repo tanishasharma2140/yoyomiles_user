@@ -8,15 +8,15 @@ import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_btn.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view_model/order_view_model.dart';
-import 'package:port_karo/view_model/select_vehicles_view_model.dart';
-import 'package:port_karo/view_model/service_type_view_model.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_btn.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view_model/order_view_model.dart';
+import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
+import 'package:yoyomiles/view_model/service_type_view_model.dart';
 import 'package:provider/provider.dart';
 
 class RideMapScreen extends StatefulWidget {

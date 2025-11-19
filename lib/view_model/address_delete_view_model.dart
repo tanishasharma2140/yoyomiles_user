@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/address_delete_repo.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view_model/address_show_view_model.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/repo/address_delete_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/address_show_view_model.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class AddressDeleteViewModel with ChangeNotifier {

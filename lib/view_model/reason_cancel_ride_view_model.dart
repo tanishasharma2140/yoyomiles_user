@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/reason_cancel_ride_model.dart';
-import 'package:port_karo/repo/reason_cancel_ride_repo.dart';
+import 'package:yoyomiles/model/reason_cancel_ride_model.dart';
+import 'package:yoyomiles/repo/reason_cancel_ride_repo.dart';
 
 class ReasonCancelRideViewModel with ChangeNotifier {
   final _reasonCancelRideRepo = ReasonCancelRideRepo();

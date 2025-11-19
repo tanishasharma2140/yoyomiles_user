@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/res/shimmer_loader.dart';
-import 'package:port_karo/view/home/widgets/pickup/deliver_by_packer_mover.dart';
-import 'package:port_karo/view/home/widgets/pickup/deliver_by_truck.dart';
-import 'package:port_karo/view/order/passenger_booking.dart';
-import 'package:port_karo/view_model/service_type_view_model.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/res/shimmer_loader.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/deliver_by_packer_mover.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/deliver_by_truck.dart';
+import 'package:yoyomiles/view/order/passenger_booking.dart';
+import 'package:yoyomiles/view_model/service_type_view_model.dart';
 import 'package:provider/provider.dart';
 import '../../../model/service_type_model.dart';
 

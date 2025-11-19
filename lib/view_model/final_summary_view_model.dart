@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:port_karo/model/final_summary_model.dart';
-import 'package:port_karo/repo/final_summary_repo.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/model/final_summary_model.dart';
+import 'package:yoyomiles/repo/final_summary_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class FinalSummaryViewModel with ChangeNotifier {
   final _finalSummaryRepo = FinalSummaryRepo();

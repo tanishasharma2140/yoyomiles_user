@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/helper/helper/network/base_api_services.dart';
-import 'package:port_karo/helper/helper/network/network_api_services.dart';
-import 'package:port_karo/model/cash_free_gateway_model.dart';
-import 'package:port_karo/res/api_url.dart';
+import 'package:yoyomiles/helper/helper/network/base_api_services.dart';
+import 'package:yoyomiles/helper/helper/network/network_api_services.dart';
+import 'package:yoyomiles/model/cash_free_gateway_model.dart';
+import 'package:yoyomiles/res/api_url.dart';
 
 
 class PaymentRepo {

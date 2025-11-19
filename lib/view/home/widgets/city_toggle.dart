@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
 
 class CityToggle extends StatefulWidget {
   final String pickupLocation;

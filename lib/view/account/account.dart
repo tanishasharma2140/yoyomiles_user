@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/res/constant_appbar.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/view/account/widgets/account_detail.dart';
-import 'package:port_karo/view_model/profile_view_model.dart';
+import 'package:yoyomiles/res/constant_appbar.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/view/account/widgets/account_detail.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:provider/provider.dart';
 
 class AccountPage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view_model/payment_view_model.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view_model/payment_view_model.dart';
 import 'package:provider/provider.dart';
 
 class PaymentSummaryScreen extends StatelessWidget {

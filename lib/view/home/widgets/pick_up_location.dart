@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/home/sender_address.dart';
-import 'package:port_karo/view/home/widgets/use_current_location.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/home/sender_address.dart';
+import 'package:yoyomiles/view/home/widgets/use_current_location.dart';
 import 'package:http/http.dart' as http;
 
 class PickUpLocation extends StatefulWidget {

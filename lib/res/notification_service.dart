@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:port_karo/view/driver_searching/driver_searching_screen.dart';
-import 'package:port_karo/view/home/home.dart';
+import 'package:yoyomiles/view/driver_searching/driver_searching_screen.dart';
+import 'package:yoyomiles/view/home/home.dart';
 
 class NotificationService {
   final GlobalKey<NavigatorState> navigatorKey;

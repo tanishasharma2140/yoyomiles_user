@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_btn.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view/auth/login_page.dart';
-import 'package:port_karo/view_model/register_view_model.dart';
-import 'package:port_karo/view_model/requirement_view_model.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_btn.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view/auth/login_page.dart';
+import 'package:yoyomiles/view_model/register_view_model.dart';
+import 'package:yoyomiles/view_model/requirement_view_model.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {

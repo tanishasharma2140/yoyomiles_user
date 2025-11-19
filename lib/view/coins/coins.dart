@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/coins/widgets/category_grid_one.dart';
-import 'package:port_karo/view/coins/widgets/list/frequently.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/coins/widgets/category_grid_one.dart';
+import 'package:yoyomiles/view/coins/widgets/list/frequently.dart';
 
 import 'widgets/category_grid_two.dart';
 

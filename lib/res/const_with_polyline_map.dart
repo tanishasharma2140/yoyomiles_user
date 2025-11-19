@@ -9,8 +9,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/res/constant_color.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/res/constant_color.dart';
 
 class ConstWithPolylineMap extends StatefulWidget {
   final double? height;

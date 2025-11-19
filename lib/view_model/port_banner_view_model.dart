@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/port_banner_model.dart';
-import 'package:port_karo/repo/port_banner_repo.dart';
+import 'package:yoyomiles/model/port_banner_model.dart';
+import 'package:yoyomiles/repo/port_banner_repo.dart';
 
 class PortBannerViewModel with ChangeNotifier {
   final _portBannerRepo = PortBannerRepo();

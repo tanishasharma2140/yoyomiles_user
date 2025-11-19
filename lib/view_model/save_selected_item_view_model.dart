@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/save_selected_item_model.dart';
-import 'package:port_karo/repo/save_selected_item_repo.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view/home/widgets/pickup/schedule_screen.dart';
-import 'package:port_karo/view_model/final_summary_view_model.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/model/save_selected_item_model.dart';
+import 'package:yoyomiles/repo/save_selected_item_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/schedule_screen.dart';
+import 'package:yoyomiles/view_model/final_summary_view_model.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class SaveSelectedItemViewModel with ChangeNotifier {

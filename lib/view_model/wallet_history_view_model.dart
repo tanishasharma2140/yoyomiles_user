@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/wallet_history_model.dart';
-import 'package:port_karo/repo/wallet_history_repo.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/model/wallet_history_model.dart';
+import 'package:yoyomiles/repo/wallet_history_repo.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 class WalletHistoryViewModel with ChangeNotifier {
   final _walletHistoryRepo = WalletHistoryRepo();
   bool _loading = false;

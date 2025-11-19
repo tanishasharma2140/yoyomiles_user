@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/view/driver_searching/dotted_line_painter.dart';
-import 'package:port_karo/view/driver_searching/single_address_detail.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/view/driver_searching/dotted_line_painter.dart';
+import 'package:yoyomiles/view/driver_searching/single_address_detail.dart';
 
 class AddressCard extends StatelessWidget {
   final String senderName;

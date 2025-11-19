@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
 
 import 'constant_text.dart';
 

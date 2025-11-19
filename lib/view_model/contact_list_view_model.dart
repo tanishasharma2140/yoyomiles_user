@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/contact_list_model.dart';
-import 'package:port_karo/repo/contact_list_repo.dart';
+import 'package:yoyomiles/model/contact_list_model.dart';
+import 'package:yoyomiles/repo/contact_list_repo.dart';
 
 class ContactListViewModel with ChangeNotifier {
   final _contactListRepo = ContactListRepo();

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/account/widgets/terms/privacy_policy.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/account/widgets/terms/privacy_policy.dart';
 
 import 'terms/terms_and_condition.dart';
 class TermsCondition extends StatefulWidget {

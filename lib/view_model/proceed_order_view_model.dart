@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/proceed_order_repo.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view_model/packer_mover_payment_view_model.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/repo/proceed_order_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/packer_mover_payment_view_model.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class ProceedOrderViewModel with ChangeNotifier {

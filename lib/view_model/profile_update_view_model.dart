@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/profile_update_repo.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view_model/profile_view_model.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/repo/profile_update_repo.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 class ProfileUpdateViewModel with ChangeNotifier {
   final _profileUpdateRepo = ProfileUpdateRepository();

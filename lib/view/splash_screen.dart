@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/services.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/services.dart';
 import '../generated/assets.dart';
 
 class SplashScreen extends StatefulWidget {

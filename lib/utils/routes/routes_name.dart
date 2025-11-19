@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/utils/routes/routes.dart';
-import 'package:port_karo/view/auth/login_page.dart';
-import 'package:port_karo/view/auth/otp_page.dart';
-import 'package:port_karo/view/auth/register_page.dart';
-import 'package:port_karo/view/bottom_nav_bar.dart';
-import 'package:port_karo/view/driver_searching/driver_searching_screen.dart';
-import 'package:port_karo/view/home/rating_feedback_screen.dart';
-import 'package:port_karo/view/order/widgets/goods_type_screen.dart';
-import 'package:port_karo/view/splash_screen.dart';
+import 'package:yoyomiles/utils/routes/routes.dart';
+import 'package:yoyomiles/view/auth/login_page.dart';
+import 'package:yoyomiles/view/auth/otp_page.dart';
+import 'package:yoyomiles/view/auth/register_page.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view/driver_searching/driver_searching_screen.dart';
+import 'package:yoyomiles/view/home/rating_feedback_screen.dart';
+import 'package:yoyomiles/view/order/widgets/goods_type_screen.dart';
+import 'package:yoyomiles/view/splash_screen.dart';
 class Routers {
    static WidgetBuilder generateRoute(String routeName) {
       switch (routeName) {

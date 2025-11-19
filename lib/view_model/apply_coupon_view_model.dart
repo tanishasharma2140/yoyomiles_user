@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/apply_coupon_repo.dart';
-import 'package:port_karo/res/coupon_sucess_popup.dart';
-import 'package:port_karo/utils/utils.dart';
-import 'package:port_karo/view_model/coupon_list_view_model.dart';
-import 'package:port_karo/view_model/service_type_view_model.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/repo/apply_coupon_repo.dart';
+import 'package:yoyomiles/res/coupon_sucess_popup.dart';
+import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/coupon_list_view_model.dart';
+import 'package:yoyomiles/view_model/service_type_view_model.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 
 class ApplyCouponViewModel with ChangeNotifier {

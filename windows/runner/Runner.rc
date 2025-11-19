@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.foundercode" "\0"
-            VALUE "FileDescription", "port_karo" "\0"
+            VALUE "FileDescription", "yoyomiles" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "port_karo" "\0"
+            VALUE "InternalName", "yoyomiles" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.foundercode. All rights reserved." "\0"
-            VALUE "OriginalFilename", "port_karo.exe" "\0"
-            VALUE "ProductName", "port_karo" "\0"
+            VALUE "OriginalFilename", "yoyomiles.exe" "\0"
+            VALUE "ProductName", "yoyomiles" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/constant_color.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/constant_color.dart';
 
 class CouponSuccessPopup extends StatefulWidget {
   final Map<String, dynamic> response;

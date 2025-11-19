@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/view/account/account.dart';
-import 'package:port_karo/view/home/home.dart';
-import 'package:port_karo/view/order/order.dart';
-import 'package:port_karo/view/payment/payment.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/view/account/account.dart';
+import 'package:yoyomiles/view/home/home.dart';
+import 'package:yoyomiles/view/order/order.dart';
+import 'package:yoyomiles/view/payment/payment.dart';
 
 class BottomNavigationPage extends StatefulWidget {
   final int initialIndex;

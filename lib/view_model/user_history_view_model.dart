@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/user_history_model.dart';
-import 'package:port_karo/repo/user_history_repo.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/model/user_history_model.dart';
+import 'package:yoyomiles/repo/user_history_repo.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 class UserHistoryViewModel with ChangeNotifier {
   final _userHistoryRepo = UserHistoryRepo();
   bool _loading = false;

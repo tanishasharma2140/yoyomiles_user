@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/add_wallet_repo.dart';
-import 'package:port_karo/view/payment/widgets/payment_porter_credit.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/repo/add_wallet_repo.dart';
+import 'package:yoyomiles/view/payment/widgets/payment_porter_credit.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AddWalletViewModel with ChangeNotifier {

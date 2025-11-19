@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/coupon_list_model.dart';
-import 'package:port_karo/repo/coupon_list_repo.dart';
+import 'package:yoyomiles/model/coupon_list_model.dart';
+import 'package:yoyomiles/repo/coupon_list_repo.dart';
 
 class CouponListViewModel with ChangeNotifier {
   final _couponListRepo = CouponListRepo();

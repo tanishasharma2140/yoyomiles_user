@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/help_and_support_model.dart';
-import 'package:port_karo/repo/help_support_repo.dart';
+import 'package:yoyomiles/model/help_and_support_model.dart';
+import 'package:yoyomiles/repo/help_support_repo.dart';
 
 class HelpAndSupportViewModel with ChangeNotifier {
   final _helpSupportRepo = HelpSupportRepo();

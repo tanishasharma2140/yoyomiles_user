@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/on_boarding_model.dart';
-import 'package:port_karo/repo/on_boarding_repo.dart';
+import 'package:yoyomiles/model/on_boarding_model.dart';
+import 'package:yoyomiles/repo/on_boarding_repo.dart';
 
 class OnBoardingViewModel with ChangeNotifier {
   final _onBoardingRepo = OnBoardingRepo();

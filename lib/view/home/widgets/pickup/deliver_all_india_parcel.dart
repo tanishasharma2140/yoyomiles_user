@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/home/widgets/pickup/all_india_pick_up.dart' hide TextConst;
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/all_india_pick_up.dart' hide TextConst;
 
 class DeliverAllIndiaParcel extends StatefulWidget {
   const DeliverAllIndiaParcel({super.key});

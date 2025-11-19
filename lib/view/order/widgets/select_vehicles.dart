@@ -1,15 +1,15 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/view/bottom_nav_bar.dart';
-import 'package:port_karo/view/order/widgets/review_booking.dart';
-import 'package:port_karo/view_model/order_view_model.dart';
-import 'package:port_karo/view_model/select_vehicles_view_model.dart';
-import 'package:port_karo/view_model/service_type_view_model.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view/order/widgets/review_booking.dart';
+import 'package:yoyomiles/view_model/order_view_model.dart';
+import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
+import 'package:yoyomiles/view_model/service_type_view_model.dart';
 import 'package:provider/provider.dart';
 
 class SelectVehicles extends StatefulWidget {

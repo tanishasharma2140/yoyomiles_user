@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:port_karo/repo/register_repo.dart';
-import 'package:port_karo/utils/routes/routes.dart';
-import 'package:port_karo/utils/utils.dart';
+import 'package:yoyomiles/repo/register_repo.dart';
+import 'package:yoyomiles/utils/routes/routes.dart';
+import 'package:yoyomiles/utils/utils.dart';
 
 class RegisterViewModel with ChangeNotifier {
   final _registerRepo = RegisterRepository();

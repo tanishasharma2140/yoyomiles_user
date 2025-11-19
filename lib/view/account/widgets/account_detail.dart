@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:port_karo/generated/assets.dart';
-import 'package:port_karo/main.dart';
-import 'package:port_karo/res/app_constant.dart';
-import 'package:port_karo/res/app_fonts.dart';
-import 'package:port_karo/res/constant_color.dart';
-import 'package:port_karo/res/constant_text.dart';
-import 'package:port_karo/res/launcher.dart';
-import 'package:port_karo/view/account/widgets/help_support.dart';
-import 'package:port_karo/view/account/widgets/save_address_detail.dart';
-import 'package:port_karo/view/account/widgets/terms_condition.dart';
-import 'package:port_karo/view/coins/coins.dart';
-import 'package:port_karo/view/order/packer_mover_order_history.dart';
-import 'package:port_karo/view/splash_screen.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/main.dart';
+import 'package:yoyomiles/res/app_constant.dart';
+import 'package:yoyomiles/res/app_fonts.dart';
+import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/res/launcher.dart';
+import 'package:yoyomiles/view/account/widgets/help_support.dart';
+import 'package:yoyomiles/view/account/widgets/save_address_detail.dart';
+import 'package:yoyomiles/view/account/widgets/terms_condition.dart';
+import 'package:yoyomiles/view/coins/coins.dart';
+import 'package:yoyomiles/view/order/packer_mover_order_history.dart';
+import 'package:yoyomiles/view/splash_screen.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class AccountDetail extends StatelessWidget {
   const AccountDetail({super.key});

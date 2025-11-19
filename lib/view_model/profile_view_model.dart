@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:port_karo/model/profile_model.dart';
-import 'package:port_karo/repo/profile_repo.dart';
-import 'package:port_karo/utils/routes/routes.dart';
-import 'package:port_karo/view_model/user_view_model.dart';
+import 'package:yoyomiles/model/profile_model.dart';
+import 'package:yoyomiles/repo/profile_repo.dart';
+import 'package:yoyomiles/utils/routes/routes.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 class ProfileViewModel with ChangeNotifier {
   final _profileRepo = ProfileRepo();
   bool _loading = false;

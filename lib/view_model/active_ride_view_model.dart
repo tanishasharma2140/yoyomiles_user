@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:port_karo/model/active_ride_model.dart';
-import 'package:port_karo/repo/active_ride_repo.dart';
+import 'package:yoyomiles/model/active_ride_model.dart';
+import 'package:yoyomiles/repo/active_ride_repo.dart';
 
 class ActiveRideViewModel with ChangeNotifier {
   final _activeRideRepo = ActiveRideRepo();
