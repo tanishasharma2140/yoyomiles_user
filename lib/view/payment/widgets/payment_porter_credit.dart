@@ -33,21 +33,6 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
     });
   }
 
-  //
-  // final List transactions = [
-  //   {
-  //     "date": "Dec 23, 2024",
-  //     "amount": "1.0",
-  //   },
-  //   {
-  //     "date": "Dec 23, 2024",
-  //     "amount": "1.0",
-  //   },
-  //   {
-  //     "date": "Dec 23, 2024",
-  //     "amount": "1.0",
-  //   },
-  // ];
 
   final TextEditingController _controller = TextEditingController();
   bool isBottomSheetVisible = false;
@@ -107,7 +92,6 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
   Widget build(BuildContext context) {
     final userTransactionVm = Provider.of<UserTransactionViewModel>(context);
     final profileVm = Provider.of<ProfileViewModel>(context);
-
     return Scaffold(
       backgroundColor: PortColor.bg,
       body: Column(

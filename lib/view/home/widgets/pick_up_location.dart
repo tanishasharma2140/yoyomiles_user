@@ -313,7 +313,7 @@ class _PickUpLocationState extends State<PickUpLocation> {
     Uri uri =
         Uri.https("maps.googleapis.com", 'maps/api/place/autocomplete/json', {
           "input": searchCon,
-          "key": "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA",
+          "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM",
           "components": "country:in",
         });
     var response = await http.get(uri);
@@ -334,7 +334,7 @@ class _PickUpLocationState extends State<PickUpLocation> {
   Future<LatLng> fetchLatLng(String placeId) async {
     Uri uri = Uri.https("maps.googleapis.com", 'maps/api/place/details/json', {
       "place_id": placeId,
-      "key": "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA",
+      "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM",
     });
 
     var response = await http.get(uri);

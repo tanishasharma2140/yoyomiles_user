@@ -8,7 +8,7 @@ import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/view/home/widgets/pickup/all_india_enter_pickup_detail.dart';
 
 /// Replace with your Google Maps API Key
-const String googleApiKey = "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA";
+const String googleApiKey = "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM";
 
 class AllIndiaPickUp extends StatefulWidget {
   const AllIndiaPickUp({super.key});

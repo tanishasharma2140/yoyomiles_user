@@ -1,13 +1,21 @@
 class SelectVehicleModel {
   int? status;
   String? message;
+  String? subMessage;        // 👈 NEW FIELD
   List<Data>? data;
 
-  SelectVehicleModel({this.status, this.message, this.data});
+  SelectVehicleModel({
+    this.status,
+    this.message,
+    this.subMessage,
+    this.data,
+  });
 
   SelectVehicleModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    subMessage = json['sub_message'];  // 👈 map API -> model
+
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -20,6 +28,7 @@ class SelectVehicleModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
     data['message'] = message;
+    data['sub_message'] = subMessage;  // 👈 back to json
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -35,7 +44,6 @@ class Data {
   String? bodyDetail;
   String? vehicleImage;
   String? measurementsImg;
-
   double? amount; // 🔥 CHANGED TO DOUBLE
 
   int? selectedStatus;

@@ -121,6 +121,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
         serviceTypeViewModel.selectedVehicleType!,
         widget.pickupLat,
         widget.pickupLng,
+        widget.dropLat,
+        widget.dropLng,
         context,
       );
 
@@ -276,7 +278,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
   }
 
   Future<List<LatLng>> _getRoutePoints(LatLng origin, LatLng destination) async {
-    const String apiKey = 'AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA';
+    const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
     final url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey';
 

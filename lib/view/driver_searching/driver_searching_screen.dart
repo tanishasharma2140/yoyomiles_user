@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
@@ -29,6 +32,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   bool _showRideCancelledDialog = false;
   bool _showOtpVerifiedDialog = false;
   bool _showCollectPaymentDialog = false;
+
+  Timer? _searchTimer;
+  bool _noDriverDialogShown = false;
 
   @override
   void didChangeDependencies() {
@@ -87,6 +93,141 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     }
     return null;
   }
+
+  void _startSearchTimeoutTimer() {
+    if (_searchTimer != null || _noDriverDialogShown) return;
+
+    _searchTimer = Timer(const Duration(minutes: 3), () {
+      if (!mounted) return;
+      _showNoDriverAvailableDialog();
+    });
+  }
+
+  void _cancelSearchTimeoutTimer() {
+    _searchTimer?.cancel();
+    _searchTimer = null;
+  }
+
+  void _showNoDriverAvailableDialog() {
+    if (_noDriverDialogShown) return;
+    _noDriverDialogShown = true;
+    _cancelSearchTimeoutTimer();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon Section
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.orange.shade100,
+                      width: 2,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.directions_car_outlined,
+                    size: 40,
+                    color: Colors.orange.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Title
+                const Text(
+                  "No Driver Available",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 12),
+
+                // Content
+                Text(
+                  "No drivers are available right now. "
+                      "Please try again after some time.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey.shade600,
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Action Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogCtx).pop();
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (ctx) => BottomNavigationPage(),
+                        ),
+                            (route) => false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange.shade600,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      _noDriverDialogShown = false;
+    });
+  }
+
 
   void _showCancelBottomSheet() {
     final updateRideStatusVm = Provider.of<UpdateRideStatusViewModel>(
@@ -516,6 +657,149 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     );
   }
 
+  Future<bool> _onBackPressed() async {
+    final updateRideStatusVm = Provider.of<UpdateRideStatusViewModel>(
+      context,
+      listen: false,
+    );
+
+    bool? exit = await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red.shade50,
+                    border: Border.all(color: Colors.red.shade100, width: 1.5),
+                  ),
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.red.shade400,
+                    size: 42,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // Title
+                const Text(
+                  "Exit Ride?",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Subtitle
+                Text(
+                  "Are you sure you want to exit this ride?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.4,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 26),
+
+                // Buttons Row
+                Row(
+                  children: [
+                    // No Button
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context, false);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.grey.shade300),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "No",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // Yes Button
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          updateRideStatusVm.updateRideApi(
+                            context,
+                            widget.orderData?['document_id'],
+                            "7",
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade600,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text(
+                          "Yes",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    return exit ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final orderId = widget.orderData?['document_id']?.toString();
@@ -523,158 +807,183 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       return const Scaffold(body: Center(child: Text("Order ID not found")));
     }
 
-    return Scaffold(
-      backgroundColor: PortColor.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Trip Status",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+    return SafeArea(
+      top: false,
+      bottom: true,
+      child: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          backgroundColor: PortColor.bg,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () async {
+                bool exit = await _onBackPressed();
+                if (exit) Navigator.pop(context);
+              },
+            ),
+            title: const Text(
+              "Trip Status",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
           ),
-        ),
-      ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('order')
-            .doc(orderId)
-            .snapshots(),
-        builder: (context, orderSnapshot) {
-          if (orderSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!orderSnapshot.hasData || !orderSnapshot.data!.exists) {
-            return const Center(child: Text("Order not found"));
-          }
-
-          final orderData =
-              orderSnapshot.data!.data() as Map<String, dynamic>? ?? {};
-
-          // ✅ SAFE CONVERSIONS FOR ALL NUMERIC FIELDS
-          final rideStatus = _safeToInt(orderData['ride_status']) ?? 0;
-          final driverId = orderData['accepted_driver_id'];
-          final payMode = _safeToInt(orderData['paymode']) ?? 1;
-          final amount = _safeToDouble(orderData['amount']) ?? 0.0;
-          final distance = _safeToDouble(orderData['distance']) ?? 0.0;
-          final firebaseOrderId = orderId;
-          final otp = orderData['otp']?.toString() ?? "N/A";
-
-          // ✅ DEBUG PRINT
-          print("""
-🔍 ORDER STATUS UPDATE:
-   - Ride Status: $rideStatus (${_getRideStatusText(rideStatus)})
-   - Driver ID: $driverId
-   - Payment Mode: $payMode (${_getPaymentMethodText(payMode)})
-   - OTP: $otp
-   - Amount: $amount
-""");
-
-          // ✅ REAL-TIME ORDER DATA UPDATE WITH SAFE CONVERSIONS
-          final updatedOrderData = {
-            ...widget.orderData ?? {},
-            'document_id': orderId,
-            'ride_status': rideStatus,
-            'pickup_latitute': orderData['pickup_latitute'],
-            'pick_longitude': orderData['pick_longitude'],
-            'drop_latitute': orderData['drop_latitute'],
-            'drop_logitute': orderData['drop_logitute'],
-            'pickup_address': orderData['pickup_address'],
-            'drop_address': orderData['drop_address'],
-            'otp': otp,
-          };
-
-          // 🔥 CONDITION 1: Online payment - navigate to PaymentSummaryScreen
-          if (rideStatus == 5 && payMode == 2) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              print("💳 Navigating to Payment Summary (Online Payment)");
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PaymentSummaryScreen(
-                    amount: amount,
-                    distance: distance,
-                    firebaseOrderId: firebaseOrderId,
-                  ),
-                ),
-              );
-            });
-          }
-
-          // 🔥 CONDITION 2: Cash payment completed - show ride completed dialog
-          if (rideStatus == 5 && payMode == 1 && !_showCollectPaymentDialog) {
-            print("💵 STREAMBUILDER: Reached destination with cash payment - show collect payment dialog!");
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showCollectPaymentDialogMethod();
-            });
-          }
-
-          if (rideStatus == 6 && payMode == 1 && !_showRideCompletedDialog) {
-            print("💵 STREAMBUILDER: Ride completed with cash payment!");
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showRideCompletedDialogMethod();
-            });
-          }
-          // 🔥 CONDITION 3: OTP Verified (Status 4) - show OTP verified dialog
-          if (rideStatus == 4 && !_showOtpVerifiedDialog) {
-            print("✅ STREAMBUILDER: OTP Verified - Ride Started!");
-            WidgetsBinding.instance.addPostFrameCallback((_) {});
-          }
-
-          // 🔥 CONDITION 4: Ride cancelled by driver (status 8) - show cancelled dialog
-          if (rideStatus == 8 && !_showRideCancelledDialog) {
-            print("❌ STREAMBUILDER: Ride cancelled by driver detected!");
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showRideCancelledDialogMethod(orderId);
-            });
-          }
-
-          if (driverId == null) {
-            // No driver assigned
-            return _buildSearchingSection(updatedOrderData);
-          }
-
-          // Driver assigned, show driver info + OTP for appropriate status
-          return StreamBuilder<DocumentSnapshot>(
+          body: StreamBuilder<DocumentSnapshot>(
             stream: FirebaseFirestore.instance
-                .collection('driver')
-                .doc(driverId.toString())
+                .collection('order')
+                .doc(orderId)
                 .snapshots(),
-            builder: (context, driverSnapshot) {
-              if (driverSnapshot.connectionState == ConnectionState.waiting) {
-                return _buildMainLayout(
-                  middleSection: _buildSearchingStatus(),
-                  orderData: updatedOrderData,
-                  driverData: null,
-                );
+            builder: (context, orderSnapshot) {
+              if (orderSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child:  CupertinoActivityIndicator(
+                  radius: 14,
+                  color: PortColor.gold,
+                ),);
               }
 
-              if (!driverSnapshot.hasData || !driverSnapshot.data!.exists) {
-                return _buildMainLayout(
-                  middleSection: _buildSearchingStatus(),
-                  orderData: updatedOrderData,
-                  driverData: null,
-                );
+              if (!orderSnapshot.hasData || !orderSnapshot.data!.exists) {
+                return const Center(child: Text("Order not found"));
               }
 
-              final driverData =
-              driverSnapshot.data!.data() as Map<String, dynamic>;
+              final orderData =
+                  orderSnapshot.data!.data() as Map<String, dynamic>? ?? {};
 
-              return _buildMainLayout(
-                middleSection: _buildDriverInfo(driverData),
-                orderData: updatedOrderData,
-                driverData: driverData,
+              // ✅ SAFE CONVERSIONS FOR ALL NUMERIC FIELDS
+              final rideStatus = _safeToInt(orderData['ride_status']) ?? 0;
+              final driverId = orderData['accepted_driver_id'];
+              final payMode = _safeToInt(orderData['paymode']) ?? 1;
+              final amount = _safeToDouble(orderData['amount']) ?? 0.0;
+              final distance = _safeToDouble(orderData['distance']) ?? 0.0;
+              final firebaseOrderId = orderId;
+              final otp = orderData['otp']?.toString() ?? "N/A";
+
+
+
+              // ✅ DEBUG PRINT
+              print("""
+        🔍 ORDER STATUS UPDATE:
+           - Ride Status: $rideStatus (${_getRideStatusText(rideStatus)})
+           - Driver ID: $driverId
+           - Payment Mode: $payMode (${_getPaymentMethodText(payMode)})
+           - OTP: $otp
+           - Amount: $amount
+        """);
+
+              // ✅ REAL-TIME ORDER DATA UPDATE WITH SAFE CONVERSIONS
+              final updatedOrderData = {
+                ...widget.orderData ?? {},
+                'document_id': orderId,
+                'ride_status': rideStatus,
+                'pickup_latitute': orderData['pickup_latitute'],
+                'pick_longitude': orderData['pick_longitude'],
+                'drop_latitute': orderData['drop_latitute'],
+                'drop_logitute': orderData['drop_logitute'],
+                'pickup_address': orderData['pickup_address'],
+                'drop_address': orderData['drop_address'],
+                'otp': otp,
+              };
+
+              /// ⏱️ 3 minute search timeout yahi pe lagao (ab updatedOrderData available hai)
+              if (driverId == null && rideStatus == 0) {
+                // searching state
+                _startSearchTimeoutTimer();
+                return _buildSearchingSection(updatedOrderData);
+              } else {
+                // jaise hi driver assign ho ya status change ho, timer cancel
+                _cancelSearchTimeoutTimer();
+              }
+
+              // 🔥 CONDITION 1: Online payment - navigate to PaymentSummaryScreen
+              if (rideStatus == 5 && payMode == 2) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  print("💳 Navigating to Payment Summary (Online Payment)");
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaymentSummaryScreen(
+                        amount: amount,
+                        distance: distance,
+                        firebaseOrderId: firebaseOrderId,
+                      ),
+                    ),
+                  );
+                });
+              }
+
+              // 🔥 CONDITION 2: Cash payment completed - show ride completed dialog
+              if (rideStatus == 5 && payMode == 1 && !_showCollectPaymentDialog) {
+                print("💵 STREAMBUILDER: Reached destination with cash payment - show collect payment dialog!");
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showCollectPaymentDialogMethod();
+                });
+              }
+
+              if (rideStatus == 6 && payMode == 1 && !_showRideCompletedDialog) {
+                print("💵 STREAMBUILDER: Ride completed with cash payment!");
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showRideCompletedDialogMethod();
+                });
+              }
+              // 🔥 CONDITION 3: OTP Verified (Status 4) - show OTP verified dialog
+              if (rideStatus == 4 && !_showOtpVerifiedDialog) {
+                print("✅ STREAMBUILDER: OTP Verified - Ride Started!");
+                WidgetsBinding.instance.addPostFrameCallback((_) {});
+              }
+
+              // 🔥 CONDITION 4: Ride cancelled by driver (status 8) - show cancelled dialog
+              if (rideStatus == 8 && !_showRideCancelledDialog) {
+                print("❌ STREAMBUILDER: Ride cancelled by driver detected!");
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showRideCancelledDialogMethod(orderId);
+                });
+              }
+
+              if (driverId == null) {
+                // No driver assigned
+                return _buildSearchingSection(updatedOrderData);
+              }
+
+              // Driver assigned, show driver info + OTP for appropriate status
+              return StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('driver')
+                    .doc(driverId.toString())
+                    .snapshots(),
+                builder: (context, driverSnapshot) {
+                  if (driverSnapshot.connectionState == ConnectionState.waiting) {
+                    return _buildMainLayout(
+                      middleSection: _buildSearchingStatus(),
+                      orderData: updatedOrderData,
+                      driverData: null,
+                    );
+                  }
+
+                  if (!driverSnapshot.hasData || !driverSnapshot.data!.exists) {
+                    return _buildMainLayout(
+                      middleSection: _buildSearchingStatus(),
+                      orderData: updatedOrderData,
+                      driverData: null,
+                    );
+                  }
+
+                  final driverData =
+                  driverSnapshot.data!.data() as Map<String, dynamic>;
+
+                  return _buildMainLayout(
+                    middleSection: _buildDriverInfo(driverData),
+                    orderData: updatedOrderData,
+                    driverData: driverData,
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }
@@ -1216,7 +1525,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   ),
                   Container(
                     width: 2,
-                    height: widget.orderData?['order_type'] == 2 ? 30 : 50,
+                    height: widget.orderData?['order_type'] == 2 ? 25 : 45,
                     margin: const EdgeInsets.symmetric(vertical: 4),
                     child: CustomPaint(painter: DottedLinePainter()),
                   ),

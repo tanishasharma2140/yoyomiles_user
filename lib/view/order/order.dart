@@ -262,7 +262,7 @@ class _OrderPageState extends State<OrderPage> {
                                       ),
                                       Column(
                                         children: List.generate(
-                                          14,
+                                          12,
                                               (index) => Container(
                                             width: screenWidth * 0.003,
                                             height: screenHeight * 0.0025,

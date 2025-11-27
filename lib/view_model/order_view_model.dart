@@ -100,7 +100,6 @@ class OrderViewModel with ChangeNotifier {
     };
 
     setCurrentOrderData(data);
-    // 🟢 Pretty print order data for debugging
     print("📦 ---------------- ORDER DATA START ----------------");
     const JsonEncoder encoder = JsonEncoder.withIndent('  ');
     print(encoder.convert(data));

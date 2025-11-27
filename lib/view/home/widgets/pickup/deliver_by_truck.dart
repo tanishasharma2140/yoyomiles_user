@@ -66,7 +66,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
     final profileViewModel = Provider.of<ProfileViewModel>(context, listen: false);
     final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
 
-    const String apiKey = 'AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA';
+    const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
 
@@ -295,6 +295,8 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
                                                         "N/A",
                                                     color: PortColor.black,
                                                     fontFamily: AppFonts.kanitReg,
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
                                                     size: 10,
                                                   ),
                                                 ],
@@ -303,34 +305,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  // Row(
-                                                  //   children: [
-                                                  //     TextConst(
-                                                  //       text:profileViewModel.profileModel!.data!.firstName??"",
-                                                  //       color: PortColor.black,
-                                                  //     ),
-                                                  //     SizedBox(
-                                                  //       width:
-                                                  //           screenWidth * 0.01,
-                                                  //     ),
-                                                  //     TextConst(
-                                                  //       text: profileViewModel.profileModel!.data!.phone.toString()??"",
-                                                  //       color: PortColor.gray,
-                                                  //     ),
-                                                  //     const Spacer(),
-                                                  //     Icon(
-                                                  //       Icons
-                                                  //           .arrow_forward_ios_rounded,
-                                                  //       size: screenHeight *
-                                                  //           0.017,
-                                                  //     ),
-                                                  //   ],
-                                                  // ),
-                                                  // TextConst(
-                                                  //   text:
-                                                  //   _currentAddress ?? "Fetching address...",
-                                                  //   color: PortColor.black,
-                                                  // ),
+
                                                 ],
                                               ))),
                               ),
@@ -396,128 +371,129 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
             ),
             SizedBox(height: screenHeight * 0.035),
             if (searchResults.isNotEmpty)
-              Container(
-                height: screenHeight * 0.4,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child:ListView.separated(
-                  itemCount: searchResults.length,
-                  itemBuilder: (context, index) {
-                    final place = searchResults[index];
-                    return ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.04,
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                      title: Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: Colors.redAccent, // 🔴 You can use PortColor.blue if needed
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextConst(
-                              title: place['description'],
-                              color: PortColor.black.withOpacity(0.5),
-                              fontFamily: AppFonts.kanitReg,
-                            ),
-                          ),
-                        ],
-                      ),
-                      onTap: () async {
-                        String placeId = place['place_id'];
-                        LatLng latLng = await fetchLatLng(placeId);
-                        Navigator.push(
-                          context,
-                          PageRouteBuilder(
-                            transitionDuration: const Duration(milliseconds: 400),
-                            pageBuilder: (_, __, ___) => EnterContactDetail(
-                              selectedLocation: place['description'],
-                              selectedLatLng: latLng,
-                            ),
-                            transitionsBuilder: (_, animation, __, child) {
-                              final offsetAnimation = Tween<Offset>(
-                                begin: const Offset(0, 1),
-                                end: Offset.zero,
-                              ).animate(CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeOutCubic,
-                              ));
-
-                              return SlideTransition(
-                                position: offsetAnimation,
-                                child: child,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  separatorBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                    child: Divider(
-                      color: PortColor.gray,
-                      thickness: 0.5,
-                    ),
+                    ],
                   ),
-                )
-
-
+                  child:ListView.separated(
+                    itemCount: searchResults.length,
+                    itemBuilder: (context, index) {
+                      final place = searchResults[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: screenWidth * 0.04,
+                        ),
+                        title: Row(
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              color: Colors.redAccent, // 🔴 You can use PortColor.blue if needed
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: TextConst(
+                                title: place['description'],
+                                color: PortColor.black.withOpacity(0.5),
+                                fontFamily: AppFonts.kanitReg,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onTap: () async {
+                          String placeId = place['place_id'];
+                          LatLng latLng = await fetchLatLng(placeId);
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration: const Duration(milliseconds: 400),
+                              pageBuilder: (_, __, ___) => EnterContactDetail(
+                                selectedLocation: place['description'],
+                                selectedLatLng: latLng,
+                              ),
+                              transitionsBuilder: (_, animation, __, child) {
+                                final offsetAnimation = Tween<Offset>(
+                                  begin: const Offset(0, 1),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutCubic,
+                                ));
+                
+                                return SlideTransition(
+                                  position: offsetAnimation,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    separatorBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                      child: Divider(
+                        color: PortColor.gray,
+                        thickness: 0.5,
+                      ),
+                    ),
+                  )
+                
+                
+                ),
               ),
 
            // const Spacer(),
 
           ],
         ),
-        bottomSheet: GestureDetector(
-          onTap: (){
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                transitionDuration: const Duration(milliseconds: 400),
-                pageBuilder: (_, __, ___) =>  UseCurrentLocation(),
-                transitionsBuilder: (_, animation, __, child) {
-                  final offsetAnimation = Tween<Offset>(
-                    begin: const Offset(0, 1), // start from bottom
-                    end: Offset.zero,          // end at normal position
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  ));
-
-                  return SlideTransition(
-                    position: offsetAnimation,
-                    child: child,
-                  );
-                },
-              ),
-            );
-          },
-          child: Container(
-            height: screenHeight * 0.08,
-            color: PortColor.white,
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.location_on, color: PortColor.blue),
-                TextConst(
-                    title: " Locate on the map", color: PortColor.black),
-              ],
-            ),
-          ),
-        ),
+        // bottomSheet: GestureDetector(
+        //   onTap: (){
+        //     Navigator.push(
+        //       context,
+        //       PageRouteBuilder(
+        //         transitionDuration: const Duration(milliseconds: 400),
+        //         pageBuilder: (_, __, ___) =>  UseCurrentLocation(),
+        //         transitionsBuilder: (_, animation, __, child) {
+        //           final offsetAnimation = Tween<Offset>(
+        //             begin: const Offset(0, 1), // start from bottom
+        //             end: Offset.zero,          // end at normal position
+        //           ).animate(CurvedAnimation(
+        //             parent: animation,
+        //             curve: Curves.easeOutCubic,
+        //           ));
+        //
+        //           return SlideTransition(
+        //             position: offsetAnimation,
+        //             child: child,
+        //           );
+        //         },
+        //       ),
+        //     );
+        //   },
+        //   child: Container(
+        //     height: screenHeight * 0.08,
+        //     color: PortColor.white,
+        //     padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+        //     child: Row(
+        //       mainAxisAlignment: MainAxisAlignment.center,
+        //       children: [
+        //         const Icon(Icons.location_on, color: PortColor.blue),
+        //         TextConst(
+        //             title: " Locate on the map", color: PortColor.black),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ),
     );
   }
@@ -526,7 +502,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
     Uri uri =
         Uri.https("maps.googleapis.com", 'maps/api/place/autocomplete/json', {
       "input": searchCon,
-      "key": "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA",
+      "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM",
       "components": "country:in",
     });
     var response = await http.get(uri);
@@ -546,7 +522,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
   Future<LatLng> fetchLatLng(String placeId) async {
     Uri uri = Uri.https("maps.googleapis.com", 'maps/api/place/details/json', {
       "place_id": placeId,
-      "key": "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA",
+      "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM",
     });
 
     var response = await http.get(uri);

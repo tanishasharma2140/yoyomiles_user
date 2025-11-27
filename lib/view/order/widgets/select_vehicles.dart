@@ -69,6 +69,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         serviceTypeViewModel.selectedVehicleType!,
         orderViewModel.pickupData['latitude'],
         orderViewModel.pickupData['longitude'],
+        orderViewModel.dropData['latitude'],
+        orderViewModel.dropData['longitude'],
         context,
       );
 
@@ -204,33 +206,36 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      children: [
-                        Container(
-                          width: screenWidth * 0.04,
-                          height: screenHeight * 0.01,
-                          decoration: const BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        Column(
-                          children: List.generate(
-                            12,
-                                (index) => Container(
-                              width: screenWidth * 0.003,
-                              height: screenHeight * 0.0025,
-                              margin: const EdgeInsets.symmetric(vertical: 1),
-                              color: PortColor.gray,
+                    Padding(
+                      padding:  EdgeInsets.only(top: 5),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: screenWidth * 0.04,
+                            height: screenHeight * 0.01,
+                            decoration: const BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
                             ),
                           ),
-                        ),
-                        Icon(
-                          Icons.location_on_rounded,
-                          color: PortColor.red,
-                          size: screenHeight * 0.024,
-                        ),
-                      ],
+                          Column(
+                            children: List.generate(
+                              12,
+                                  (index) => Container(
+                                width: screenWidth * 0.003,
+                                height: screenHeight * 0.0025,
+                                margin: const EdgeInsets.symmetric(vertical: 1),
+                                color: PortColor.gray,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.location_on_rounded,
+                            color: PortColor.red,
+                            size: screenHeight * 0.024,
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(width: screenWidth * 0.03),
                     Expanded(
@@ -261,6 +266,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             orderViewModel.pickupData["address"] ?? "N/A",
                             color: PortColor.gray,
                             fontFamily: AppFonts.poppinsReg,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             size: 12,
                           ),
                           SizedBox(height: screenHeight * 0.01),
@@ -286,6 +293,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             title: orderViewModel.dropData["address"] ?? "N/A",
                             color: PortColor.gray,
                             fontFamily: AppFonts.poppinsReg,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             size: 12,
                           ),
                           SizedBox(height: screenHeight * 0.017),
@@ -337,6 +346,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
               fontWeight: FontWeight.w400,
               size: 15,
             ),
+            SizedBox(height: screenHeight*0.03,),
           ],
         ),
         bottomSheet: Container(
@@ -450,9 +460,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                           selectedVehicle.vehicleBodyTypesId?.toString() ?? "0";
 
                       final distanceStr = distance.toInt().toString();
-                      final price = ((double.tryParse(
-                          selectedVehicle.amount.toString()) ?? 0) *
-                          distance)
+                      final price = (double.tryParse(
+                        selectedVehicle.amount.toString(),
+                      ) ?? 0)
                           .toInt()
                           .toString();
 
@@ -617,7 +627,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 // Amount (right side)
                 TextConst(
                   title:
-                  "₹${(((double.tryParse(amount.toString()) ?? 0) * distance).toInt())}",
+                  "₹${amount}",
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                   size: 16,
@@ -665,7 +675,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
             // Amount at right
             TextConst(
               title:
-              "₹${(((double.tryParse(amount.toString()) ?? 0) * distance).toInt())}",
+              "₹${amount}",
               color: PortColor.black,
               fontFamily: AppFonts.kanitReg,
               size: 16,

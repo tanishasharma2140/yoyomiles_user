@@ -254,6 +254,9 @@ class _CategoryGridState extends State<CategoryGrid> {
       int vehicleIndex, {
         bool isPackersAndMovers = false,
       }) {
+    final double imgHeight = isPackersAndMovers ? 93 : 70;
+    final double imgWidth  = isPackersAndMovers ? 340 : 90;
+
     return GestureDetector(
       onTap: () {
         _handleVehicleSelection(vehicle, section, 0, vehicleIndex);
@@ -296,6 +299,7 @@ class _CategoryGridState extends State<CategoryGrid> {
                 ),
               ),
             ),
+
             Padding(
               padding: EdgeInsets.symmetric(vertical: screenHeight * 0.006),
               child: Align(
@@ -303,21 +307,29 @@ class _CategoryGridState extends State<CategoryGrid> {
                 child: vehicle.images != null && vehicle.images!.isNotEmpty
                     ? Image.network(
                   vehicle.images!,
-                  height: isPackersAndMovers ? 93 : 70,
-                  width: isPackersAndMovers ? 340 : 90,
+                  height: imgHeight,
+                  width: imgWidth,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholderImage(
-                        isPackersAndMovers: isPackersAndMovers);
-                  },
+
+                  // 👇👇 IMPORTANT PART – sirf shimmer loader while loading
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
+
+                    return ShimmerLoader(
+                      width: imgWidth,
+                      height: imgHeight,
+                      borderRadius: 12,
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
                     return _buildPlaceholderImage(
-                        isPackersAndMovers: isPackersAndMovers);
+                      isPackersAndMovers: isPackersAndMovers,
+                    );
                   },
                 )
                     : _buildPlaceholderImage(
-                    isPackersAndMovers: isPackersAndMovers),
+                  isPackersAndMovers: isPackersAndMovers,
+                ),
               ),
             ),
           ],
@@ -326,16 +338,20 @@ class _CategoryGridState extends State<CategoryGrid> {
     );
   }
 
+
   Widget _buildPlaceholderImage({bool isPackersAndMovers = false}) {
-    return Container(
-      height: isPackersAndMovers ? 90 : 70,
-      width: isPackersAndMovers ? 110 : 90,
-      color: Colors.grey[200],
-      child: Icon(
+    final double imgHeight = isPackersAndMovers ? 90 : 70;
+    final double imgWidth  = isPackersAndMovers ? 110 : 90;
+
+    return SizedBox(
+      height: imgHeight,
+      width: imgWidth,
+      child: const Icon(
         Icons.directions_car,
-        color: Colors.grey[400],
-        size: isPackersAndMovers ? 40 : 30,
+        color: Colors.grey, // ya PortColor.gray
+        size: 30,
       ),
     );
   }
+
 }

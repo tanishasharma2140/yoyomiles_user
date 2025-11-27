@@ -57,7 +57,10 @@ class _LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     final loginViewModel = Provider.of<AuthViewModel>(context);
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () async {
+        SystemNavigator.pop();
+        return false;
+      },
       child: Scaffold(
         backgroundColor: Colors.grey[50],
         body: Stack(

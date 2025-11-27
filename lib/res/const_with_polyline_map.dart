@@ -150,7 +150,7 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
   /// Fetch address from latitude & longitude
   Future<void> _fetchAddress(double latitude, double longitude) async {
-    const String apiKey = 'AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA';
+    const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
     final url =
         'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
 
@@ -187,7 +187,7 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
   /// Fetch route points from Google Directions API
   Future<List<LatLng>> _getRoutePoints(LatLng origin, LatLng destination) async {
-    const String apiKey = 'AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA';
+    const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
     final url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey';
 

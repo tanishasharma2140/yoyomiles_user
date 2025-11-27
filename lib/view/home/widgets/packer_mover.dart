@@ -49,7 +49,7 @@ class _PackerMoverState extends State<PackerMover> {
     setState(() => isLoading = true); // start loader
     Uri uri = Uri.https("maps.googleapis.com", 'maps/api/place/autocomplete/json', {
       "input": searchCon,
-      "key": "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA", // replace with your API key
+      "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM", // replace with your API key
       "components": "country:in",
     });
 
@@ -73,7 +73,7 @@ class _PackerMoverState extends State<PackerMover> {
   Future<LatLng> fetchLatLng(String placeId) async {
     Uri uri = Uri.https("maps.googleapis.com", 'maps/api/place/details/json', {
       "place_id": placeId,
-      "key": "AIzaSyANhzkw-SjvdzDvyPsUBDFmvEHfI9b8QqA",
+      "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM",
     });
 
     var response = await http.get(uri);
