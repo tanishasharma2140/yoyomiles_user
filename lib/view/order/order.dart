@@ -193,7 +193,9 @@ class _OrderPageState extends State<OrderPage> {
                               color: PortColor.black,
                             ),
                             TextConst(
-                              title: formatDateTime(history.datetime.toString()),
+                              title: formatDateTime(
+                                history.datetime.toString(),
+                              ),
                               color: PortColor.gray,
                               fontFamily: AppFonts.poppinsReg,
                               size: 12,
@@ -249,7 +251,7 @@ class _OrderPageState extends State<OrderPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding:  EdgeInsets.only(top: 10),
+                                  padding: EdgeInsets.only(top: 10),
                                   child: Column(
                                     children: [
                                       Container(
@@ -263,11 +265,12 @@ class _OrderPageState extends State<OrderPage> {
                                       Column(
                                         children: List.generate(
                                           12,
-                                              (index) => Container(
+                                          (index) => Container(
                                             width: screenWidth * 0.003,
                                             height: screenHeight * 0.0025,
-                                            margin:
-                                            const EdgeInsets.symmetric(vertical: 1),
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 1,
+                                            ),
                                             color: PortColor.gray,
                                           ),
                                         ),
@@ -295,7 +298,8 @@ class _OrderPageState extends State<OrderPage> {
                                           ),
                                           SizedBox(width: screenWidth * 0.015),
                                           TextConst(
-                                            title: history.senderPhone.toString(),
+                                            title: history.senderPhone
+                                                .toString(),
                                             color: PortColor.gray,
                                             fontFamily: AppFonts.poppinsReg,
                                             size: 13,
@@ -339,7 +343,8 @@ class _OrderPageState extends State<OrderPage> {
                                           ),
                                           SizedBox(width: screenWidth * 0.015),
                                           TextConst(
-                                            title: history.reciverPhone.toString(),
+                                            title: history.reciverPhone
+                                                .toString(),
                                             color: PortColor.gray,
                                             fontFamily: AppFonts.poppinsReg,
                                             size: 13,
@@ -377,7 +382,9 @@ class _OrderPageState extends State<OrderPage> {
                             // Payment Status
                             SizedBox(height: screenHeight * 0.01),
                             Padding(
-                              padding: EdgeInsets.only(left: screenWidth * 0.08),
+                              padding: EdgeInsets.only(
+                                left: screenWidth * 0.08,
+                              ),
                               child: Row(
                                 children: [
                                   TextConst(
@@ -403,7 +410,9 @@ class _OrderPageState extends State<OrderPage> {
                             // Pay Mode
                             SizedBox(height: screenHeight * 0.006),
                             Padding(
-                              padding: EdgeInsets.only(left: screenWidth * 0.08),
+                              padding: EdgeInsets.only(
+                                left: screenWidth * 0.08,
+                              ),
                               child: Row(
                                 children: [
                                   TextConst(
@@ -480,64 +489,76 @@ class _OrderPageState extends State<OrderPage> {
                           const Spacer(),
 
                           // ⭐ Rating / Rate Ride Button
-                          history.userRating != null
+                          // ⭐ rating show only when ride is completed (not cancelled)
+                          (history.userRating != null &&
+                                  history.rideStatus != 7 &&
+                                  history.rideStatus != 8)
                               ? Row(
-                            children: [
-                              Row(
-                                children: List.generate(5, (index) {
-                                  double rating = double.tryParse(
-                                      history.userRating.toString()) ??
-                                      0.0;
-                                  return Icon(
-                                    index < rating.round()
-                                        ? Icons.star
-                                        : Icons.star_border,
-                                    color: Colors.amber,
-                                    size: 18,
-                                  );
-                                }),
-                              ),
-                              SizedBox(width: 5),
-                              TextConst(
-                                title: '${history.userRating}/5',
-                                color: Colors.black,
-                                fontFamily: AppFonts.kanitReg,
-                                size: 14,
-                              ),
-                            ],
-                          )
+                                  children: [
+                                    Row(
+                                      children: List.generate(5, (index) {
+                                        double rating =
+                                            double.tryParse(
+                                              history.userRating.toString(),
+                                            ) ??
+                                            0.0;
+                                        return Icon(
+                                          index < rating.round()
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                          size: 18,
+                                        );
+                                      }),
+                                    ),
+                                    SizedBox(width: 5),
+                                    TextConst(
+                                      title: '${history.userRating}/5',
+                                      color: Colors.black,
+                                      fontFamily: AppFonts.kanitReg,
+                                      size: 14,
+                                    ),
+                                  ],
+                                )
+                              : (history.rideStatus == 7 ||
+                                    history.rideStatus == 8)
+                              ? const SizedBox() // ⭐ hide completely for cancelled ride
                               : GestureDetector(
-                            onTap: () {
-                              _showRatingDialog(
-                                context,
-                                 history.id.toString(),
-                                history.driverId.toString(),
-                              );
-                            },
-                            child: Container(
-                              alignment: Alignment.center,
-                              height: screenHeight * 0.04,
-                              width: screenWidth * 0.42,
-                              decoration: BoxDecoration(
-                                color: Colors.amber,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.star,
-                                      color: Colors.white, size: 16),
-                                  SizedBox(width: 6),
-                                  TextConst(
-                                    title: 'Rate Ride',
-                                    color: Colors.white,
-                                    fontFamily: AppFonts.kanitReg,
-                                    size: 14,
+                                  onTap: () {
+                                    _showRatingDialog(
+                                      context,
+                                      history.id.toString(),
+                                      history.driverId.toString(),
+                                    );
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    height: screenHeight * 0.04,
+                                    width: screenWidth * 0.42,
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.star,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                        SizedBox(width: 6),
+                                        TextConst(
+                                          title: 'Rate Ride',
+                                          color: Colors.white,
+                                          fontFamily: AppFonts.kanitReg,
+                                          size: 14,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
                         ],
                       ),
                     ),
@@ -551,11 +572,7 @@ class _OrderPageState extends State<OrderPage> {
     );
   }
 
-  void _showRatingDialog(
-    BuildContext context,
-    String driverId,
-    String id,
-  ) {
+  void _showRatingDialog(BuildContext context, String driverId, String id) {
     final driverRating = Provider.of<DriverRatingViewModel>(
       context,
       listen: false,
@@ -674,12 +691,12 @@ class _OrderPageState extends State<OrderPage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: driverRating.loading
-                                    ?  Center(
-                                  child: CupertinoActivityIndicator(
-                                    radius: 14,
-                                    color: PortColor.white,
-                                  ),
-                                )
+                                    ? Center(
+                                        child: CupertinoActivityIndicator(
+                                          radius: 14,
+                                          color: PortColor.white,
+                                        ),
+                                      )
                                     : Text(
                                         'Submit',
                                         style: TextStyle(
@@ -746,7 +763,7 @@ class _OrderPageState extends State<OrderPage> {
             SizedBox(height: screenHeight * 0.025),
             InkWell(
               onTap: () {
-                Navigator.pushNamed(context,RoutesName.bottomNavBar);
+                Navigator.pushNamed(context, RoutesName.bottomNavBar);
               },
               child: Container(
                 alignment: Alignment.center,

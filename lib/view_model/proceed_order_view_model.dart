@@ -82,8 +82,8 @@ class ProceedOrderViewModel with ChangeNotifier {
       if (response["status"] == 200) {
         print("Order success: ${response["message"]}");
         Utils.showSuccessMessage(context, response["message"]);
-        final packerPaymentVm = Provider.of<PackerMoverPaymentViewModel>(context,listen: false);
-        await packerPaymentVm.paymentApi(context, totalCharges, "");
+        // final packerPaymentVm = Provider.of<PackerMoverPaymentViewModel>(context,listen: false);
+        // await packerPaymentVm.paymentApi(context, totalCharges, "");
       } else {
         Utils.showErrorMessage(context,  response["message"]);
         ScaffoldMessenger.of(context).showSnackBar(

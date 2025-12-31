@@ -23,6 +23,7 @@ class AddressDeleteViewModel with ChangeNotifier {
     required BuildContext context,
   }) async {
     setLoading(true);
+    final address = Provider.of<AddressShowViewModel>(context, listen: false);
 
     UserViewModel userViewModel = UserViewModel();
     String? userId = await userViewModel.getUser();
@@ -41,8 +42,8 @@ class AddressDeleteViewModel with ChangeNotifier {
 
 
       if (response["status"] == true) {
-
-        Provider.of<AddressShowViewModel>(context, listen: false).addressShowApi();
+print("❤️");
+        address.addressShowApi();
         Utils.showSuccessMessage(context, "Address deleted successfully");
 
         if (kDebugMode) {

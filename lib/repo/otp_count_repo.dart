@@ -1,21 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:yoyomiles/helper/helper/network/base_api_services.dart';
 import 'package:yoyomiles/helper/helper/network/network_api_services.dart';
-import 'package:yoyomiles/model/paytm_gateway_model.dart';
+import 'package:yoyomiles/model/otp_count_model.dart';
 import 'package:yoyomiles/res/api_url.dart';
-
-
-class PaymentRepo {
+class OtpCountRepo {
   final BaseApiServices _apiServices = NetworkApiServices();
-
-  Future<PaytmGatewayModel> paymentApi(dynamic data) async {
+  Future<OtpCountModel> otpCountApi() async {
     try {
       dynamic response =
-      await _apiServices.getPostApiResponse(ApiUrl.paymentUrl, data);
-      return PaytmGatewayModel.fromJson(response);
+      await _apiServices.getGetApiResponse(ApiUrl.countOtpUrl);
+      return OtpCountModel.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('Error occurred during paymentApi: $e');
+        print('Error occurred during otpCountAPi: $e');
       }
       rethrow;
     }

@@ -376,12 +376,12 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                              const Spacer(),
-                              Icon(
-                                Icons.arrow_forward,
-                                color: PortColor.black,
-                                size: screenHeight * 0.03,
-                              ),
+                              // const Spacer(),
+                              // Icon(
+                              //   Icons.arrow_forward,
+                              //   color: PortColor.black,
+                              //   size: screenHeight * 0.03,
+                              // ),
                             ],
                           ),
                         ),

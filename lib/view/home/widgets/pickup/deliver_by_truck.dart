@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -208,106 +209,104 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
                                   );
                                 },
                                 child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.02,
-                                      vertical: screenHeight * 0.015,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: screenWidth * 0.02,
+                                    vertical: screenHeight * 0.015,
+                                  ),
+                                  width: screenWidth * 0.78,
+                                  decoration: BoxDecoration(
+                                    color: PortColor.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: PortColor.gray,
+                                      width: screenWidth * 0.002,
                                     ),
-                                    width: screenWidth * 0.78,
-                                    decoration: BoxDecoration(
-                                      color: PortColor.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: PortColor.gray,
-                                          width: screenWidth * 0.002),
-                                    ),
-                                    child: hasData
-                                        ? Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  TextConst(
-                                                    title: profileViewModel.profileModel!.data!.firstName??"",
-                                                    color: PortColor.black,
-                                                    fontFamily: AppFonts.kanitReg,
-                                                    size: 12,
-                                                  ),
-                                                  SizedBox(width: screenWidth*0.03,),
-                                                  TextConst(
-                                                    title: ".${profileViewModel.profileModel!.data!.phone ?? ''}",
-                                                    color: PortColor.gray,
-                                                    fontFamily: AppFonts.kanitReg,
-                                                    size: 12,
-                                                  ),
-                                                  const Spacer(),
-                                                  Icon(
-                                                    Icons
-                                                        .arrow_forward_ios_rounded,
-                                                    size: screenHeight * 0.017,
-                                                  ),
-                                                ],
-                                              ),
-                                              TextConst(
-                                                title:
-                                                    "SectorH, jankipuram, lucknow, uttar pradesh..",
-                                                color: PortColor.black,
-                                              ),
-                                            ],
-                                          )
-                                        : (orderViewModel.pickupData != null
-                                            ? Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      TextConst(
-                                                        title: orderViewModel
-                                                                    .pickupData[
-                                                                "name"] ??
-                                                            "N/A",
-                                                        color: PortColor.black,
-                                                        fontFamily: AppFonts.kanitReg,
-                                                      ),
-                                                      SizedBox(width: screenWidth*0.03,),
-                                                      TextConst(
-                                                        title: orderViewModel
-                                                                    .pickupData[
-                                                                "phone"] ??
-                                                            "N/A",
-                                                        color: PortColor.gray,
-                                                        fontFamily: AppFonts.kanitReg,
-                                                      ),
-                                                      const Spacer(),
-                                                      Icon(
-                                                        Icons
-                                                            .arrow_forward_ios_rounded,
-                                                        size: screenHeight *
-                                                            0.017,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  TextConst(
-                                                    title: orderViewModel
-                                                                .pickupData[
-                                                            "address"] ??
-                                                        "N/A",
-                                                    color: PortColor.black,
-                                                    fontFamily: AppFonts.kanitReg,
-                                                    maxLines: 2,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    size: 10,
-                                                  ),
-                                                ],
-                                              )
-                                            : Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
+                                  ),
 
-                                                ],
-                                              ))),
+                                  // ⭐ MAIN CONDITION STARTS HERE
+                                  child: hasData
+                                      ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          TextConst(
+                                            title: profileViewModel.profileModel!.data!.firstName ?? "",
+                                            color: PortColor.black,
+                                            fontFamily: AppFonts.kanitReg,
+                                            size: 12,
+                                          ),
+                                          SizedBox(width: screenWidth * 0.03),
+                                          TextConst(
+                                            title:
+                                            ".${profileViewModel.profileModel!.data!.phone ?? ''}",
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.kanitReg,
+                                            size: 12,
+                                          ),
+                                          const Spacer(),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: screenHeight * 0.017,
+                                          ),
+                                        ],
+                                      ),
+                                      TextConst(
+                                        title: "SectorH, jankipuram, lucknow, uttar pradesh..",
+                                        color: PortColor.black,
+                                      ),
+                                    ],
+                                  )
+
+                                      : (orderViewModel.pickupData != null
+                                      ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          TextConst(
+                                            title: orderViewModel.pickupData["name"] ?? "N/A",
+                                            color: PortColor.black,
+                                            fontFamily: AppFonts.kanitReg,
+                                          ),
+                                          SizedBox(width: screenWidth * 0.03),
+                                          TextConst(
+                                            title: orderViewModel.pickupData["phone"] ?? "N/A",
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.kanitReg,
+                                          ),
+                                          const Spacer(),
+                                          Icon(
+                                            Icons.arrow_forward_ios_rounded,
+                                            size: screenHeight * 0.017,
+                                          ),
+                                        ],
+                                      ),
+                                      TextConst(
+                                        title: orderViewModel.pickupData["address"] ?? "N/A",
+                                        color: PortColor.black,
+                                        fontFamily: AppFonts.kanitReg,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        size: 10,
+                                      ),
+                                    ],
+                                  )
+
+                                      : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      TextConst(
+                                        title: "Fetching address...",
+                                        color: PortColor.gray,
+                                        fontFamily: AppFonts.kanitReg,
+                                        size: 14,
+                                        fontWeight: FontWeight.bold,
+                                      )
+                                    ],
+                                  )),
+                                )
+
                               ),
                               SizedBox(height: screenHeight * 0.018),
                               TextField(

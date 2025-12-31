@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -44,7 +45,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
   double? dropLng;
 
   // Search history to show in popular locations
-  List<Map<String, String>> searchHistory = [];
+  List<Map<String, dynamic>> searchHistory = [];
 
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -96,22 +97,35 @@ class _PassengerBookingState extends State<PassengerBooking> {
     }
   }
 
-  // Load search history from shared preferences or local storage
-  void _loadSearchHistory() {
-    // For now, using empty list. You can implement shared preferences here
-    setState(() {
-      searchHistory = [];
-    });
+  // Load search history from shared preferences
+  Future<void> _loadSearchHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? historyJson = prefs.getString('search_history');
+
+      if (historyJson != null) {
+        final List<dynamic> decoded = json.decode(historyJson);
+        setState(() {
+          searchHistory = decoded.map((item) => Map<String, dynamic>.from(item)).toList();
+        });
+      }
+    } catch (e) {
+      print('Error loading search history: $e');
+    }
   }
 
-  // Save to search history
-  void _saveToSearchHistory(String name, String address) {
-    // Avoid duplicates
-    if (!searchHistory.any((item) => item['name'] == name)) {
+  // Save to search history with coordinates
+  Future<void> _saveToSearchHistory(String name, String address, double? lat, double? lng) async {
+    try {
+      // Avoid duplicates
+      searchHistory.removeWhere((item) => item['name'] == name);
+
       setState(() {
         searchHistory.insert(0, {
           'name': name,
           'address': address,
+          'lat': lat,
+          'lng': lng,
         });
 
         // Keep only last 10 searches
@@ -119,16 +133,24 @@ class _PassengerBookingState extends State<PassengerBooking> {
           searchHistory = searchHistory.sublist(0, 10);
         }
       });
+
+      // Save to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final String historyJson = json.encode(searchHistory);
+      await prefs.setString('search_history', historyJson);
+    } catch (e) {
+      print('Error saving search history: $e');
     }
   }
 
   void _onLocationSelected(String location, bool isPickup) async {
+    // Get coordinates for location
+    LatLng? coordinates = await fetchLatLngFromAddress(location);
+
     if (isPickup) {
       setState(() {
         pickupController.text = location;
       });
-      // Get coordinates for pickup location
-      LatLng? coordinates = await fetchLatLngFromAddress(location);
       if (coordinates != null) {
         pickupLat = coordinates.latitude;
         pickupLng = coordinates.longitude;
@@ -138,18 +160,78 @@ class _PassengerBookingState extends State<PassengerBooking> {
       setState(() {
         dropController.text = location;
       });
-      // Get coordinates for drop location
-      LatLng? coordinates = await fetchLatLngFromAddress(location);
       if (coordinates != null) {
         dropLat = coordinates.latitude;
         dropLng = coordinates.longitude;
         print("📍 Drop Coordinates - Lat: $dropLat, Lng: $dropLng");
+
+        // Save to search history with coordinates (only for drop locations)
+        await _saveToSearchHistory(location, location, dropLat, dropLng);
       }
     }
-    searchResults.clear();
 
-    // Save to search history
-    _saveToSearchHistory(location, location);
+    searchResults.clear();
+  }
+
+  // When selecting from history, use stored coordinates and navigate to map
+  void _onHistoryLocationSelected(Map<String, dynamic> location, bool isPickup) {
+    if (isPickup) {
+      setState(() {
+        pickupController.text = location['name'];
+        pickupLat = location['lat'];
+        pickupLng = location['lng'];
+      });
+      print("📍 History Pickup - Lat: $pickupLat, Lng: $pickupLng");
+    } else {
+      setState(() {
+        dropController.text = location['name'];
+        dropLat = location['lat'];
+        dropLng = location['lng'];
+      });
+      print("📍 History Drop - Lat: $dropLat, Lng: $dropLng");
+
+      // Auto-navigate to map screen after selecting drop location from history
+      _navigateToMapFromHistory();
+    }
+  }
+
+  // Navigate to map screen from history selection
+  void _navigateToMapFromHistory() {
+    // Check if both pickup and drop locations are filled with coordinates
+    if (pickupController.text.isNotEmpty &&
+        dropController.text.isNotEmpty &&
+        pickupLat != null &&
+        pickupLng != null &&
+        dropLat != null &&
+        dropLng != null) {
+
+      print("🚀 Navigating from history");
+      print("Pickup: ${pickupController.text}");
+      print("Drop: ${dropController.text}");
+      print("Pickup Coordinates - Lat: $pickupLat, Lng: $pickupLng");
+      print("Drop Coordinates - Lat: $dropLat, Lng: $dropLng");
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RideMapScreen(
+            pickupLocation: pickupController.text,
+            dropLocation: dropController.text,
+            pickupLat: pickupLat,
+            pickupLng: pickupLng,
+            dropLat: dropLat,
+            dropLng: dropLng,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please ensure both pickup and drop locations are selected'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   // Get LatLng from address
@@ -168,6 +250,13 @@ class _PassengerBookingState extends State<PassengerBooking> {
   // Navigate to map screen
   void _proceedToMapScreen() {
     if (dropController.text.isNotEmpty && pickupController.text.isNotEmpty) {
+      if (pickupLat == null || pickupLng == null || dropLat == null || dropLng == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please wait, fetching location coordinates...')),
+        );
+        return;
+      }
+
       print("Proceed button pressed");
       print("Pickup: ${pickupController.text}");
       print("Drop: ${dropController.text}");
@@ -192,7 +281,6 @@ class _PassengerBookingState extends State<PassengerBooking> {
 
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       top: false,
       bottom: true,
@@ -399,7 +487,6 @@ class _PassengerBookingState extends State<PassengerBooking> {
     );
   }
 
-  // ... (Rest of the methods remain the same)
   void _showLocationSearchSheet(bool isPickup) {
     TextEditingController searchController = TextEditingController();
     List<dynamic> localSearchResults = [];
@@ -557,7 +644,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   onTap: () {
-                    _onLocationSelected(location['name']!, isPickup);
+                    _onHistoryLocationSelected(location, isPickup);
                     Navigator.pop(context);
                   },
                 );
@@ -657,7 +744,8 @@ class _PassengerBookingState extends State<PassengerBooking> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   onTap: () {
-                    _onLocationSelected(location['name']!, false);
+                    // When tapping from main screen history, it's for drop location
+                    _onHistoryLocationSelected(location, false);
                   },
                 );
               },

@@ -17,10 +17,6 @@ class Routers {
             return (context) => const LoginPage();
          case RoutesName.bottomNavBar:
             return (context) => const BottomNavigationPage();
-         case RoutesName.otp:
-            return (context) => const OtpPage();
-         case RoutesName.register:
-            return (context) => const RegisterPage();
          case RoutesName.goodsType:
             return (context) => const GoodsTypeScreen();
          case RoutesName.ratingFeedback:

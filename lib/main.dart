@@ -28,6 +28,7 @@ import 'package:yoyomiles/view_model/login_view_model.dart';
 import 'package:yoyomiles/view_model/moving_detail_view_model.dart';
 import 'package:yoyomiles/view_model/on_boarding_view_model.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
+import 'package:yoyomiles/view_model/otp_count_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_call_back_viewmodel.dart';
 import 'package:yoyomiles/view_model/packer_mover_order_history_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_payment_view_model.dart';
@@ -149,13 +150,14 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> MovingDetailsViewModel()),
           ChangeNotifierProvider(create: (context)=> ProceedOrderViewModel()),
           ChangeNotifierProvider(create: (context)=> PackerMoverCallBackViewmodel()),
-          ChangeNotifierProvider(create: (context)=> PackerMoverPaymentViewModel()),
+          // ChangeNotifierProvider(create: (context)=> PackerMoverPaymentViewModel()),
           ChangeNotifierProvider(create: (context)=> PackerMoverOrderHistoryViewModel()),
           ChangeNotifierProvider(create: (context)=> PackerMoverTermsViewModel()),
           ChangeNotifierProvider(create: (context)=> ContactListViewModel()),
-          ChangeNotifierProvider(create: (context)=> AddMoneyPaymentViewModel()),
+          // ChangeNotifierProvider(create: (context)=> AddMoneyPaymentViewModel()),
           ChangeNotifierProvider(create: (context)=> AddMoneyCallbackViewModel()),
           ChangeNotifierProvider(create: (context)=> UserTransactionViewModel()),
+          ChangeNotifierProvider(create: (context)=> OtpCountViewModel()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

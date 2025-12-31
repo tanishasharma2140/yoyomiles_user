@@ -1740,7 +1740,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     ),
                     SizedBox(height: screenHeight * 0.005),
                     TextConst(
-                      title: "₹1,763",
+                      title: "₹${summary.finalSummaryModel!.totalAmount.toString()}",
                       fontFamily: AppFonts.kanitReg,
                       size: 16,
                       fontWeight: FontWeight.w600,

@@ -7,9 +7,7 @@ import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/utils/utils.dart';
 import 'package:yoyomiles/view/payment/widgets/payment_porter_credit.dart';
-import 'package:yoyomiles/view_model/add_money_payment_view_model.dart';
-import 'package:yoyomiles/view_model/add_wallet_view_model.dart';
-import 'package:yoyomiles/view_model/packer_mover_payment_view_model.dart';
+import 'package:yoyomiles/view_model/payment_view_model.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -70,7 +68,8 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final addMoneyPaymentVm = Provider.of<AddMoneyPaymentViewModel>(context);
+    final paytmVm = Provider.of<PaymentViewModel>(context);
+    // final addMoneyPaymentVm = Provider.of<AddMoneyPaymentViewModel>(context);
     final profileVm = Provider.of<ProfileViewModel>(context);
 
     return PopScope(
@@ -268,27 +267,26 @@ class _PaymentsPageState extends State<PaymentsPage> {
                       GestureDetector(
                         onTap: isProceedEnabled
                             ? () {
-                                double enteredAmount =
-                                    double.tryParse(_controller.text) ?? 0;
-                                if (enteredAmount >= 10) {
-                                  addMoneyPaymentVm.paymentApi(
-                                    context,
-                                    _controller.text,
-                                    "",
-                                  );
-                                  // await packerPaymentVm.paymentApi(context, totalCharges, "");
+                          double enteredAmount = double.tryParse(_controller.text) ?? 0;
 
-                                  // addWalletViewModel.addWalletApi(
-                                  //   context,
-                                  //   _controller.text,
-                                  // );
-                                } else {
-                                  Utils.showErrorMessage(
-                                    context,
-                                    "Enter Amount At-least ₹10",
-                                  );
-                                }
-                              }
+                          if (enteredAmount >= 10) {
+                            final formattedAmount = enteredAmount.toStringAsFixed(2);
+                            // ⭐ FIX
+                            //   Navigator.push(context, MaterialPageRoute(builder: (context)=> PaytmTesting()));
+                            paytmVm.paymentApi(
+                              5,
+                              "100", // "500.00"
+                              "",
+                              context,
+                            );
+                          } else {
+                            Utils.showErrorMessage(
+                              context,
+                              "Enter Amount At-least ₹10",
+                            );
+                          }
+
+                        }
                             : null,
                         child: Container(
                           height: screenHeight * 0.06,
@@ -302,15 +300,18 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Center(
-                            child: !addMoneyPaymentVm.loading
-                                ? TextConst(
+                            child:
+                            !paytmVm.loading
+                                ?
+                            TextConst(
                                     title: "Proceed",
                                     fontFamily: AppFonts.kanitReg,
                                     color: isProceedEnabled
                                         ? PortColor.black
                                         : PortColor.gray,
                                   )
-                                : const CupertinoActivityIndicator(
+                                :
+    const CupertinoActivityIndicator(
                                     radius: 14, // size set karna ho to
                                     color: PortColor
                                         .white // iOS loader bhi color support karta hai (Flutter 3.7+)

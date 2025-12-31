@@ -27,7 +27,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   final FocusNode _focusNode = FocusNode();
-  final TextEditingController _controller = TextEditingController();
   bool _isFocused = false;
 
   Country _selectedCountry = Country(
@@ -48,9 +47,9 @@ class _LoginPageState extends State<LoginPage>
     });
 
     // keep UI updated when text changes so button remains visible if text exists
-    _controller.addListener(() {
-      setState(() {});
-    });
+    // loginViewModel.phoneController.addListener(() {
+    //   setState(() {});
+    // });
   }
 
   @override
@@ -161,10 +160,6 @@ class _LoginPageState extends State<LoginPage>
                             title: _selectedCountry.dialCode,
                             color: PortColor.gray,
                           ),
-                          const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: PortColor.gray,
-                          ),
                         ],
                       ),
                     ),
@@ -172,7 +167,7 @@ class _LoginPageState extends State<LoginPage>
                   const SizedBox(width: 8),
                   Expanded(
                     child: CustomTextField(
-                      controller: _controller,
+                      controller: loginViewModel.phoneController,
                       height: screenHeight * 0.05,
                       hintText: "Mobile Number",
                       fillColor: PortColor.white,
@@ -197,7 +192,7 @@ class _LoginPageState extends State<LoginPage>
               SizedBox(height: bottomPadding),
 
               // show login button when field is focused OR when there's text in the field
-              if (_isFocused || _controller.text.isNotEmpty) loginButton(),
+              if (_isFocused || loginViewModel.phoneController.text.isNotEmpty) loginButton(),
             ],
           ),
         ),
@@ -214,17 +209,13 @@ class _LoginPageState extends State<LoginPage>
           title: "Login",
           loading: loginViewModel.loading,
           onTap: () {
-            if (_controller.text.length == 10 &&
-                RegExp(r'^\d{10}$').hasMatch(_controller.text)) {
-              final loginViewModel = Provider.of<AuthViewModel>(
-                context,
-                listen: false,
-              );
-              loginViewModel.loginApi(
-                _controller.text,
-                fcmToken.toString(),
-                context,
-              );
+            if (loginViewModel.phoneController.text.length == 10 &&
+                RegExp(r'^\d{10}$').hasMatch(loginViewModel.phoneController.text)) {
+                 loginViewModel.otpSentApi(loginViewModel.phoneController.text, context);
+              //   loginViewModel.phoneController.text,
+              //   fcmToken.toString(),
+              //   context,
+              // );
             } else {
               Utils.showErrorMessage(
                 context,

@@ -9,7 +9,7 @@ import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/const_with_polyline_map.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
-import 'package:yoyomiles/view/bottom_nav_bar.dart' show BottomNavigationPage;
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
 import 'package:yoyomiles/view/payment_summary_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -430,6 +430,115 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     });
   }
 
+  void _showNoDriverAvailableDialogStatus9() {
+    if (_noDriverDialogShown) return;
+    _noDriverDialogShown = true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ICON
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.orange.shade100, width: 2),
+                  ),
+                  child: Icon(
+                    Icons.directions_car_filled_outlined,
+                    size: 40,
+                    color: Colors.orange.shade600,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // TITLE
+                const Text(
+                  "No Driver Near You",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // SUBTITLE
+                Text(
+                  "Please try again after some time 😊",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 15,
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+
+                // OK BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogCtx).pop();
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (ctx) => BottomNavigationPage()),
+                            (route) => false,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange.shade600,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      _noDriverDialogShown = false;
+    });
+  }
+
+
   // 🔥 RIDE CANCELLED DIALOG (Driver side cancellation - status 8)
   void _showRideCancelledDialogMethod(String orderId) {
     if (_showRideCancelledDialog) {
@@ -767,7 +876,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                           updateRideStatusVm.updateRideApi(
                             context,
                             widget.orderData?['document_id'],
-                            "7",
+                            "9",
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -943,6 +1052,12 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 });
               }
 
+              if (rideStatus == 9 && !_noDriverDialogShown) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _showNoDriverAvailableDialogStatus9();
+                });
+              }
+
               if (driverId == null) {
                 // No driver assigned
                 return _buildSearchingSection(updatedOrderData);
@@ -1089,9 +1204,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
         // Draggable bottom sheet
         DraggableScrollableSheet(
-          initialChildSize: 0.4,
-          minChildSize: 0.4,
-          maxChildSize: 0.8,
+          initialChildSize: 0.65,
+          minChildSize: 0.65,
+          maxChildSize: 0.65,
           builder: (context, scrollController) {
             return Container(
               decoration: const BoxDecoration(

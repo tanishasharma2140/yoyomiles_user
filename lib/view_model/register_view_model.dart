@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:yoyomiles/repo/register_repo.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class RegisterViewModel with ChangeNotifier {
   final _registerRepo = RegisterRepository();
@@ -29,10 +31,20 @@ class RegisterViewModel with ChangeNotifier {
     _registerRepo.registerApi(data).then((value) async {
       setLoading(false);
       if (value['status'] == 200) {
-        print(value);
         Utils.showSuccessMessage(context, value["message"]);
-        Navigator.pushNamed(context, RoutesName.otp,arguments: {"mobileNumber": mobileNumber,"userId":value["data"]["id"].toString(),});
-      } else {
+
+        final userId = value["data"]["id"].toString();
+
+        final userVm = UserViewModel();
+        await userVm.saveUser(userId);
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const BottomNavigationPage()),
+              (route) => false,
+        );
+      }
+      else {
         Utils.showErrorMessage(context, value["message"]);
       }
     }).onError((error, stackTrace) {

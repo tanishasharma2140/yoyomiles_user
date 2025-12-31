@@ -38,7 +38,6 @@ class PortColor{
   static const Color yellowCoin = Color(0xffDFBF58);
   static const Color darkYellow = Color(0xffD99C35);
   static const Color lightYellow = Color(0xffF3D45B);
-
   static const Color rapidPurple = Color(0xFF6B5B95);
   static const Color rapidGreen = Color(0xFF00A859);
   static const Color rapidGreenLight = Color(0xFF00C96D);

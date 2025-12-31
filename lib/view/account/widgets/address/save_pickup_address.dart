@@ -171,66 +171,66 @@ class _SavePickUpAddressState extends State<SavePickUpAddress> {
                 ),
               ),
 
-            if (searchResults.isEmpty)
-              Container(
-                padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.04,
-                    vertical: screenHeight * 0.02),
-                height: screenHeight * 0.18,
-                color: PortColor.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextConst(
-                      title: "Recent Pickups",
-                      color: PortColor.gray,
-                      fontFamily: AppFonts.kanitReg,
-                    ),
-                    SizedBox(
-                      height: screenHeight * 0.02,
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.watch_later_outlined,
-                          color: PortColor.black.withOpacity(0.6),
-                          size: screenHeight * 0.028,
-                        ),
-                        SizedBox(
-                          width: screenWidth * 0.04,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextConst(
-                                title: "Sector H",
-                                fontFamily: AppFonts.poppinsReg,
-                                color: PortColor.black.withOpacity(0.6)),
-                            TextConst(
-                                title:
-                                "Jankipuram,lucknow,UttarPradesh 2260..\nPrachi Singh 3213456787",
-                                fontFamily: AppFonts.poppinsReg,
-                                color: PortColor.gray)
-                          ],
-                        ),
-                        const Spacer(),
-                        Column(
-                          children: [
-                            Icon(
-                              Icons.favorite_border_sharp,
-                              color: PortColor.black.withOpacity(0.6),
-                              size: screenHeight * 0.025,
-                            ),
-                            TextConst(
-                                title: "Save",
-                                color: PortColor.black.withOpacity(0.6), fontFamily: AppFonts.poppinsReg,)
-                          ],
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
+            // if (searchResults.isEmpty)
+            //   Container(
+            //     padding: EdgeInsets.symmetric(
+            //         horizontal: screenWidth * 0.04,
+            //         vertical: screenHeight * 0.02),
+            //     height: screenHeight * 0.18,
+            //     color: PortColor.white,
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         TextConst(
+            //           title: "Recent Pickups",
+            //           color: PortColor.gray,
+            //           fontFamily: AppFonts.kanitReg,
+            //         ),
+            //         SizedBox(
+            //           height: screenHeight * 0.02,
+            //         ),
+            //         Row(
+            //           children: [
+            //             Icon(
+            //               Icons.watch_later_outlined,
+            //               color: PortColor.black.withOpacity(0.6),
+            //               size: screenHeight * 0.028,
+            //             ),
+            //             SizedBox(
+            //               width: screenWidth * 0.04,
+            //             ),
+            //             Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 TextConst(
+            //                     title: "Sector H",
+            //                     fontFamily: AppFonts.poppinsReg,
+            //                     color: PortColor.black.withOpacity(0.6)),
+            //                 TextConst(
+            //                     title:
+            //                     "Jankipuram,lucknow,UttarPradesh 2260..\nPrachi Singh 3213456787",
+            //                     fontFamily: AppFonts.poppinsReg,
+            //                     color: PortColor.gray)
+            //               ],
+            //             ),
+            //             const Spacer(),
+            //             Column(
+            //               children: [
+            //                 Icon(
+            //                   Icons.favorite_border_sharp,
+            //                   color: PortColor.black.withOpacity(0.6),
+            //                   size: screenHeight * 0.025,
+            //                 ),
+            //                 TextConst(
+            //                     title: "Save",
+            //                     color: PortColor.black.withOpacity(0.6), fontFamily: AppFonts.poppinsReg,)
+            //               ],
+            //             )
+            //           ],
+            //         )
+            //       ],
+            //     ),
+            //   ),
             const Spacer(),
             Container(
               height: screenHeight * 0.08,

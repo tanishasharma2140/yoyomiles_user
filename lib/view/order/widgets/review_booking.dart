@@ -662,7 +662,7 @@ class _ReviewBookingState extends State<ReviewBooking> {
                           children: [
                             Expanded(
                               child: TextConst(
-                                title: "Pay Via PG",
+                                title: "Pay Via Online",
                                 color: PortColor.black,
                                 fontFamily: AppFonts.poppinsReg,
                                 size: 13,
@@ -859,6 +859,7 @@ class GoodsTypeCard extends StatelessWidget {
                   title: title,
                   fontFamily: AppFonts.kanitReg,
                   size: 14,
+                  fontWeight: FontWeight.w500,
                   color: PortColor.gray,
                 ),
               ],
@@ -871,6 +872,7 @@ class GoodsTypeCard extends StatelessWidget {
                   child: TextConst(
                     title: selectedType,
                     fontFamily: AppFonts.kanitReg,
+                    fontWeight: FontWeight.w600,
                     size: 13,
                   ),
                 ),

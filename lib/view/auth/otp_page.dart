@@ -15,7 +15,8 @@ import 'package:yoyomiles/view_model/login_view_model.dart';
 import 'package:provider/provider.dart';
 
 class OtpPage extends StatefulWidget {
-  const OtpPage({super.key});
+  final String mobile;
+  const OtpPage({super.key, required this.mobile});
 
   @override
   State<OtpPage> createState() => _OtpPageState();
@@ -24,23 +25,16 @@ class OtpPage extends StatefulWidget {
 class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
   bool _isButtonActive = false;
   late Timer _timer;
-  int _remainingTime = 60;
+  int _remainingTime = 120;
   final TextEditingController _otpController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Map arguments =
-      ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      Provider.of<AuthViewModel>(
-        context,
-        listen: false,
-      ).sendOtpApi(arguments["mobileNumber"], context);
-    });
-    _startTimer();
+    _startTimer(); // ✅ start 2 min timer
   }
+
+
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -62,17 +56,18 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
   }
 
   void _verifyOtp() {
-    Map arguments =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final enteredOtp = _otpController.text.trim();
     if (enteredOtp.length == 4 && int.tryParse(enteredOtp) != null) {
       final loginViewModel = Provider.of<AuthViewModel>(context, listen: false);
       loginViewModel.verifyOtpApi(
-        arguments["mobileNumber"],
+        widget.mobile,  // ✔ safe
         enteredOtp,
-        arguments["userId"],
         context,
       );
+      print("widget.phoneNumber");
+      print(widget.mobile);
+      print(enteredOtp);
+      print("enteredOtp");
     } else {
       Utils.showErrorMessage(context, "Please enter a valid 4-digit OTP.");
     }
@@ -80,8 +75,6 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    Map arguments =
-    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final otp = Provider.of<AuthViewModel>(context);
     return WillPopScope(
       onWillPop: () async {
@@ -122,7 +115,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                     ),
                     SizedBox(width: screenWidth * 0.02),
                     TextConst(
-                      title: arguments["mobileNumber"],
+                      title: widget.mobile,
                       color: PortColor.black,
                     ),
                     SizedBox(width: screenWidth * 0.03),
@@ -154,6 +147,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                 SizedBox(height: screenHeight * 0.08),
                 TextField(
                   controller: _otpController,
+                  autofillHints: const [AutofillHints.oneTimeCode],
                   decoration: InputDecoration(
                     hintText: "Enter OTP Manually",
                     counterText: '',
@@ -233,10 +227,16 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                 )
                     : GestureDetector(
                   onTap: () {
+                    // ✅ Reset timer to 2 minutes
                     setState(() {
-                      _remainingTime = 60;
+                      _remainingTime = 120;
                       _startTimer();
                     });
+
+                    // ✅ Call RESEND OTP API
+                    context
+                        .read<AuthViewModel>()
+                        .otpReSentApi(widget.mobile, context);
                   },
                   child: const TextConst(
                     title: "Resend OTP",
@@ -245,6 +245,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+
                 SizedBox(height: screenHeight * 0.01),
               ],
             ),

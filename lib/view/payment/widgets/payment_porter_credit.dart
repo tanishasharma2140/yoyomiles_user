@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
-import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
 
 import '../../../main.dart';
@@ -30,6 +28,8 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
         listen: false,
       );
       userTransactionVm.userTransactionApi(context);
+      final profileVm = Provider.of<ProfileViewModel>(context,listen: false);
+      profileVm.profileApi(context);
     });
   }
 

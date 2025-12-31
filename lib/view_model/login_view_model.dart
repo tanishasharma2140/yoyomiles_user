@@ -1,14 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/repo/login_repo.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view/auth/otp_page.dart';
+import 'package:yoyomiles/view/auth/register_page.dart';
 import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view_model/otp_count_view_model.dart';
 import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class AuthViewModel with ChangeNotifier {
+  final TextEditingController phoneController = TextEditingController();
+
   final _loginRepo = AuthRepository();
 
   bool _loading = false;
@@ -35,37 +42,69 @@ class AuthViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loginApi(dynamic mobile, String fcmToken, context) async {
+  Future<void> loginApi(BuildContext context) async {
     setLoading(true);
-    Map data = {
-      "phone": mobile,
-      "fcm": fcmToken
+
+    final Map<String, dynamic> data = {
+      "phone": phoneController.text,
+      "fcm": fcmToken,
     };
 
-    _loginRepo.loginApi(data).then((value) {
+    try {
+      final value = await _loginRepo.loginApi(data);
+      setLoading(false);
+
+      /// 🟢 REGISTERED USER
       if (value['success'] == true) {
-        setLoading(false);
         if (value['status'] == 2) {
           _showPopup(context);
           return;
-        } else {
-          Navigator.pushNamed(context, RoutesName.otp, arguments: {
-            "mobileNumber": mobile,
-            "userId": value["user_id"].toString(),
-          });
         }
-      } else {
-        Navigator.pushNamed(context, RoutesName.register, arguments: {'mobileNumber': mobile});
-        setLoading(false);
+
+        // ✅ SAVE USER ID
+        final userId = value['user_id'].toString();
+        final userVm = UserViewModel();
+        await userVm.saveUser(userId);
+
+        Utils.showSuccessMessage(context, value['message']);
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const BottomNavigationPage()),
+              (route) => false,
+        );
+        return;
       }
-    }).onError((error, stackTrace) {
+
+      /// 🔴 NOT REGISTERED USER
+      if (value['message'] == "Mobile number not found.") {
+        Utils.showErrorMessage(context, value['message']);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RegisterPage(
+              mobile: phoneController.text,
+            ),
+          ),
+        );
+        return;
+      }
+
+      /// 🔴 OTHER FAILURE
+      Utils.showErrorMessage(
+        context,
+        value['message'] ?? "Something went wrong",
+      );
+    } catch (error) {
       setLoading(false);
       if (kDebugMode) {
-        Utils.showErrorMessage(context, 'error: $error');
-        print('error: $error');
+        print('❌ Login API error: $error');
       }
-    });
+      Utils.showErrorMessage(context, "Server error");
+    }
   }
+
 
   void _showPopup(BuildContext context) {
     showDialog(
@@ -130,14 +169,23 @@ class AuthViewModel with ChangeNotifier {
     );
   }
 
-  Future<void> sendOtpApi(dynamic mobile, BuildContext context) async {
-    try {
-      setSendingOtp(true);
-      final value = await _loginRepo.sendOtpApi(mobile.toString());
-      setSendingOtp(false);
 
+  Future<void> otpSentApi(String mobile, BuildContext context) async {
+    setLoading(true);
+    try {
+      final value = await _loginRepo.sendOtpApi(mobile.toString());
+
+      setLoading(false);
       if (value['error'].toString() == "200") {
         Utils.showSuccessMessage(context, value['msg']);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OtpPage(mobile: mobile),
+          ),
+        );
+        Utils.showSuccessMessage(context, value['msg'] ?? 'OTP sent successfully');
+        Provider.of<OtpCountViewModel>(context,listen: false).otpCountApi(context);
       } else {
         Utils.showErrorMessage(context, value['msg']);
       }
@@ -149,20 +197,34 @@ class AuthViewModel with ChangeNotifier {
     }
   }
 
-  Future<void> verifyOtpApi(dynamic phone, dynamic otp, dynamic userId, BuildContext context) async {
+  Future<void> otpReSentApi(String phoneNumber, BuildContext context) async {
+    setLoading(true);
+    try {
+      final value = await _loginRepo.sendOtpApi(phoneNumber);
+
+      setLoading(false);
+      if (value['error'].toString() == "200") {
+        Utils.showSuccessMessage(context, value['msg'] ?? 'OTP resent successfully');
+        Provider.of<OtpCountViewModel>(context,listen: false).otpCountApi(context);
+      }  else {
+        Utils.showErrorMessage(value['msg'], 'Failed to resend OTP');
+      }
+    } catch (e) {
+      setLoading(false);
+      if (kDebugMode) print('otpReSentApi error: $e');
+      Utils.showErrorMessage(context,'Something went wrong',);
+    }
+  }
+
+  Future<void> verifyOtpApi(dynamic phone, dynamic otp, BuildContext context) async {
     try {
       setVerifyingOtp(true);
       final value = await _loginRepo.verifyOtpApi(phone, otp);
       setVerifyingOtp(false);
 
       if (value['error'].toString() == "200") {
-        UserViewModel userViewModel = UserViewModel();
-        userViewModel.saveUser(userId);
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const BottomNavigationPage()),
-              (context) => false,
-        );
+        Utils.showSuccessMessage(context,  value['msg'] ?? 'OTP verified');
+        loginApi(context);
       } else {
         Utils.showErrorMessage(context, value['msg']);
       }

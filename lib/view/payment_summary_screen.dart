@@ -117,7 +117,7 @@ class PaymentSummaryScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                 payment.paymentApi(context, amount.toStringAsFixed(2),firebaseOrderId);
+                 // payment.paymentApi(,"1" amount.toStringAsFixed(2),firebaseOrderId,context);
                 },
                 child: const Text(
                   "Payment",

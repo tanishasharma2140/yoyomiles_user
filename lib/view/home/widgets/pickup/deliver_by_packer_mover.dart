@@ -481,22 +481,22 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                             size: 16,
                           ),
                           Spacer(),
-                          GestureDetector(
-                            onTap: (){
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (BuildContext context) {
-                                  return const FAQModalSheet();
-                                },
-                              );
-                            },
-                            child: TextConst(
-                              title: "FAQs",
-                              color: PortColor.blue,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          // GestureDetector(
+                          //   onTap: (){
+                          //     showModalBottomSheet(
+                          //       context: context,
+                          //       isScrollControlled: true,
+                          //       builder: (BuildContext context) {
+                          //         return const FAQModalSheet();
+                          //       },
+                          //     );
+                          //   },
+                          //   child: TextConst(
+                          //     title: "FAQs",
+                          //     color: PortColor.blue,
+                          //     fontWeight: FontWeight.w600,
+                          //   ),
+                          // ),
                         ],
                       ),
                       SizedBox(height: screenHeight * 0.03),

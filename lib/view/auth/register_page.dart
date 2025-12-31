@@ -13,7 +13,8 @@ import 'package:yoyomiles/view_model/requirement_view_model.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+ final  String mobile;
+  const RegisterPage({super.key, required this.mobile});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -39,8 +40,8 @@ class _RegisterPageState extends State<RegisterPage>
 
   @override
   Widget build(BuildContext context) {
-    Map arguments =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    print("njhjbh");
+    print(widget.mobile);
     final registerViewModel = Provider.of<RegisterViewModel>(context);
     final requirementVm = Provider.of<RequirementViewModel>(context);
 
@@ -77,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage>
                   ),
                   SizedBox(width: screenWidth * 0.02),
                   TextConst(
-                    title: arguments["mobileNumber"],
+                    title: widget.mobile,
                     color: PortColor.black,
                   ),
                   SizedBox(width: screenWidth * 0.03),
@@ -263,18 +264,18 @@ class _RegisterPageState extends State<RegisterPage>
                   ),
                 ],
               ),
-              SizedBox(height: screenHeight * 0.03),
-
-              Center(
-                child: TextConst(
-                  title: "Have referral code?",
-                  color: PortColor.gold,
-                  size: 15,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: AppFonts.poppinsReg,
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.03),
+              // SizedBox(height: screenHeight * 0.03),
+              //
+              // Center(
+              //   child: TextConst(
+              //     title: "Have referral code?",
+              //     color: PortColor.gold,
+              //     size: 15,
+              //     fontWeight: FontWeight.w600,
+              //     fontFamily: AppFonts.poppinsReg,
+              //   ),
+              // ),
+              SizedBox(height: screenHeight * 0.05),
         AppBtn(title: "Register",
             loading: registerViewModel.loading,
             onTap: (){
@@ -297,7 +298,7 @@ class _RegisterPageState extends State<RegisterPage>
               nameController.text,
               lastnameController.text,
               emailController.text,
-              arguments["mobileNumber"],
+              widget.mobile,
               selectedBusinessUsage!,
               "111adf",
               fcmToken.toString(),

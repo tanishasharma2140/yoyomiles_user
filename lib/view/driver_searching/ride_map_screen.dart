@@ -47,7 +47,6 @@ class _RideMapScreenState extends State<RideMapScreen> {
   Set<Marker> markers = {};
   bool isLoading = true;
   double distance = 0.0;
-  List<Map<String, dynamic>> vehicles = [];
   int selectedPayment = 1; // default = online
 
   @override
@@ -71,14 +70,18 @@ class _RideMapScreenState extends State<RideMapScreen> {
     double dLat = lat2 - lat1;
     double dLon = lon2 - lon1;
 
-    double a = sin(dLat / 2) * sin(dLat / 2) +
+    double a =
+        sin(dLat / 2) * sin(dLat / 2) +
         cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
     double c = 2 * atan2(sqrt(a), sqrt(1 - a));
 
     return earthRadius * c;
   }
 
-  Future<BitmapDescriptor> resizeMarkerIcon(String assetPath, int targetWidth) async {
+  Future<BitmapDescriptor> resizeMarkerIcon(
+    String assetPath,
+    int targetWidth,
+  ) async {
     final ByteData data = await rootBundle.load(assetPath);
     final Uint8List bytes = data.buffer.asUint8List();
 
@@ -88,13 +91,13 @@ class _RideMapScreenState extends State<RideMapScreen> {
     );
     final ui.FrameInfo fi = await codec.getNextFrame();
 
-    final ByteData? byteData =
-    await fi.image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData = await fi.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     final Uint8List resizedBytes = byteData!.buffer.asUint8List();
 
     return BitmapDescriptor.fromBytes(resizedBytes);
   }
-
 
   // Fetch vehicles from API
   Future<void> _fetchVehicles() async {
@@ -129,24 +132,24 @@ class _RideMapScreenState extends State<RideMapScreen> {
       // Get the vehicles data from ViewModel
       if (selectVehiclesViewModel.selectVehicleModel != null &&
           selectVehiclesViewModel.selectVehicleModel!.data != null) {
-        setState(() {
-          vehicles = selectVehiclesViewModel.selectVehicleModel!.data!
-              .map((vehicle) => {
-            'vehicle_id': vehicle.vehicleId,
-            'vehicle_name': vehicle.vehicleName,
-            'body_detail': vehicle.bodyDetail,
-            'vehicle_image': vehicle.vehicleImage,
-            'amount': vehicle.amount,
-            'selected_status': vehicle.selectedStatus,
-            'type': vehicle.type,
-            'comment': vehicle.comment,
-            'vehicle_body_details_id': vehicle.vehicleBodyDetailsId,
-            'vehicle_body_types_id': vehicle.vehicleBodyTypesId,
-          })
-              .toList();
-        });
+        // setState(() {
+        //   vehicles = selectVehiclesViewModel.selectVehicleModel!.data!
+        //       .map((vehicle) => {
+        //     'vehicle_id': vehicle.vehicleId,
+        //     'vehicle_name': vehicle.vehicleName,
+        //     'body_detail': vehicle.bodyDetail,
+        //     'vehicle_image': vehicle.vehicleImage,
+        //     'amount': vehicle.amount,
+        //     'selected_status': vehicle.selectedStatus,
+        //     'type': vehicle.type,
+        //     'comment': vehicle.comment,
+        //     'vehicle_body_details_id': vehicle.vehicleBodyDetailsId,
+        //     'vehicle_body_types_id': vehicle.vehicleBodyTypesId,
+        //   })
+        //       .toList();
+        // });
 
-        print("✅ Vehicles fetched successfully: ${vehicles.length} vehicles");
+        // print("✅ Vehicles fetched successfully: ${vehicles.length} vehicles");
       } else {
         print("❌ No vehicles data found");
         // Fallback to sample data if API fails
@@ -175,14 +178,16 @@ class _RideMapScreenState extends State<RideMapScreen> {
       if (widget.pickupLat != null && widget.pickupLng != null) {
         pickupLatLng = LatLng(widget.pickupLat!, widget.pickupLng!);
       } else {
-        pickupLatLng = await _getLatLngFromAddress(widget.pickupLocation) ??
+        pickupLatLng =
+            await _getLatLngFromAddress(widget.pickupLocation) ??
             const LatLng(26.8467, 80.9462);
       }
 
       if (widget.dropLat != null && widget.dropLng != null) {
         dropLatLng = LatLng(widget.dropLat!, widget.dropLng!);
       } else {
-        dropLatLng = await _getLatLngFromAddress(widget.dropLocation) ??
+        dropLatLng =
+            await _getLatLngFromAddress(widget.dropLocation) ??
             const LatLng(26.8500, 80.9500);
       }
 
@@ -198,12 +203,9 @@ class _RideMapScreenState extends State<RideMapScreen> {
         80, // marker width → change size here
       );
 
-      final dropIcon = await resizeMarkerIcon(
-        Assets.assetsPicupYoyo,
-        65,
-      );
+      final dropIcon = await resizeMarkerIcon(Assets.assetsPicupYoyo, 65);
 
-// Add markers
+      // Add markers
       markers.add(
         Marker(
           markerId: const MarkerId('pickup'),
@@ -222,9 +224,11 @@ class _RideMapScreenState extends State<RideMapScreen> {
         ),
       );
 
-
       // Get real route polyline
-      List<LatLng> routePoints = await _getRoutePoints(pickupLatLng, dropLatLng);
+      List<LatLng> routePoints = await _getRoutePoints(
+        pickupLatLng,
+        dropLatLng,
+      );
 
       if (routePoints.isNotEmpty) {
         polylines.add(
@@ -277,7 +281,10 @@ class _RideMapScreenState extends State<RideMapScreen> {
     return null;
   }
 
-  Future<List<LatLng>> _getRoutePoints(LatLng origin, LatLng destination) async {
+  Future<List<LatLng>> _getRoutePoints(
+    LatLng origin,
+    LatLng destination,
+  ) async {
     const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
     final url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey';
@@ -287,7 +294,9 @@ class _RideMapScreenState extends State<RideMapScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        if (data['status'] == 'OK' && data['routes'] != null && data['routes'].isNotEmpty) {
+        if (data['status'] == 'OK' &&
+            data['routes'] != null &&
+            data['routes'].isNotEmpty) {
           final polyline = data['routes'][0]['overview_polyline']['points'];
           return _decodePolyline(polyline);
         }
@@ -386,6 +395,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
   @override
   Widget build(BuildContext context) {
     final selectVehicleVm = Provider.of<SelectVehiclesViewModel>(context);
+    final vehicleList = selectVehicleVm.selectVehicleModel?.data ?? [];
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -439,7 +449,10 @@ class _RideMapScreenState extends State<RideMapScreen> {
                   top: MediaQuery.of(context).padding.top + 16,
                   right: 16,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -469,7 +482,9 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       color: Colors.black.withOpacity(0.3),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.blue,
+                          ),
                         ),
                       ),
                     ),
@@ -529,54 +544,36 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             ],
                           ),
                         ),
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.grey[500],
-                        ),
+                        Icon(Icons.info_outline, color: Colors.grey[500]),
                       ],
                     ),
                   ),
 
-                  // Vehicle List
                   Expanded(
                     child: selectVehicleVm.loading
-                        ? const Center(
-                      child: CupertinoActivityIndicator(
-                        radius: 14,
-                      ),
-                    )
-                        : vehicles.isEmpty
-                        ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.car_repair,
-                            size: 64,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "No vehicles available",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                              fontFamily: AppFonts.kanitReg,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                        : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: vehicles.length,
-                      itemBuilder: (context, index) {
-                        final vehicle = vehicles[index];
-                        return _buildVehicleCard(vehicle);
-                      },
-                    ),
-                  )
+                        // 🔄 LOADER
+                        ? const Center(child: CircularProgressIndicator())
+                        // 📭 NO DATA
+                  :ListView.builder(
+                      padding: EdgeInsets.symmetric(horizontal: 10,vertical: 15),
+                            itemCount: vehicleList.length,
+                            itemBuilder: (context, index) {
+                              final vehicle = vehicleList[index];
 
+                              return _buildVehicleCard({
+                                'vehicle_id': vehicle.vehicleId ?? '',
+                                'vehicle_name': vehicle.vehicleName ?? '',
+                                'body_detail': vehicle.bodyDetail ?? '',
+                                'vehicle_image': vehicle.vehicleImage ?? '',
+                                'amount': vehicle.amount ?? '0',
+                                'vehicle_body_details_id':
+                                    vehicle.vehicleBodyDetailsId ?? '',
+                                'vehicle_body_types_id':
+                                    vehicle.vehicleBodyTypesId ?? '',
+                              });
+                            },
+                          ),
+                  ),
                 ],
               ),
             ),
@@ -602,7 +599,10 @@ class _RideMapScreenState extends State<RideMapScreen> {
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         leading: Container(
           width: 60,
           height: 60,
@@ -612,24 +612,20 @@ class _RideMapScreenState extends State<RideMapScreen> {
           ),
           child: vehicle['vehicle_image'] != null
               ? ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              vehicle['vehicle_image'],
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(
-                  Icons.directions_car,
-                  color: Colors.blue[600],
-                  size: 30,
-                );
-              },
-            ),
-          )
-              : Icon(
-            Icons.directions_car,
-            color: Colors.blue[600],
-            size: 30,
-          ),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    vehicle['vehicle_image'],
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(
+                        Icons.directions_car,
+                        color: Colors.blue[600],
+                        size: 30,
+                      );
+                    },
+                  ),
+                )
+              : Icon(Icons.directions_car, color: Colors.blue[600], size: 30),
         ),
         title: Text(
           vehicle['vehicle_name'] ?? 'Vehicle',
@@ -740,14 +736,16 @@ class _RideMapScreenState extends State<RideMapScreen> {
                           ),
                           child: vehicle['vehicle_image'] != null
                               ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              vehicle['vehicle_image'],
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                              : Icon(Icons.directions_car,
-                              color: Colors.blue[600]),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    vehicle['vehicle_image'],
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.directions_car,
+                                  color: Colors.blue[600],
+                                ),
                         ),
                         const SizedBox(width: 12),
 
@@ -816,8 +814,11 @@ class _RideMapScreenState extends State<RideMapScreen> {
                               height: 30,
                               color: Colors.grey[300],
                             ),
-                            Icon(Icons.location_on,
-                                size: 16, color: Colors.red[400]),
+                            Icon(
+                              Icons.location_on,
+                              size: 16,
+                              color: Colors.red[400],
+                            ),
                           ],
                         ),
                         const SizedBox(width: 12),
@@ -826,16 +827,20 @@ class _RideMapScreenState extends State<RideMapScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(widget.pickupLocation,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis),
+                              Text(
+                                widget.pickupLocation,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                               const SizedBox(height: 24),
-                              Text(widget.dropLocation,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis),
+                              Text(
+                                widget.dropLocation,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
 
@@ -872,7 +877,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                         Row(
                           children: [
                             Radio<int>(
-                              value: 2,   // ⭐ Online = 2
+                              value: 2, // ⭐ Online = 2
                               groupValue: selectedPayment,
                               onChanged: (value) {
                                 setStateBottom(() {
@@ -888,11 +893,11 @@ class _RideMapScreenState extends State<RideMapScreen> {
                           ],
                         ),
 
-// CASH ON DELIVERY
+                        // CASH ON DELIVERY
                         Row(
                           children: [
                             Radio<int>(
-                              value: 1,   // ⭐ COD = 1
+                              value: 1, // ⭐ COD = 1
                               groupValue: selectedPayment,
                               onChanged: (value) {
                                 setStateBottom(() {
@@ -907,70 +912,67 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             ),
                           ],
                         ),
-
                       ],
                     ),
-                     SizedBox(height: screenHeight*0.01,),
-              Consumer<OrderViewModel>(
-                builder: (context, orderViewModel, child) {
-                  return GestureDetector(
-                    onTap: () {
-                      if (!orderViewModel.loading) {
-                        orderViewModel.orderApi(
-                          vehicle["vehicle_id"],
-                          widget.pickupLocation,
-                          widget.dropLocation,
-                          widget.dropLat,
-                          widget.dropLng,
-                          widget.pickupLat,
-                          widget.pickupLng,
-                          "",
-                          "",
-                          "",
-                          "",
-                          vehicle["amount"],
-                          distance.toStringAsFixed(1),
-                          selectedPayment,
-                          [],
-                          serviceTypeViewModel.selectedVehicleType,
-                          "",
-                          "",
-                          "",
-                          vehicle['vehicle_body_details_id'],
-                          vehicle["vehicle_body_types_id"],
-                          context,
+                    SizedBox(height: screenHeight * 0.01),
+                    Consumer<OrderViewModel>(
+                      builder: (context, orderViewModel, child) {
+                        return GestureDetector(
+                          onTap: () {
+                            if (!orderViewModel.loading) {
+                              orderViewModel.orderApi(
+                                vehicle["vehicle_id"],
+                                widget.pickupLocation,
+                                widget.dropLocation,
+                                widget.dropLat,
+                                widget.dropLng,
+                                widget.pickupLat,
+                                widget.pickupLng,
+                                "",
+                                "",
+                                "",
+                                "",
+                                vehicle["amount"],
+                                distance.toStringAsFixed(1),
+                                selectedPayment,
+                                [],
+                                serviceTypeViewModel.selectedVehicleType,
+                                "",
+                                "",
+                                "",
+                                vehicle['vehicle_body_details_id'],
+                                vehicle["vehicle_body_types_id"],
+                                context,
+                              );
+                            }
+                          },
+                          child: Container(
+                            height: screenHeight * 0.06,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: PortColor.gold,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            alignment: Alignment.center,
+                            child: orderViewModel.loading
+                                ? CupertinoActivityIndicator(
+                                    radius: 12,
+                                    color: Colors.white,
+                                  )
+                                : Text(
+                                    "Continue Ride",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontFamily: AppFonts.kanitReg,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                          ),
                         );
-                      }
-                    },
-                    child: Container(
-                      height: screenHeight * 0.06,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: PortColor.gold,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      alignment: Alignment.center,
-                      child: orderViewModel.loading
-                          ? CupertinoActivityIndicator(
-                        radius: 12,
-                        color: Colors.white,
-                      )
-                          : Text(
-                        "Continue Ride",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontFamily: AppFonts.kanitReg,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      },
                     ),
-                  );
-                },
-              ),
-
-
-              ],
+                  ],
                 ),
               ),
             );
