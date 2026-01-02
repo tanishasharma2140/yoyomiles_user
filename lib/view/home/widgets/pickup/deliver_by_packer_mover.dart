@@ -428,351 +428,358 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
       top: false,
       child: Scaffold(
         backgroundColor: PortColor.grey,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
-            Column(
-              children: [
-                SizedBox(height: topPadding,),
-                // Header + Steps
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.03,
-                    vertical: screenHeight * 0.02,
-                  ),
-                  height: screenHeight * 0.17,
-                  decoration: BoxDecoration(
-                    color: PortColor.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: PortColor.gray,
-                        width: screenWidth * 0.002,
-                      ),
+            SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + screenHeight * 0.12,
+              ),
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                children: [
+                  SizedBox(height: topPadding,),
+                  // Header + Steps
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.03,
+                      vertical: screenHeight * 0.02,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: PortColor.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, -1),
+                    height: screenHeight * 0.17,
+                    decoration: BoxDecoration(
+                      color: PortColor.white,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: PortColor.gray,
+                          width: screenWidth * 0.002,
+                        ),
                       ),
-                    ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: PortColor.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, -1),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                height: 30,
+                                width: 30,
+                                color: Colors.transparent,
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  color: PortColor.black,
+                                  size: screenHeight * 0.026,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: screenWidth * 0.03),
+                            TextConst(
+                              title: "Packer and Mover",
+                              color: PortColor.black,
+                              fontWeight: FontWeight.w600,
+                              size: 16,
+                            ),
+                            Spacer(),
+                            // GestureDetector(
+                            //   onTap: (){
+                            //     showModalBottomSheet(
+                            //       context: context,
+                            //       isScrollControlled: true,
+                            //       builder: (BuildContext context) {
+                            //         return const FAQModalSheet();
+                            //       },
+                            //     );
+                            //   },
+                            //   child: TextConst(
+                            //     title: "FAQs",
+                            //     color: PortColor.blue,
+                            //     fontWeight: FontWeight.w600,
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                        SizedBox(height: screenHeight * 0.03),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            StepWidget(
+                              icon: currentStep > 0
+                                  ? Icons.check
+                                  : Icons.location_on,
+                              text: 'Moving details',
+                              isActive: true,
+                              isCompleted: currentStep > 0,
+                            ),
+                            const DottedLine(),
+                            StepWidget(
+                              icon: Icons.inventory,
+                              text: 'Add items',
+                              isActive: currentStep >= 1,
+                              isCompleted: currentStep > 1,
+                            ),
+                            const DottedLine(),
+                            StepWidget(
+                              icon: Icons.receipt,
+                              text: 'Schedule',
+                              isActive: currentStep >= 2,
+                              isCompleted: currentStep > 2,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => Navigator.pop(context),
+                  SizedBox(height: screenHeight * 0.02),
+
+                  // City Toggle
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                    child: CityToggle(
+                      pickupLocation: pickupController.text,
+                      dropLocation: dropController.text,
+                      onSelectionChanged: updateCitySelection,
+                      initialSelection: isWithinCitySelected,
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.02),
+
+                  // Pickup Field
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          controller: pickupController,
+                          focusNode: pickupFocus,
+                          textStyle: TextStyle(
+                            color: Colors.black54,
+                            fontFamily: AppFonts.kanitReg,
+                            fontSize: 13,
+                          ),
+                          onChanged: (val) => placeSearchApi(val),
+                          focusedBorder: PortColor.gold,
+                          height: screenHeight * 0.055,
+                          cursorHeight: screenHeight * 0.022,
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.all(9.0),
                             child: Container(
-                              height: 30,
-                              width: 30,
-                              color: Colors.transparent,
+                              decoration: BoxDecoration(
+                                color: Colors.green[800],
+                                shape: BoxShape.circle,
+                              ),
                               child: Icon(
-                                Icons.arrow_back,
-                                color: PortColor.black,
-                                size: screenHeight * 0.026,
+                                Icons.arrow_upward_rounded,
+                                color: PortColor.white,
+                                size: screenHeight * 0.02,
                               ),
                             ),
                           ),
-                          SizedBox(width: screenWidth * 0.03),
-                          TextConst(
-                            title: "Packer and Mover",
-                            color: PortColor.black,
-                            fontWeight: FontWeight.w600,
-                            size: 16,
-                          ),
-                          Spacer(),
-                          // GestureDetector(
-                          //   onTap: (){
-                          //     showModalBottomSheet(
-                          //       context: context,
-                          //       isScrollControlled: true,
-                          //       builder: (BuildContext context) {
-                          //         return const FAQModalSheet();
-                          //       },
-                          //     );
-                          //   },
-                          //   child: TextConst(
-                          //     title: "FAQs",
-                          //     color: PortColor.blue,
-                          //     fontWeight: FontWeight.w600,
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.03),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          StepWidget(
-                            icon: currentStep > 0
-                                ? Icons.check
-                                : Icons.location_on,
-                            text: 'Moving details',
-                            isActive: true,
-                            isCompleted: currentStep > 0,
-                          ),
-                          const DottedLine(),
-                          StepWidget(
-                            icon: Icons.inventory,
-                            text: 'Add items',
-                            isActive: currentStep >= 1,
-                            isCompleted: currentStep > 1,
-                          ),
-                          const DottedLine(),
-                          StepWidget(
-                            icon: Icons.receipt,
-                            text: 'Schedule',
-                            isActive: currentStep >= 2,
-                            isCompleted: currentStep > 2,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.02),
-
-                // City Toggle
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                  child: CityToggle(
-                    pickupLocation: pickupController.text,
-                    dropLocation: dropController.text,
-                    onSelectionChanged: updateCitySelection,
-                    initialSelection: isWithinCitySelected,
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.02),
-
-                // Pickup Field
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextField(
-                        controller: pickupController,
-                        focusNode: pickupFocus,
-                        textStyle: TextStyle(
-                          color: Colors.black54,
-                          fontFamily: AppFonts.kanitReg,
-                          fontSize: 13,
-                        ),
-                        onChanged: (val) => placeSearchApi(val),
-                        focusedBorder: PortColor.gold,
-                        height: screenHeight * 0.055,
-                        cursorHeight: screenHeight * 0.022,
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(9.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.green[800],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.arrow_upward_rounded,
-                              color: PortColor.white,
-                              size: screenHeight * 0.02,
-                            ),
+                          hintText: 'Pick up Location',
+                          hintStyle: TextStyle(
+                            color: Colors.black54,
+                            fontFamily: AppFonts.kanitReg,
+                            fontSize: 13,
                           ),
                         ),
-                        hintText: 'Pick up Location',
-                        hintStyle: TextStyle(
-                          color: Colors.black54,
-                          fontFamily: AppFonts.kanitReg,
-                          fontSize: 13,
-                        ),
-                      ),
-                      SizedBox(height: screenHeight * 0.015),
-                      if (pickupController.text.isNotEmpty)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: TextConst(
-                                title: "Service lift available at pickup",
-                                color: PortColor.black.withOpacity(0.7),
-                                fontFamily: AppFonts.kanitReg,
-                                size: 13,
+                        SizedBox(height: screenHeight * 0.015),
+                        if (pickupController.text.isNotEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: TextConst(
+                                  title: "Service lift available at pickup",
+                                  color: PortColor.black.withOpacity(0.7),
+                                  fontFamily: AppFonts.kanitReg,
+                                  size: 13,
+                                ),
                               ),
-                            ),
-                            Switch(
-                              value: pickupLiftAvailable,
-                              activeColor: PortColor.button,
-                              onChanged: (val) {
-                                setState(() {
-                                  pickupLiftAvailable = val;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      if (pickupController.text.isNotEmpty && !pickupLiftAvailable)
-                        Padding(
-                          padding: EdgeInsets.only(top: screenHeight * 0.01),
-                          child: CustomTextField(
-                            controller: pickupFloorController,
-                            textStyle: TextStyle(
-                              color: Colors.black54,
-                              fontFamily: AppFonts.kanitReg,
-                              fontSize: 13,
-                            ),
-                            focusedBorder: PortColor.gold,
-                            height: screenHeight * 0.055,
-                            cursorHeight: screenHeight * 0.022,
-                            prefixIcon: const Icon(Icons.stairs, size: 17),
-                            hintText: 'Floor Number at Pickup',
-                            hintStyle: TextStyle(
-                              color: Colors.black54,
-                              fontFamily: AppFonts.kanitReg,
-                              fontSize: 13,
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (val) {
-                              if (val.isNotEmpty) {
-                                int number = int.tryParse(val) ?? 0;
-
-                                if (number < 1) {
-                                  pickupFloorController.text = "1";
-                                  pickupFloorController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: pickupFloorController.text.length),
-                                  );
-                                } else if (number > 15) {
-                                  pickupFloorController.text = "15";
-                                  pickupFloorController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: pickupFloorController.text.length),
-                                  );
-                                }
-                              }
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
+                              Switch(
+                                value: pickupLiftAvailable,
+                                activeColor: PortColor.button,
+                                onChanged: (val) {
+                                  setState(() {
+                                    pickupLiftAvailable = val;
+                                  });
+                                },
+                              ),
                             ],
                           ),
-                        ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.01),
+                        if (pickupController.text.isNotEmpty && !pickupLiftAvailable)
+                          Padding(
+                            padding: EdgeInsets.only(top: screenHeight * 0.01),
+                            child: CustomTextField(
+                              controller: pickupFloorController,
+                              textStyle: TextStyle(
+                                color: Colors.black54,
+                                fontFamily: AppFonts.kanitReg,
+                                fontSize: 13,
+                              ),
+                              focusedBorder: PortColor.gold,
+                              height: screenHeight * 0.055,
+                              cursorHeight: screenHeight * 0.022,
+                              prefixIcon: const Icon(Icons.stairs, size: 17),
+                              hintText: 'Floor Number at Pickup',
+                              hintStyle: TextStyle(
+                                color: Colors.black54,
+                                fontFamily: AppFonts.kanitReg,
+                                fontSize: 13,
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (val) {
+                                if (val.isNotEmpty) {
+                                  int number = int.tryParse(val) ?? 0;
 
-                // Drop Field
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextField(
-                        controller: dropController,
-                        focusNode: dropFocus,
-                        onChanged: (val) => placeSearchApi(val),
-                        textStyle: TextStyle(
-                          color: Colors.black54,
-                          fontFamily: AppFonts.kanitReg,
-                          fontSize: 13,
-                        ),
-                        focusedBorder: PortColor.gold,
-                        height: screenHeight * 0.055,
-                        cursorHeight: screenHeight * 0.022,
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(9.0),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: PortColor.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.arrow_downward_rounded,
-                              color: PortColor.white,
-                              size: screenHeight * 0.02,
+                                  if (number < 1) {
+                                    pickupFloorController.text = "1";
+                                    pickupFloorController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: pickupFloorController.text.length),
+                                    );
+                                  } else if (number > 15) {
+                                    pickupFloorController.text = "15";
+                                    pickupFloorController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: pickupFloorController.text.length),
+                                    );
+                                  }
+                                }
+                              },
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                             ),
                           ),
-                        ),
-                        hintText: 'Drop Location',
-                        hintStyle: TextStyle(
-                          color: Colors.black54,
-                          fontFamily: AppFonts.kanitReg,
-                          fontSize: 13,
-                        ),
-                      ),
-                      SizedBox(height: screenHeight * 0.015),
-                      if (dropController.text.isNotEmpty)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: TextConst(
-                                title: "Service lift available at drop",
-                                color: PortColor.black.withOpacity(0.7),
-                                fontFamily: AppFonts.kanitReg,
-                                size: 13,
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+
+                  // Drop Field
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          controller: dropController,
+                          focusNode: dropFocus,
+                          onChanged: (val) => placeSearchApi(val),
+                          textStyle: TextStyle(
+                            color: Colors.black54,
+                            fontFamily: AppFonts.kanitReg,
+                            fontSize: 13,
+                          ),
+                          focusedBorder: PortColor.gold,
+                          height: screenHeight * 0.055,
+                          cursorHeight: screenHeight * 0.022,
+                          prefixIcon: Padding(
+                            padding: const EdgeInsets.all(9.0),
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                color: PortColor.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.arrow_downward_rounded,
+                                color: PortColor.white,
+                                size: screenHeight * 0.02,
                               ),
                             ),
-                            Switch(
-                              value: dropLiftAvailable,
-                              activeColor: PortColor.button,
-                              onChanged: (val) {
-                                setState(() {
-                                  dropLiftAvailable = val;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      // 🔹 Floor Number Field for Drop (shown when lift is OFF)
-                      if (dropController.text.isNotEmpty && !dropLiftAvailable)
-                        Padding(
-                          padding: EdgeInsets.only(top: screenHeight * 0.01),
-                          child: CustomTextField(
-                            controller: dropFloorController,
-                            textStyle: TextStyle(
-                              color: Colors.black54,
-                              fontFamily: AppFonts.kanitReg,
-                              fontSize: 13,
-                            ),
-                            focusedBorder: PortColor.gold,
-                            height: screenHeight * 0.055,
-                            cursorHeight: screenHeight * 0.022,
-                            prefixIcon: const Icon(Icons.stairs, size: 17),
-                            hintText: 'Floor Number at Drop',
-                            hintStyle: TextStyle(
-                              color: Colors.black54,
-                              fontFamily: AppFonts.kanitReg,
-                              fontSize: 13,
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (val) {
-                              if (val.isNotEmpty) {
-                                int number = int.tryParse(val) ?? 0;
-                                if (number < 1) {
-                                  dropFloorController.text = "1";
-                                  dropFloorController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: dropFloorController.text.length),
-                                  );
-                                } else if (number > 15) {
-                                  dropFloorController.text = "15";
-                                  dropFloorController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: dropFloorController.text.length),
-                                  );
-                                }
-                              }
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
+                          ),
+                          hintText: 'Drop Location',
+                          hintStyle: TextStyle(
+                            color: Colors.black54,
+                            fontFamily: AppFonts.kanitReg,
+                            fontSize: 13,
                           ),
                         ),
-                    ],
+                        SizedBox(height: screenHeight * 0.015),
+                        if (dropController.text.isNotEmpty)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: TextConst(
+                                  title: "Service lift available at drop",
+                                  color: PortColor.black.withOpacity(0.7),
+                                  fontFamily: AppFonts.kanitReg,
+                                  size: 13,
+                                ),
+                              ),
+                              Switch(
+                                value: dropLiftAvailable,
+                                activeColor: PortColor.button,
+                                onChanged: (val) {
+                                  setState(() {
+                                    dropLiftAvailable = val;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        // 🔹 Floor Number Field for Drop (shown when lift is OFF)
+                        if (dropController.text.isNotEmpty && !dropLiftAvailable)
+                          Padding(
+                            padding: EdgeInsets.only(top: screenHeight * 0.01),
+                            child: CustomTextField(
+                              controller: dropFloorController,
+                              textStyle: TextStyle(
+                                color: Colors.black54,
+                                fontFamily: AppFonts.kanitReg,
+                                fontSize: 13,
+                              ),
+                              focusedBorder: PortColor.gold,
+                              height: screenHeight * 0.055,
+                              cursorHeight: screenHeight * 0.022,
+                              prefixIcon: const Icon(Icons.stairs, size: 17),
+                              hintText: 'Floor Number at Drop',
+                              hintStyle: TextStyle(
+                                color: Colors.black54,
+                                fontFamily: AppFonts.kanitReg,
+                                fontSize: 13,
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (val) {
+                                if (val.isNotEmpty) {
+                                  int number = int.tryParse(val) ?? 0;
+                                  if (number < 1) {
+                                    dropFloorController.text = "1";
+                                    dropFloorController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: dropFloorController.text.length),
+                                    );
+                                  } else if (number > 15) {
+                                    dropFloorController.text = "15";
+                                    dropFloorController.selection = TextSelection.fromPosition(
+                                      TextPosition(offset: dropFloorController.text.length),
+                                    );
+                                  }
+                                }
+                              },
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: screenHeight * 0.01),
+                  SizedBox(height: screenHeight * 0.01),
 
-              ],
+                ],
+              ),
             ),
 
             // Suggestions overlay - USE SEPARATE LOADING VARIABLE
             if (searchResults.isNotEmpty || isLoading)
               Positioned(
-                top: isPickupActive ? screenHeight * 0.34 : screenHeight * 0.43,
+                top: isPickupActive ? screenHeight * 0.37 : screenHeight * 0.43,
                 left: screenWidth * 0.04,
                 right: screenWidth * 0.04,
                 child: Container(
@@ -791,6 +798,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                   child: isLoading
                       ?  Center(child: CircularProgressIndicator(color: PortColor.gold,))
                       : ListView.builder(
+                    padding: EdgeInsets.zero,
                     itemCount: searchResults.length,
                     itemBuilder: (context, index) {
                       final place = searchResults[index];
@@ -976,3 +984,5 @@ class DottedLine extends StatelessWidget {
     );
   }
 }
+
+

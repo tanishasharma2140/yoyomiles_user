@@ -17,6 +17,7 @@ import 'package:yoyomiles/view_model/address_delete_view_model.dart';
 import 'package:yoyomiles/view_model/address_show_view_model.dart';
 import 'package:yoyomiles/view_model/apply_coupon_view_model.dart';
 import 'package:yoyomiles/view_model/call_back_view_model.dart';
+import 'package:yoyomiles/view_model/change_pay_mode_view_model.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/coupon_list_view_model.dart';
 import 'package:yoyomiles/view_model/daily_slot_view_model.dart';
@@ -158,6 +159,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> AddMoneyCallbackViewModel()),
           ChangeNotifierProvider(create: (context)=> UserTransactionViewModel()),
           ChangeNotifierProvider(create: (context)=> OtpCountViewModel()),
+          ChangeNotifierProvider(create: (context)=> ChangePayModeViewModel()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

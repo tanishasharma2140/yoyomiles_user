@@ -626,7 +626,7 @@ class _ReviewBookingState extends State<ReviewBooking> {
                           PaymentMethod = "1";
                         });
                       },
-                      child: Container(
+                      child: SizedBox(
                         height: 40,
                         child: Row(
                           children: [
@@ -656,7 +656,7 @@ class _ReviewBookingState extends State<ReviewBooking> {
                           PaymentMethod = "2";
                         });
                       },
-                      child: Container(
+                      child: SizedBox(
                         height: 40,
                         child: Row(
                           children: [
@@ -669,6 +669,35 @@ class _ReviewBookingState extends State<ReviewBooking> {
                               ),
                             ),
                             if (PaymentMethod == "2")
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    // SizedBox(height: screenHeight * 0.01),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          PaymentMethod = "3";
+                        });
+                      },
+                      child: SizedBox(
+                        height: 40,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextConst(
+                                title: "Pay Via Wallet",
+                                color: PortColor.black,
+                                fontFamily: AppFonts.poppinsReg,
+                                size: 13,
+                              ),
+                            ),
+                            if (PaymentMethod == "3")
                               const Icon(
                                 Icons.check_circle,
                                 color: Colors.green,

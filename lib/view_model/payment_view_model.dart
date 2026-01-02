@@ -8,7 +8,7 @@ import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class PaymentViewModel with ChangeNotifier {
   PaymentViewModel() {
-    debugPrint("🔥PaymentViewModel instance CREATED");
+    debugPrint("PaymentViewModel instance CREATED");
   }
 
   final _paymentRepo = PaymentRepo();
@@ -123,7 +123,6 @@ class PaymentViewModel with ChangeNotifier {
       if (response != null &&
           response["STATUS"] == "TXN_SUCCESS") {
 
-        /// 🔥 DIRECT HOME
         Navigator.pushNamedAndRemoveUntil(
           context,
           "/bottomNavBar",

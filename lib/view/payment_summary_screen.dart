@@ -117,7 +117,7 @@ class PaymentSummaryScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                 // payment.paymentApi(,"1" amount.toStringAsFixed(2),firebaseOrderId,context);
+                 payment.paymentApi(1, amount.toStringAsFixed(2),firebaseOrderId,context);
                 },
                 child: const Text(
                   "Payment",
@@ -135,108 +135,3 @@ class PaymentSummaryScreen extends StatelessWidget {
     );
   }
 }
-//
-// import 'package:flutter/material.dart';
-// import 'package:flutter_cashfree_pg_sdk/api/cfpayment/cfwebcheckoutpayment.dart';
-// import 'package:flutter_cashfree_pg_sdk/api/cfpaymentgateway/cfpaymentgatewayservice.dart';
-// import 'package:flutter_cashfree_pg_sdk/api/cfsession/cfsession.dart';
-// import 'package:flutter_cashfree_pg_sdk/utils/cfenums.dart';
-// import 'package:provider/provider.dart';
-// import 'package:share_ride/model/cashfree_gateway_model.dart';
-// import 'package:share_ride/view_model/ride_payment_view_model.dart';
-//
-// class CashfreePaymentScreen extends StatefulWidget {
-//   final CashFreeGatewayModel? data;
-//   final String rideId;
-//   final String driverId;
-//   final String amount;
-//
-//   ///0-ride payment 1-admin online pay
-//   const CashfreePaymentScreen({
-//     super.key,
-//     required this.data,
-//     required this.rideId,
-//     required this.driverId,
-//     required this.amount,
-//   });
-//
-//   @override
-//   State<CashfreePaymentScreen> createState() => _CashfreePaymentScreenState();
-// }
-//
-// class _CashfreePaymentScreenState extends State<CashfreePaymentScreen> {
-//   final CFPaymentGatewayService cfPaymentGatewayService =
-//   CFPaymentGatewayService();
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Setup callbacks
-//     cfPaymentGatewayService.setCallback(
-//           (orderId) async {
-//         _showMessage("Payment Success for Order ID: $orderId");
-//         final paymentProvider = Provider.of<RidePaymentViewModel>(
-//           context,
-//           listen: false,
-//         );
-//         await paymentProvider.ridePaymentUserApi(
-//           context,
-//           int.parse(widget.rideId),
-//           int.parse(widget.driverId),
-//           double.parse(widget.amount).toInt(),
-//           1,
-//           1,
-//           orderId.toString(),
-//         );
-//       },
-//           (error, orderId) {
-//         _showMessage(
-//           "Payment Failed: ${error.getMessage()} (Order ID: $orderId)",
-//         );
-//       },
-//     );
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       startPayment();
-//     });
-//   }
-//
-//   Future<void> startPayment() async {
-//     try {
-//       /// STEP 1: Get these from your backend
-//       /// Replace these with your backend-generated values
-//       String orderId = widget.data!.data!.orderId.toString(); // from backend
-//       String paymentSessionId = widget.data!.data!.paymentSessionId
-//           .toString(); // from backend
-//
-//       /// STEP 2: Build session
-//       var session = CFSessionBuilder()
-//           .setEnvironment(
-//         CFEnvironment.SANDBOX,
-//       ) // Change to PRODUCTION in live mode
-//           .setOrderId(orderId)
-//           .setPaymentSessionId(paymentSessionId)
-//           .build();
-//
-//       /// STEP 3: Build WebCheckout payment object
-//       var cfWebCheckout = CFWebCheckoutPaymentBuilder()
-//           .setSession(session)
-//           .build();
-//
-//       /// STEP 4: Start payment
-//       cfPaymentGatewayService.doPayment(cfWebCheckout);
-//     } catch (e) {
-//       _showMessage("Error starting payment: $e");
-//     }
-//   }
-//
-//   void _showMessage(String message) {
-//     ScaffoldMessenger.of(
-//       context,
-//     ).showSnackBar(SnackBar(content: Text(message)));
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(body: const Center(child: CircularProgressIndicator()));
-//   }
-// }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yoyomiles/repo/proceed_order_repo.dart';
 import 'package:yoyomiles/utils/utils.dart';
 import 'package:yoyomiles/view_model/packer_mover_payment_view_model.dart';
+import 'package:yoyomiles/view_model/payment_view_model.dart';
 import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -82,8 +83,8 @@ class ProceedOrderViewModel with ChangeNotifier {
       if (response["status"] == 200) {
         print("Order success: ${response["message"]}");
         Utils.showSuccessMessage(context, response["message"]);
-        // final packerPaymentVm = Provider.of<PackerMoverPaymentViewModel>(context,listen: false);
-        // await packerPaymentVm.paymentApi(context, totalCharges, "");
+        final payment = Provider.of<PaymentViewModel>(context,listen: false);
+        payment.paymentApi(4, totalCharges, "", context);
       } else {
         Utils.showErrorMessage(context,  response["message"]);
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yoyomiles/view_model/change_pay_mode_view_model.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -430,116 +430,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     });
   }
 
-  void _showNoDriverAvailableDialogStatus9() {
-    if (_noDriverDialogShown) return;
-    _noDriverDialogShown = true;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogCtx) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // ICON
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.orange.shade100, width: 2),
-                  ),
-                  child: Icon(
-                    Icons.directions_car_filled_outlined,
-                    size: 40,
-                    color: Colors.orange.shade600,
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                // TITLE
-                const Text(
-                  "No Driver Near You",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // SUBTITLE
-                Text(
-                  "Please try again after some time 😊",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 15,
-                  ),
-                ),
-
-                const SizedBox(height: 22),
-
-                // OK BUTTON
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(dialogCtx).pop();
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (ctx) => BottomNavigationPage()),
-                            (route) => false,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      "OK",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    ).then((_) {
-      _noDriverDialogShown = false;
-    });
-  }
-
-
-  // 🔥 RIDE CANCELLED DIALOG (Driver side cancellation - status 8)
   void _showRideCancelledDialogMethod(String orderId) {
     if (_showRideCancelledDialog) {
       print("⚠️ Ride cancelled dialog already showing");
@@ -701,6 +591,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         return "Cash";
       case 2:
         return "Online";
+      case 3:
+        return "Wallet";
       default:
         return "Cash";
     }
@@ -916,6 +808,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       return const Scaffold(body: Center(child: Text("Order ID not found")));
     }
 
+
+
     return SafeArea(
       top: false,
       bottom: true,
@@ -983,11 +877,14 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
            - Amount: $amount
         """);
 
-              // ✅ REAL-TIME ORDER DATA UPDATE WITH SAFE CONVERSIONS
+              // ✅ REAL-TIME ORDER DATA UPDATE WITH SAFE CONVERSIONS (INCLUDING PAYMODE)
               final updatedOrderData = {
                 ...widget.orderData ?? {},
                 'document_id': orderId,
                 'ride_status': rideStatus,
+                'paymode': payMode, // ✅ Real-time paymode update
+                'amount': amount,
+                'distance': distance,
                 'pickup_latitute': orderData['pickup_latitute'],
                 'pick_longitude': orderData['pick_longitude'],
                 'drop_latitute': orderData['drop_latitute'],
@@ -996,6 +893,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 'drop_address': orderData['drop_address'],
                 'otp': otp,
               };
+
+
+
 
               /// ⏱️ 3 minute search timeout yahi pe lagao (ab updatedOrderData available hai)
               if (driverId == null && rideStatus == 0) {
@@ -1011,7 +911,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               if (rideStatus == 5 && payMode == 2) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   print("💳 Navigating to Payment Summary (Online Payment)");
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PaymentSummaryScreen(
@@ -1052,11 +952,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 });
               }
 
-              if (rideStatus == 9 && !_noDriverDialogShown) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _showNoDriverAvailableDialogStatus9();
-                });
-              }
+              // if (rideStatus == 9 && !_noDriverDialogShown) {
+              //   WidgetsBinding.instance.addPostFrameCallback((_) {
+              //     _showNoDriverAvailableDialogStatus9();
+              //   });
+              // }
 
               if (driverId == null) {
                 // No driver assigned
@@ -1109,7 +1009,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
     showDialog(
       context: context,
-      barrierDismissible: false,
+      // barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -1181,7 +1081,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     });
   }
 
-  // Main Layout - UPDATED WITH PROPER OTP HANDLING
+  // Main Layout - UPDATED WITH PROPER OTP HANDLING AND PAYMODE
   Widget _buildMainLayout({
     required Widget middleSection,
     Map<String, dynamic>? orderData,
@@ -1196,6 +1096,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     // ✅ UPDATED: Check if we should show OTP and Cancel Ride
     bool showOtpAndCancel = rideStatus >= 1 && rideStatus <= 3;
     bool showOtpSection = showOtpAndCancel && otp != "N/A" && otp.isNotEmpty;
+
+    print("🎨 _buildMainLayout called with payMode = $payMode");
 
     return Stack(
       children: [
@@ -1287,8 +1189,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     // Address card
                     buildAddressCard(),
 
-                    // Payment container
-                    buildPaymentContainer(payMode),
+                    // ✅ Payment container - passing real-time payMode
+                    buildPaymentContainer(payMode, orderData),
 
                     if (showOtpAndCancel)
                       GestureDetector(
@@ -1701,14 +1603,14 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     required String phone,
     required String address,
   }) {
-    final orderType = widget.orderData?['order_type']?.toString() ?? "1";
+    final orderType = widget.orderData?['order_type'] ?? 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
         // ⭐ SHOW ONLY IF order_type == 1
-        if (orderType == "1") ...[
+        if (orderType == 1) ...[
           Row(
             children: [
               Text(
@@ -1750,62 +1652,211 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
 
-  // Updated Payment Container with dynamic payment method
-  Widget buildPaymentContainer(int payMode) {
-    final paymentMethod = _getPaymentMethodText(payMode);
+
+
+  // ✅ Updated Payment Container with real-time payment method
+  Widget buildPaymentContainer(int payMode, Map<String, dynamic>? orderData) {
+    print("🎨 buildPaymentContainer CALLED with payMode = $payMode");
+    final paymentMethod = payMode == 2 ? "Online (UPI)" : "Cash";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: PortColor.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: PortColor.grey),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Image.asset(Assets.assetsRupeetwo, height: 50, width: 50),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              TextConst(
-                title: paymentMethod,
-                size: 16,
-                fontWeight: FontWeight.w600,
+              Image.asset(Assets.assetsRupeetwo, height: 46, width: 46),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextConst(
+                    title: paymentMethod,
+                    size: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Payment method",
+                    style: TextStyle(fontSize: 13, color: Colors.grey),
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
+              const Spacer(),
               Text(
-                "Payment method",
+                "₹ ${orderData?['amount'] ?? '0'}",
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                  fontFamily: AppFonts.kanitReg,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: PortColor.gold,
                 ),
               ),
             ],
           ),
-          const Spacer(),
-          Text(
-            "₹ ${widget.orderData?['amount'] ?? '456'}",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: PortColor.gold,
-              fontFamily: AppFonts.kanitReg,
+
+          const SizedBox(height: 12),
+          Divider(color: PortColor.grey.withOpacity(0.4)),
+
+          GestureDetector(
+            onTap: () => _openChangePayModeSheet(payMode),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: const [
+                  Text(
+                    "Change Pay Mode",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: PortColor.button,
+                    ),
+                  ),
+                  Spacer(),
+                  Icon(Icons.arrow_forward_ios, size: 16),
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+
+  void _openChangePayModeSheet(int currentPayMode) {
+    int selectedPayMode = currentPayMode;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: PortColor.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Change Pay Mode",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  _payModeTile(
+                    title: "Online (UPI)",
+                    payMode: 2,
+                    selectedPayMode: selectedPayMode,
+                    onTap: () {
+                      setState(() => selectedPayMode = 2);
+                      _changePayModeApi(2);
+                    },
+                  ),
+
+                  _payModeTile(
+                    title: "Cash",
+                    payMode: 1,
+                    selectedPayMode: selectedPayMode,
+                    onTap: () {
+                      setState(() => selectedPayMode = 1);
+                      _changePayModeApi(1);
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+
+  void _changePayModeApi(int payMode) {
+    final orderId = widget.orderData?['document_id'];
+    if (orderId == null) return;
+
+    Provider.of<ChangePayModeViewModel>(context, listen: false)
+        .changePayModeApi(
+      context: context,
+      orderId: orderId,
+      payMode: payMode,
+    );
+
+    // ✅ Close the bottom sheet after API call
+    // Navigator.of(context).pop();
+  }
+
+
+
+  Widget _payModeTile({
+    required String title,
+    required int payMode,
+    required int selectedPayMode,
+    required VoidCallback onTap,
+  }) {
+    final bool isSelected = payMode == selectedPayMode;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? PortColor.gold.withOpacity(0.15)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? PortColor.gold : PortColor.grey,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              payMode == 1 ? Icons.account_balance_wallet : Icons.money,
+              color: isSelected ? PortColor.gold : Colors.grey[700],
+            ),
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontFamily: AppFonts.kanitReg,
+                  fontWeight:
+                  isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+
+            if (isSelected)
+              Icon(
+                Icons.check_circle,
+                color: PortColor.gold,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+
 }
 
 // Dotted Line

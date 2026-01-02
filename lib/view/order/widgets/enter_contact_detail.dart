@@ -162,24 +162,45 @@ class _EnterContactDetailState extends State<EnterContactDetail>
               _controller.complete(controller);
               mapController = controller;
             },
-            onCameraMove: (position) {
-              // Update the marker position when camera moves (dragging)
-              setState(() {
-                selectedLatLng = position.target;
-              });
+
+            /// ✅ DRAG START → FULLSCREEN MODE
+            onCameraMoveStarted: () {
+              if (!isFullscreenMode) {
+                setState(() {
+                  isFullscreenMode = true;
+                });
+              }
             },
+
+            /// (optional) Tap pe bhi fullscreen
+            onTap: (LatLng latLng) {
+              if (!isFullscreenMode) {
+                setState(() {
+                  isFullscreenMode = true;
+                });
+              }
+              selectedLatLng = latLng;
+            },
+
+            /// ✅ CAMERA MOVE (dragging)
+            onCameraMove: (position) {
+              selectedLatLng = position.target;
+            },
+
+            /// ✅ DRAG END → FETCH ADDRESS
             onCameraIdle: () async {
-              // Fetch address only when in fullscreen mode
               if (isFullscreenMode) {
                 await _getAddressFromLatLng(selectedLatLng);
               }
             },
-            // Remove map markers and use overlay pin instead (so we can position it top/center)
+
             markers: const <Marker>{},
             myLocationEnabled: false,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
           ),
+
+
 
           // Overlay pin: top when not fullscreen, center when fullscreen.
           // Outer IgnorePointer lets map gestures pass; inner IgnorePointer(false)
@@ -754,7 +775,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
               Image(
                 image: AssetImage(asset),
                 height: screenHeight * 0.02,
-                color: isSelected ? Colors.white : null,
+                color: isSelected ? Colors.black : null,
               ),
             SizedBox(width: screenWidth * 0.01),
             TextConst(
