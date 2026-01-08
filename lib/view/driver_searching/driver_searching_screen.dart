@@ -932,7 +932,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 });
               }
 
-              if (rideStatus == 6 && payMode == 1 && !_showRideCompletedDialog) {
+              if (rideStatus == 6 && (payMode == 1 || payMode == 3) && !_showRideCompletedDialog) {
                 print("💵 STREAMBUILDER: Ride completed with cash payment!");
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   _showRideCompletedDialogMethod();
@@ -1519,80 +1519,64 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Column(
             children: [
-              // Circles + Dotted Line
-              Column(
-                children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_upward,
-                      color: Colors.white,
-                      size: 14,
-                    ),
-                  ),
-                  Container(
-                    width: 2,
-                    height: widget.orderData?['order_type'] == 2 ? 25 : 45,
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: CustomPaint(painter: DottedLinePainter()),
-                  ),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_downward,
-                      color: Colors.white,
-                      size: 14,
-                    ),
-                  ),
-                ],
+              Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green,
+                ),
+                child: const Icon(
+                  Icons.arrow_upward,
+                  color: Colors.white,
+                  size: 14,
+                ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _singleAddressDetail(
-                      name:
-                      widget.orderData?['sender_name'] ?? "Tanisha Sharma",
-                      phone:
-                      widget.orderData?['sender_phone']?.toString() ??
-                          "7235947667",
-                      address:
-                      widget.orderData?['pickup_address'] ??
-                          "Naya Khera, Jankipuram Extension,...",
-                    ),
-                    const SizedBox(height: 12),
-                    _singleAddressDetail(
-                      name:
-                      widget.orderData?['reciver_name'] ?? "Tanisha Sharma",
-                      phone:
-                      widget.orderData?['reciver_phone']?.toString() ??
-                          "7235947667",
-                      address:
-                      widget.orderData?['drop_address'] ??
-                          "Tedhi Pulia, Sector H, Jankipuram, ...",
-                    ),
-                  ],
+              Container(
+                width: 2,
+                height: widget.orderData?['order_type'] == 2 ? 25 : 45,
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: CustomPaint(painter: DottedLinePainter()),
+              ),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red,
+                ),
+                child: const Icon(
+                  Icons.arrow_downward,
+                  color: Colors.white,
+                  size: 14,
                 ),
               ),
             ],
           ),
-          // SizedBox(height: screenHeight * 0.02),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _singleAddressDetail(
+                  name: widget.orderData?['sender_name'] ?? "",
+                  phone: widget.orderData?['sender_phone']?.toString() ?? "",
+                  address: widget.orderData?['pickup_address'] ?? "",
+                ),
+                const SizedBox(height: 12),
+                _singleAddressDetail(
+                  name: widget.orderData?['reciver_name'] ?? "",
+                  phone: widget.orderData?['reciver_phone']?.toString() ?? "",
+                  address: widget.orderData?['drop_address'] ?? "",
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1609,8 +1593,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
-        // ⭐ SHOW ONLY IF order_type == 1
-        if (orderType == 1) ...[
+        // ⭐ SHOW NAME & PHONE ONLY IF order_type != 1
+        if (orderType != 1 && name.isNotEmpty) ...[
           Row(
             children: [
               Text(
@@ -1622,21 +1606,23 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   color: PortColor.gold,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                "• $phone",
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                  fontFamily: AppFonts.kanitReg,
+              if (phone.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Text(
+                  "• $phone",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                    fontFamily: AppFonts.kanitReg,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
           const SizedBox(height: 4),
         ],
 
-        // ⭐ Address always visible
+        // ⭐ Address ALWAYS visible
         Text(
           address,
           style: TextStyle(
@@ -1654,10 +1640,15 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
 
 
+
   // ✅ Updated Payment Container with real-time payment method
   Widget buildPaymentContainer(int payMode, Map<String, dynamic>? orderData) {
     print("🎨 buildPaymentContainer CALLED with payMode = $payMode");
-    final paymentMethod = payMode == 2 ? "Online (UPI)" : "Cash";
+    final paymentMethod = payMode == 2
+        ? "Online"
+        : payMode == 3
+        ? "Wallet"
+        : "Cash";
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

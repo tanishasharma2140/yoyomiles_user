@@ -50,6 +50,7 @@ import 'package:yoyomiles/view_model/service_type_view_model.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
 import 'package:yoyomiles/view_model/user_history_view_model.dart';
 import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
+import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -160,6 +161,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> UserTransactionViewModel()),
           ChangeNotifierProvider(create: (context)=> OtpCountViewModel()),
           ChangeNotifierProvider(create: (context)=> ChangePayModeViewModel()),
+          ChangeNotifierProvider(create: (context)=> VehicleLoadingViewModel()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

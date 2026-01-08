@@ -40,18 +40,37 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         listen: false,
       );
 
-      double pickupLat =
-          double.tryParse(orderViewModel.pickupData["latitude"].toString()) ??
-              0.0;
-      double pickupLon =
-          double.tryParse(orderViewModel.pickupData["longitude"].toString()) ??
-              0.0;
-      double dropLat =
-          double.tryParse(orderViewModel.dropData["latitude"].toString()) ??
-              0.0;
-      double dropLon =
-          double.tryParse(orderViewModel.dropData["longitude"].toString()) ??
-              0.0;
+      // ✅ Null check - agar data null hai to back chale jao
+      if (orderViewModel.pickupData == null || orderViewModel.dropData == null) {
+        debugPrint("❌ Error: Pickup or Drop data is null!");
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please select pickup and drop locations first'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          Navigator.pop(context);
+        });
+        return;
+      }
+
+      // ✅ Safe parsing with null checks
+      double pickupLat = double.tryParse(
+          orderViewModel.pickupData?["latitude"]?.toString() ?? "0"
+      ) ?? 0.0;
+
+      double pickupLon = double.tryParse(
+          orderViewModel.pickupData?["longitude"]?.toString() ?? "0"
+      ) ?? 0.0;
+
+      double dropLat = double.tryParse(
+          orderViewModel.dropData?["latitude"]?.toString() ?? "0"
+      ) ?? 0.0;
+
+      double dropLon = double.tryParse(
+          orderViewModel.dropData?["longitude"]?.toString() ?? "0"
+      ) ?? 0.0;
 
       double distance = calculateDistance(
         pickupLat,
@@ -60,26 +79,25 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         dropLon,
       );
 
-      debugPrint("sadefdwr4tg $distance");
+      debugPrint("Distance: $distance km");
 
+      // ✅ Additional null checks before API call
+      if (serviceTypeViewModel.selectedVehicleId == null ||
+          serviceTypeViewModel.selectedVehicleType == null) {
+        debugPrint("❌ Error: Vehicle type not selected!");
+        return;
+      }
 
       selectVehiclesViewModel.selectVehicleApi(
         serviceTypeViewModel.selectedVehicleId!,
         distance.toString(),
         serviceTypeViewModel.selectedVehicleType!,
-        orderViewModel.pickupData['latitude'],
-        orderViewModel.pickupData['longitude'],
-        orderViewModel.dropData['latitude'],
-        orderViewModel.dropData['longitude'],
+        orderViewModel.pickupData?['latitude'],
+        orderViewModel.pickupData?['longitude'],
+        orderViewModel.dropData?['latitude'],
+        orderViewModel.dropData?['longitude'],
         context,
       );
-
-      // selectVehiclesViewModel.selectVehiclesApi(
-      //   serviceTypeViewModel.selectedVehicleId!,
-      //   distance.toString(),
-      // ).then((_) {
-      //   _setDefaultSelectedVehicle(selectVehiclesViewModel);
-      // });
     });
   }
 
@@ -98,21 +116,17 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     }
   }
 
-  // Method to set default selected vehicle based on selected_status
-
-
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const double earthRadius = 6371.0;
 
     double dLat = _degreeToRadian(lat2 - lat1);
     double dLon = _degreeToRadian(lon2 - lon1);
 
-    double a =
-        sin(dLat / 2) * sin(dLat / 2) +
-            cos(_degreeToRadian(lat1)) *
-                cos(_degreeToRadian(lat2)) *
-                sin(dLon / 2) *
-                sin(dLon / 2);
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreeToRadian(lat1)) *
+            cos(_degreeToRadian(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
     double c = 2 * atan2(sqrt(a), sqrt(1 - a));
 
     return earthRadius * c;
@@ -122,9 +136,6 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     return degree * pi / 180;
   }
 
-
-
-  // Helper method to get other vehicles
   List<dynamic> getOtherVehicles(SelectVehiclesViewModel viewModel) {
     return viewModel.selectVehicleModel?.data
         ?.where((vehicle) => vehicle.selectedStatus != 1)
@@ -135,18 +146,28 @@ class _SelectVehiclesState extends State<SelectVehicles> {
   @override
   Widget build(BuildContext context) {
     final orderViewModel = Provider.of<OrderViewModel>(context);
-    final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(
-      context,
-    );
+    final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(context);
 
-    double pickupLat = orderViewModel.pickupData["latitude"] ?? 0.0;
-    double pickupLon = orderViewModel.pickupData["longitude"] ?? 0.0;
-    double dropLat = orderViewModel.dropData["latitude"] ?? 0.0;
-    double dropLon = orderViewModel.dropData["longitude"] ?? 0.0;
+    // ✅ Safe data extraction with null checks
+    double pickupLat = double.tryParse(
+        orderViewModel.pickupData?["latitude"]?.toString() ?? "0"
+    ) ?? 0.0;
+
+    double pickupLon = double.tryParse(
+        orderViewModel.pickupData?["longitude"]?.toString() ?? "0"
+    ) ?? 0.0;
+
+    double dropLat = double.tryParse(
+        orderViewModel.dropData?["latitude"]?.toString() ?? "0"
+    ) ?? 0.0;
+
+    double dropLon = double.tryParse(
+        orderViewModel.dropData?["longitude"]?.toString() ?? "0"
+    ) ?? 0.0;
+
     double distance = calculateDistance(pickupLat, pickupLon, dropLat, dropLon);
 
-    print("distance $distance");
-
+    print("Distance: $distance km");
 
     return SafeArea(
       top: false,
@@ -156,7 +177,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         body: Column(
           children: [
             Container(
-              padding: EdgeInsets.only(top: 18),
+              padding: const EdgeInsets.only(top: 18),
               height: screenHeight * 0.09,
               width: screenWidth,
               decoration: BoxDecoration(
@@ -179,7 +200,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     },
                   ),
                   SizedBox(width: screenWidth * 0.02),
-                  TextConst(
+                  const TextConst(
                     title: "Select Vehicles",
                     color: PortColor.black,
                     size: 16,
@@ -206,33 +227,25 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding:  EdgeInsets.only(top: 5),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 5),
                       child: Column(
                         children: [
-                          Container(
-                            width: screenWidth * 0.04,
-                            height: screenHeight * 0.01,
-                            decoration: const BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                            ),
+                          CircleAvatar(
+                            radius: 8,
+                            backgroundColor: Colors.green,
                           ),
                           Column(
-                            children: List.generate(
-                              12,
-                                  (index) => Container(
-                                width: screenWidth * 0.003,
-                                height: screenHeight * 0.0025,
-                                margin: const EdgeInsets.symmetric(vertical: 1),
-                                color: PortColor.gray,
-                              ),
-                            ),
+                            children: [
+                              SizedBox(height: 2),
+                              Icon(Icons.more_vert, color: PortColor.gray, size: 16),
+                              Icon(Icons.more_vert, color: PortColor.gray, size: 16),
+                            ],
                           ),
                           Icon(
                             Icons.location_on_rounded,
                             color: PortColor.red,
-                            size: screenHeight * 0.024,
+                            size: 20,
                           ),
                         ],
                       ),
@@ -244,17 +257,17 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                         children: [
                           Row(
                             children: [
-                              TextConst(
-                                title:
-                                orderViewModel.pickupData["name"] ?? "N/A",
-                                color: PortColor.black,
-                                fontFamily: AppFonts.kanitReg,
-                                size: 12,
+                              Expanded(
+                                child: TextConst(
+                                  title: orderViewModel.pickupData?["name"]?.toString() ?? "N/A",
+                                  color: PortColor.black,
+                                  fontFamily: AppFonts.kanitReg,
+                                  size: 12,
+                                ),
                               ),
                               SizedBox(width: screenWidth * 0.02),
                               TextConst(
-                                title:
-                                orderViewModel.pickupData["phone"] ?? "N/A",
+                                title: orderViewModel.pickupData?["phone"]?.toString() ?? "N/A",
                                 color: PortColor.gray,
                                 fontFamily: AppFonts.kanitReg,
                                 size: 12,
@@ -262,8 +275,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             ],
                           ),
                           TextConst(
-                            title:
-                            orderViewModel.pickupData["address"] ?? "N/A",
+                            title: orderViewModel.pickupData?["address"]?.toString() ?? "N/A",
                             color: PortColor.gray,
                             fontFamily: AppFonts.poppinsReg,
                             maxLines: 2,
@@ -273,16 +285,17 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                           SizedBox(height: screenHeight * 0.01),
                           Row(
                             children: [
-                              TextConst(
-                                title: orderViewModel.dropData["name"] ?? "N/A",
-                                color: PortColor.black,
-                                fontFamily: AppFonts.kanitReg,
-                                size: 12,
+                              Expanded(
+                                child: TextConst(
+                                  title: orderViewModel.dropData?["name"]?.toString() ?? "N/A",
+                                  color: PortColor.black,
+                                  fontFamily: AppFonts.kanitReg,
+                                  size: 12,
+                                ),
                               ),
                               SizedBox(width: screenWidth * 0.01),
                               TextConst(
-                                title:
-                                orderViewModel.dropData["phone"] ?? "N/A",
+                                title: orderViewModel.dropData?["phone"]?.toString() ?? "N/A",
                                 color: PortColor.gray,
                                 fontFamily: AppFonts.kanitReg,
                                 size: 12,
@@ -290,7 +303,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             ],
                           ),
                           TextConst(
-                            title: orderViewModel.dropData["address"] ?? "N/A",
+                            title: orderViewModel.dropData?["address"]?.toString() ?? "N/A",
                             color: PortColor.gray,
                             fontFamily: AppFonts.poppinsReg,
                             maxLines: 2,
@@ -303,18 +316,13 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => BottomNavigationPage(),
+                                  builder: (context) => const BottomNavigationPage(),
                                 ),
                               );
                             },
                             child: Container(
                               height: 40,
-                              // padding: EdgeInsets.symmetric(
-                              //   horizontal: screenWidth * 0.03,
-                              //   vertical: screenHeight * 0.01,
-                              // ),
                               decoration: BoxDecoration(
-                                // color: Colors.red,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -325,7 +333,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                     size: screenHeight * 0.025,
                                   ),
                                   SizedBox(width: screenWidth * 0.01),
-                                  TextConst(
+                                  const TextConst(
                                     title: "EDIT LOCATION",
                                     color: PortColor.black,
                                     fontFamily: AppFonts.poppinsReg,
@@ -341,12 +349,12 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 ),
               ),
             ),
-            TextConst(
+            const TextConst(
               title: "Choose the vehicle for your delivery",
               fontWeight: FontWeight.w400,
               size: 15,
             ),
-            SizedBox(height: screenHeight*0.03,),
+            SizedBox(height: screenHeight * 0.03),
           ],
         ),
         bottomSheet: Container(
@@ -361,75 +369,72 @@ class _SelectVehiclesState extends State<SelectVehicles> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-            Container(
-            height: screenHeight * 0.5,
-            padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-            child: selectVehiclesViewModel.loading
-                ? const Center(
-              child: CircularProgressIndicator(color: PortColor.blue),
-            )
-                : Builder(
-              builder: (context) {
-                final vehicles = selectVehiclesViewModel.selectVehicleModel?.data;
+              Container(
+                height: screenHeight * 0.5,
+                padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+                child: selectVehiclesViewModel.loading
+                    ? const Center(
+                  child: CircularProgressIndicator(color: PortColor.blue),
+                )
+                    : Builder(
+                  builder: (context) {
+                    final vehicles = selectVehiclesViewModel.selectVehicleModel?.data;
 
-                // ✅ Handle null or empty list
-                if (vehicles == null) {
-                  return const Center(
-                    child: Text(
-                      "Something went wrong. Please try again later.",
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                        fontFamily: AppFonts.kanitReg,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-
-                if (vehicles.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      "No vehicles available.",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontFamily: AppFonts.kanitReg,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-
-                // ✅ Safe ListView rendering
-                return SingleChildScrollView(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: vehicles.length,
-                    itemBuilder: (context, index) {
-                      final vehicle = vehicles[index];
-                      final isSelected = selectedIndex == index;
-
-                      // Debug log
-                      print("Vehicle index $index => ${vehicle.vehicleBodyDetailsId}");
-
-                      return _buildVehicleItem(
-                        vehicle: vehicle,
-                        isSelected: isSelected,
-                        index: index,
-                        distance: distance,
-                        onTap: () {
-                          setState(() {
-                            selectedIndex = index;
-                          });
-                        },
+                    if (vehicles == null) {
+                      return const Center(
+                        child: Text(
+                          "Something went wrong. Please try again later.",
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontFamily: AppFonts.kanitReg,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
-          Container(
+                    }
+
+                    if (vehicles.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          "No vehicles available.",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontFamily: AppFonts.kanitReg,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    }
+
+                    return SingleChildScrollView(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: vehicles.length,
+                        itemBuilder: (context, index) {
+                          final vehicle = vehicles[index];
+                          final isSelected = selectedIndex == index;
+
+                          print("Vehicle index $index => ${vehicle.vehicleBodyDetailsId}");
+
+                          return _buildVehicleItem(
+                            vehicle: vehicle,
+                            isSelected: isSelected,
+                            index: index,
+                            distance: distance,
+                            onTap: () {
+                              setState(() {
+                                selectedIndex = index;
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Container(
                 height: screenHeight * 0.09,
                 decoration: BoxDecoration(
                   color: PortColor.white,
@@ -449,24 +454,36 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                   child: InkWell(
                     onTap: selectedIndex != null
                         ? () {
+                      // ✅ Null safety check
+                      if (selectVehiclesViewModel.selectVehicleModel?.data == null ||
+                          selectedIndex! >= selectVehiclesViewModel.selectVehicleModel!.data!.length) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid vehicle selection'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
+                      }
+
                       final selectedVehicle = selectVehiclesViewModel
                           .selectVehicleModel!.data![selectedIndex!];
 
                       final vehicleName = selectedVehicle.vehicleName ?? "Unknown Vehicle";
                       final vehicleId = selectedVehicle.vehicleId ?? 0;
                       final vehicleBodyDetailId =
-                      selectedVehicle.vehicleBodyDetailsId.toString();
+                          selectedVehicle.vehicleBodyDetailsId?.toString() ?? "0";
                       final vehicleBodyTypeId =
                           selectedVehicle.vehicleBodyTypesId?.toString() ?? "0";
 
                       final distanceStr = distance.toInt().toString();
                       final price = (double.tryParse(
-                        selectedVehicle.amount.toString(),
-                      ) ?? 0)
+                        selectedVehicle.amount?.toString() ?? "0",
+                      ) ??
+                          0)
                           .toInt()
                           .toString();
 
-                      // 🧾 Debug Prints
                       print("======== Vehicle Selection Details ========");
                       print("Vehicle Name: $vehicleName");
                       print("Vehicle ID: $vehicleId");
@@ -481,12 +498,13 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                         PageRouteBuilder(
                           transitionDuration: const Duration(milliseconds: 400),
                           pageBuilder: (_, __, ___) => ReviewBooking(
-                            vehicleName: vehicleName, // ✅ send vehicle name
+                            vehicleName: vehicleName,
                             index: selectedIndex,
                             price: price,
                             distance: distanceStr,
                             vehicleBodyDetailId: vehicleBodyDetailId,
                             vehicleBodyTypeId: vehicleBodyTypeId,
+                            vehicleIds : vehicleId.toString(),
                           ),
                           transitionsBuilder: (_, animation, __, child) {
                             final offsetAnimation = Tween<Offset>(
@@ -524,7 +542,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                       ),
                       child: TextConst(
                         title: selectedIndex != null
-                            ? "Proceed with ${selectVehiclesViewModel.selectVehicleModel?.data![selectedIndex!].vehicleName ?? 'Vehicle'}"
+                            ? "Proceed with ${selectVehiclesViewModel.selectVehicleModel?.data?[selectedIndex!].vehicleName ?? 'Vehicle'}"
                             : "Select a Vehicle",
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
@@ -532,13 +550,10 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     ),
                   ),
                 ),
-
-
-          ),
+              ),
             ],
           ),
         ),
-
       ),
     );
   }
@@ -550,15 +565,12 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     required double distance,
     required VoidCallback onTap,
   }) {
-    // CORRECTED: Use vehicleId instead of vehicleid
-    final vehicleName = vehicle.vehicleName ?? "n/a";
-    final bodyDetails = vehicle.bodyDetail ?? "fewrffewr";
+    // ✅ Safe null handling
+    final vehicleName = vehicle.vehicleName?.toString() ?? "Unknown Vehicle";
+    final bodyDetails = vehicle.bodyDetail?.toString() ?? "No details";
     final amount = vehicle.amount ?? 0;
-    final vehicleImage = vehicle.vehicleImage ?? "frewvgre";
-    final measurementImage = vehicle.measurementsImg ?? "frewvgre";
-    final selectedStatus = vehicle.selectedStatus ?? 0;
-
-
+    final vehicleImage = vehicle.vehicleImage?.toString() ?? "";
+    final measurementImage = vehicle.measurementsImg?.toString() ?? "";
 
     return GestureDetector(
       onTap: onTap,
@@ -586,9 +598,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         child: isSelected
             ? Column(
           children: [
-            // Centered image
             Center(
-              child: Image.network(
+              child: measurementImage.isNotEmpty
+                  ? Image.network(
                 measurementImage,
                 height: screenHeight * 0.1,
                 errorBuilder: (context, error, stackTrace) {
@@ -597,13 +609,16 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     height: screenHeight * 0.09,
                   );
                 },
+              )
+                  : Image.asset(
+                Assets.assetsBike,
+                height: screenHeight * 0.09,
               ),
             ),
             SizedBox(height: screenHeight * 0.015),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Vehicle info (left side)
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -624,10 +639,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     ],
                   ),
                 ),
-                // Amount (right side)
                 TextConst(
-                  title:
-                  "₹${amount}",
+                  title: "₹$amount",
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                   size: 16,
@@ -639,8 +652,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
             : Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image first
-            Image.network(
+            vehicleImage.isNotEmpty
+                ? Image.network(
               vehicleImage,
               height: screenHeight * 0.09,
               errorBuilder: (context, error, stackTrace) {
@@ -649,15 +662,18 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                   height: screenHeight * 0.09,
                 );
               },
+            )
+                : Image.asset(
+              Assets.assetsBike,
+              height: screenHeight * 0.09,
             ),
             const SizedBox(width: 12),
-            // Vehicle ID and body details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextConst(
-                    title: vehicleName, // CORRECTED here too
+                    title: vehicleName,
                     color: PortColor.black,
                     fontFamily: AppFonts.kanitReg,
                     size: 14,
@@ -672,10 +688,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 ],
               ),
             ),
-            // Amount at right
             TextConst(
-              title:
-              "₹${amount}",
+              title: "₹$amount",
               color: PortColor.black,
               fontFamily: AppFonts.kanitReg,
               size: 16,
@@ -685,5 +699,4 @@ class _SelectVehiclesState extends State<SelectVehicles> {
       ),
     );
   }
-
 }

@@ -422,6 +422,8 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -487,22 +489,6 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                               size: 16,
                             ),
                             Spacer(),
-                            // GestureDetector(
-                            //   onTap: (){
-                            //     showModalBottomSheet(
-                            //       context: context,
-                            //       isScrollControlled: true,
-                            //       builder: (BuildContext context) {
-                            //         return const FAQModalSheet();
-                            //       },
-                            //     );
-                            //   },
-                            //   child: TextConst(
-                            //     title: "FAQs",
-                            //     color: PortColor.blue,
-                            //     fontWeight: FontWeight.w600,
-                            //   ),
-                            // ),
                           ],
                         ),
                         SizedBox(height: screenHeight * 0.03),
@@ -564,6 +550,20 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                             fontFamily: AppFonts.kanitReg,
                             fontSize: 13,
                           ),
+                          suffixIcon: pickupController.text.isNotEmpty
+                              ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                pickupController.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.black,
+                              size: 18,
+                            ),
+                          )
+                              : null,
                           onChanged: (val) => placeSearchApi(val),
                           focusedBorder: PortColor.gold,
                           height: screenHeight * 0.055,
@@ -670,7 +670,39 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                         CustomTextField(
                           controller: dropController,
                           focusNode: dropFocus,
-                          onChanged: (val) => placeSearchApi(val),
+                          readOnly: true, // ⛔ keyboard band
+                          onTap: () async {
+                            final result = await Navigator.push<PlaceResult>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const LocationSearchPage(
+                                  title: "Select Drop Location",
+                                ),
+                              ),
+                            );
+
+                            if (result != null) {
+                              dropController.text = result.address;
+
+                              final latLng = await fetchLatLng(result.placeId);
+                              print("DROP LatLng: $latLng");
+                            }
+                          },
+                          suffixIcon: dropController.text.isNotEmpty
+                              ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                dropController.clear();
+                              });
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              color: Colors.black,
+                              size: 18,
+                            ),
+                          )
+                              : null,
+
                           textStyle: TextStyle(
                             color: Colors.black54,
                             fontFamily: AppFonts.kanitReg,
@@ -700,6 +732,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                             fontSize: 13,
                           ),
                         ),
+
                         SizedBox(height: screenHeight * 0.015),
                         if (dropController.text.isNotEmpty)
                           Row(
@@ -984,5 +1017,162 @@ class DottedLine extends StatelessWidget {
     );
   }
 }
+
+class PlaceResult {
+  final String address;
+  final String placeId;
+
+  PlaceResult({required this.address, required this.placeId});
+}
+
+class LocationSearchPage extends StatefulWidget {
+  final String title;
+
+  const LocationSearchPage({
+    super.key,
+    required this.title,
+  });
+
+  @override
+  State<LocationSearchPage> createState() => _LocationSearchPageState();
+}
+
+class _LocationSearchPageState extends State<LocationSearchPage> {
+  final TextEditingController searchController = TextEditingController();
+  List<dynamic> searchResults = [];
+  bool isLoading = false;
+
+  Future<void> placeSearchApi(String searchCon) async {
+    if (searchCon.isEmpty) {
+      setState(() => searchResults.clear());
+      return;
+    }
+
+    setState(() => isLoading = true);
+
+    Uri uri = Uri.https(
+      "maps.googleapis.com",
+      'maps/api/place/autocomplete/json',
+      {
+        "input": searchCon,
+        "key": "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM",
+        "components": "country:in",
+      },
+    );
+
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        setState(() {
+          searchResults =
+              jsonDecode(response.body)['predictions'] ?? [];
+        });
+      }
+    } catch (e) {
+      debugPrint("Place API error: $e");
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppFonts.kanitReg
+          ),
+        ),
+      ),
+
+      body: Column(
+        children: [
+
+          /// 🔍 SEARCH FIELD
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: searchController,
+              autofocus: true,
+              onChanged: placeSearchApi,
+              decoration: InputDecoration(
+                hintText: "Search location",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: CircularProgressIndicator(color: PortColor.gold),
+            ),
+
+          /// 📍 SEARCH RESULT LIST
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.zero,
+              itemCount: searchResults.length,
+              separatorBuilder: (_, __) =>
+                  Divider(color: Colors.grey.shade300),
+              itemBuilder: (context, index) {
+                final place = searchResults[index];
+                return ListTile(
+                  leading: const Icon(
+                    Icons.location_on,
+                    color: PortColor.red,
+                  ),
+                  title: Text(
+                    place['structured_formatting']['main_text'],
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontFamily: AppFonts.kanitReg
+                    ),
+                  ),
+                  subtitle: Text(
+                    place['structured_formatting']['secondary_text'] ?? "",
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                        fontFamily: AppFonts.kanitReg
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(
+                      context,
+                      PlaceResult(
+                        address: place['description'],
+                        placeId: place['place_id'],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
 
 

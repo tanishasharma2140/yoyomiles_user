@@ -23,6 +23,10 @@ class CustomTextField extends StatelessWidget {
   final Color? focusedBorder;
   final ValueChanged<String>? onChanged;
 
+  /// ✅ NEW
+  final bool readOnly;
+  final VoidCallback? onTap;
+
   /// ✅ Added parameter for custom input formatters
   final List<TextInputFormatter>? inputFormatters;
 
@@ -50,6 +54,8 @@ class CustomTextField extends StatelessWidget {
     this.onChanged,
     this.inputFormatters, // ✅ new parameter
     this.onSubmitted, // ✅ new parameter
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -57,7 +63,7 @@ class CustomTextField extends StatelessWidget {
     double effectiveHeight = height ?? MediaQuery.of(context).size.height * 0.06;
     double effectiveWidth = width ?? double.infinity;
 
-    return Container(
+    return SizedBox(
       height: effectiveHeight,
       width: effectiveWidth,
       child: TextField(
@@ -65,6 +71,8 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         onChanged: onChanged,
         onSubmitted: onSubmitted,
+        readOnly: readOnly,
+        onTap: onTap,
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(horizontal: 15),
           fillColor: fillColor ?? PortColor.white,

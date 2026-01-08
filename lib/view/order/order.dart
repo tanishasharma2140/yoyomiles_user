@@ -426,11 +426,14 @@ class _OrderPageState extends State<OrderPage> {
                                         ? "Cash on Delivery"
                                         : history.paymode == 2
                                         ? "Online Payment"
+                                        : history.paymode == 3
+                                        ? "By Wallet"
                                         : "Nothing",
                                     color: PortColor.gray,
                                     fontFamily: AppFonts.poppinsReg,
                                     size: 12,
                                   ),
+
                                 ],
                               ),
                             ),

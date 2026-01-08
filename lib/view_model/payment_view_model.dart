@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:paytmpayments_allinonesdk/paytmpayments_allinonesdk.dart';
+import 'package:provider/provider.dart';
 import 'package:yoyomiles/model/paytm_gateway_model.dart';
 import 'package:yoyomiles/repo/payment_repo.dart';
 import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
 import 'package:yoyomiles/view_model/user_view_model.dart';
 
 class PaymentViewModel with ChangeNotifier {
@@ -22,7 +24,7 @@ class PaymentViewModel with ChangeNotifier {
   }
 
   /// Paytm config (default)
-  bool isStaging = true;
+  bool isStaging = false;
   bool restrictAppInvoke = false;
   bool enableAssist = true;
 
@@ -79,10 +81,12 @@ class PaymentViewModel with ChangeNotifier {
       restrictAppInvoke = true;
 
       await _startPaytmTransaction(
-        mid: "NUMvXT15573436842854",
+        mid: "YoYoMi53319403184444",
         orderId: model.data!.orderId!,
         txnToken: model.data!.txnToken!,
         amount: model.data!.amount.toString(),
+        userType: userType,
+        firebaseOrderId: firebaseOrderId.toString(),
         callbackUrl: "https://admin.yoyomiles.com/api/paytm/callback",
         context: context,
       );
@@ -100,6 +104,8 @@ class PaymentViewModel with ChangeNotifier {
     required String amount,
     required String callbackUrl,
     required BuildContext context,
+    required dynamic userType,
+    required String firebaseOrderId,
   }) async {
     try {
       final formattedAmount =
@@ -117,11 +123,31 @@ class PaymentViewModel with ChangeNotifier {
         enableAssist,
       );
 
+      //     .then((paymentRes){
+      //   debugPrint("the payment response $paymentRes");
+      // }).catchError((err){
+      //   debugPrint("Error occour during transaction:$err");
+      // });
+
       debugPrint("PAYTM RESPONSE => $response");
 
-      /// ✅ SUCCESS
       if (response != null &&
           response["STATUS"] == "TXN_SUCCESS") {
+
+        if (userType == 1) {
+          final updateRideStatusVm =
+          Provider.of<UpdateRideStatusViewModel>(
+            context,
+            listen: false,
+          );
+
+          updateRideStatusVm.updateRideApi(
+            context,
+            firebaseOrderId, // ✅ REAL ORDER ID
+            "6", // or "5" as per flow
+          );
+        }
+
 
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -129,6 +155,7 @@ class PaymentViewModel with ChangeNotifier {
               (route) => false,
         );
       }
+
       /// ❌ FAILED / CANCELLED
       else {
         Utils.showErrorMessage(
@@ -144,5 +171,5 @@ class PaymentViewModel with ChangeNotifier {
   }
 
 
-}
 
+}

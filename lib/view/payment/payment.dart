@@ -275,7 +275,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             //   Navigator.push(context, MaterialPageRoute(builder: (context)=> PaytmTesting()));
                             paytmVm.paymentApi(
                               5,
-                              "100", // "500.00"
+                              formattedAmount, // "500.00"
                               "",
                               context,
                             );

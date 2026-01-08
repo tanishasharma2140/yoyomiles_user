@@ -12,6 +12,7 @@ import 'package:yoyomiles/view_model/apply_coupon_view_model.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 
 class ReviewBooking extends StatefulWidget {
   final int? index;
@@ -20,13 +21,14 @@ class ReviewBooking extends StatefulWidget {
   final String distance;
   final String vehicleBodyDetailId;
   final String vehicleBodyTypeId;
+  final String vehicleIds;
   const ReviewBooking({
     super.key,
     this.index,
     required this.price,
     required this.distance,
     required this.vehicleBodyDetailId,
-    required this.vehicleBodyTypeId, required this.vehicleName,
+    required this.vehicleBodyTypeId, required this.vehicleName, required this.vehicleIds,
   });
 
   @override
@@ -34,6 +36,16 @@ class ReviewBooking extends StatefulWidget {
 }
 
 class _ReviewBookingState extends State<ReviewBooking> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      final vehicleLoadingVm = Provider.of<VehicleLoadingViewModel>(context, listen: false);
+      vehicleLoadingVm.vehicleLoadingApi(widget.vehicleIds);
+    });
+  }
+
   String PaymentMethod = "";
   String? selectedGoodsName;
   Map<String, dynamic>? selectedGoodsType;
@@ -43,6 +55,7 @@ class _ReviewBookingState extends State<ReviewBooking> {
     print("tanishaaa");
     print(widget.vehicleBodyDetailId);
     print(widget.vehicleBodyTypeId);
+    final vehicleLoadingVm = Provider.of<VehicleLoadingViewModel>(context);
     final applyCouponVm = Provider.of<ApplyCouponViewModel>(context);
     final orderViewModel = Provider.of<OrderViewModel>(context);
     final vehicle = Provider.of<SelectVehiclesViewModel>(
@@ -174,13 +187,13 @@ class _ReviewBookingState extends State<ReviewBooking> {
                             size: 12,
                           ),
                           TextConst(
-                            title: " 70 mins ",
+                            title: " ${vehicleLoadingVm.vehicleLoadingModel?.data?.loadingTimeMinute??"0"}mins ",
                             color: PortColor.black,
                             fontFamily: AppFonts.kanitReg,
                             size: 12,
                           ),
                           TextConst(
-                            title: "of loading and unloading tome include.",
+                            title: "of loading and unloading time include.",
                             color: PortColor.black.withOpacity(0.6),
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
