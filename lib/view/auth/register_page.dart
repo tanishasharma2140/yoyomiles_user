@@ -13,8 +13,9 @@ import 'package:yoyomiles/view_model/requirement_view_model.dart';
 import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
- final  String mobile;
-  const RegisterPage({super.key, required this.mobile});
+ final  String? mobile;
+ final String? referralCode;
+  const RegisterPage({super.key,  this.mobile, this.referralCode});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -25,6 +26,8 @@ class _RegisterPageState extends State<RegisterPage>
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastnameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+  final TextEditingController refer = TextEditingController();
+
   bool isSelected = false;
   dynamic selectedRadioValue;
   String? selectedBusinessUsage; // For dropdown value
@@ -33,6 +36,7 @@ class _RegisterPageState extends State<RegisterPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_){
+      refer.text=widget.referralCode??"";
       final requirementVm = Provider.of<RequirementViewModel>(context, listen: false);
       requirementVm.requirementApi();
     });
@@ -44,6 +48,7 @@ class _RegisterPageState extends State<RegisterPage>
     print(widget.mobile);
     final registerViewModel = Provider.of<RegisterViewModel>(context);
     final requirementVm = Provider.of<RequirementViewModel>(context);
+
 
     return Scaffold(
       backgroundColor: PortColor.white,
@@ -78,7 +83,7 @@ class _RegisterPageState extends State<RegisterPage>
                   ),
                   SizedBox(width: screenWidth * 0.02),
                   TextConst(
-                    title: widget.mobile,
+                    title: widget.mobile??"",
                     color: PortColor.black,
                   ),
                   SizedBox(width: screenWidth * 0.03),
@@ -261,6 +266,30 @@ class _RegisterPageState extends State<RegisterPage>
                         },
                       ),
                     ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10,),
+              TextFormField(
+                cursorColor: PortColor.portKaro,
+                controller: refer,
+                decoration: const InputDecoration(
+                  hintText: "Referral Code(Optional)",
+                  hintStyle: TextStyle(
+                    fontSize: 16,
+                    color: PortColor.gray,
+                    fontFamily: AppFonts.kanitReg,
+                  ),
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: PortColor.gray),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: PortColor.gray),
+                  ),
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'[a-zA-Z\s]'),
                   ),
                 ],
               ),

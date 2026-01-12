@@ -1,13 +1,15 @@
 class ContactListModel {
   bool? status;
   String? message;
+  String? email;
   List<Data>? data;
 
-  ContactListModel({this.status, this.message, this.data});
+  ContactListModel({this.status, this.message, this.email, this.data});
 
   ContactListModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
+    email = json['email'];
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -20,6 +22,7 @@ class ContactListModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
     data['message'] = message;
+    data['email'] = email;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }

@@ -42,6 +42,7 @@ dependencies:
   location:
 #  paytm_allinonesdk:
   paytmpayments_allinonesdk: ^1.0.4
+  app_links:
 
 
 dev_dependencies:

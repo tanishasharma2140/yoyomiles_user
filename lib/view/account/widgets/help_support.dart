@@ -226,7 +226,7 @@ class _HelpSupportState extends State<HelpSupport> {
                     GestureDetector(
                       onTap: () => Launcher.launchEmail(
                         context,
-                        'foundercodetechteam@gmail.com',
+                        contactListVm.contactListModel?.email??"yoyomiles234@gmail.com",
                       ),
                       child: Container(
                         padding: const EdgeInsets.all(6.0),
@@ -243,8 +243,10 @@ class _HelpSupportState extends State<HelpSupport> {
                     ),
                     SizedBox(width: screenWidth * 0.05),
                     GestureDetector(
-                      onTap: () =>
-                          Launcher.launchDialPad(context, '1122334455'),
+                      onTap: () => Launcher.launchDialPad(
+                        context,
+                        contactListVm.contactListModel?.data?.first.phone ?? "0000000000",
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(6.0),
                         decoration: const BoxDecoration(
@@ -258,6 +260,7 @@ class _HelpSupportState extends State<HelpSupport> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ),

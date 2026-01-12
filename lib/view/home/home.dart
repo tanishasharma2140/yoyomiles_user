@@ -260,12 +260,12 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const PickUpLocation(),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const PickUpLocation(),
+                            //   ),
+                            // );
                           },
                           child: Row(
                             children: [
@@ -298,11 +298,11 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                              const Spacer(),
-                              const Icon(
-                                Icons.keyboard_arrow_down_rounded,
-                                color: PortColor.black,
-                              ),
+                              // const Spacer(),
+                              // const Icon(
+                              //   Icons.keyboard_arrow_down_rounded,
+                              //   color: PortColor.black,
+                              // ),
                               SizedBox(width: screenWidth * 0.02),
                             ],
                           ),

@@ -25,10 +25,10 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
   @override
   void dispose() {
+    isBottomSheetVisible = false;
     _controller.dispose();
     super.dispose();
   }
-
   void _updateProceedButton() {
     setState(() {
       isProceedEnabled =
@@ -121,6 +121,10 @@ class _PaymentsPageState extends State<PaymentsPage> {
                       children: [
                         InkWell(
                           onTap: () {
+                            setState(() {
+                              isBottomSheetVisible = false;
+                            });
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -184,146 +188,173 @@ class _PaymentsPageState extends State<PaymentsPage> {
 
           /// Bottom Sheet
           if (isBottomSheetVisible)
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: screenHeight * 0.26,
-                width: screenWidth,
-                decoration: BoxDecoration(
-                  color: PortColor.white,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(15),
-                    topRight: Radius.circular(15),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: PortColor.gray.withOpacity(0.3),
-                      offset: const Offset(0, 2),
-                      blurRadius: 10,
-                      spreadRadius: 1,
+            Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    height: screenHeight * 0.26,
+                    width: screenWidth,
+                    decoration: BoxDecoration(
+                      color: PortColor.white,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: PortColor.gray.withOpacity(0.3),
+                          offset: const Offset(0, 2),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: screenHeight * 0.015),
-                      TextConst(title: "Add Money", color: PortColor.black),
-                      SizedBox(height: screenHeight * 0.014),
-                      Row(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: TextField(
-                              cursorColor: PortColor.gray,
-                              controller: _controller,
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) => _updateProceedButton(),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              decoration: InputDecoration(
-                                hintText: 'Enter Amount',
-                                hintStyle: const TextStyle(
-                                  color: PortColor.gray,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: PortColor.gray,
+                          SizedBox(height: screenHeight * 0.015),
+                          TextConst(title: "Add Money", color: PortColor.black),
+                          SizedBox(height: screenHeight * 0.014),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  cursorColor: PortColor.gray,
+                                  controller: _controller,
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (value) => _updateProceedButton(),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter Amount',
+                                    hintStyle: const TextStyle(
+                                      color: PortColor.gray,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: PortColor.gray,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: PortColor.gray,
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: PortColor.gray,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                      horizontal: 12,
+                                    ),
                                   ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: PortColor.gray,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: PortColor.gray,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 12,
+                                  style: const TextStyle(fontSize: 14),
                                 ),
                               ),
-                              style: const TextStyle(fontSize: 14),
+                              SizedBox(width: screenWidth * 0.04),
+                              _quickAddButton("+500", 500),
+                              SizedBox(width: screenWidth * 0.04),
+                              _quickAddButton("+1000", 1000),
+                              SizedBox(width: screenWidth * 0.04),
+                              _quickAddButton("+2000", 2000),
+                            ],
+                          ),
+                          SizedBox(height: screenHeight * 0.055),
+                          GestureDetector(
+                            onTap: isProceedEnabled
+                                ? () {
+                              double enteredAmount =
+                                  double.tryParse(_controller.text) ?? 0;
+
+                              if (enteredAmount >= 10) {
+                                final formattedAmount =
+                                enteredAmount.toStringAsFixed(2);
+
+                                paytmVm.paymentApi(
+                                  5,
+                                  formattedAmount,
+                                  "",
+                                  context,
+                                );
+                              } else {
+                                Utils.showErrorMessage(
+                                  context,
+                                  "Enter Amount At-least ₹10",
+                                );
+                              }
+                            }
+                                : null,
+                            child: Container(
+                              height: screenHeight * 0.06,
+                              width: screenWidth * 0.88,
+                              decoration: BoxDecoration(
+                                gradient: isProceedEnabled
+                                    ? PortColor.subBtn
+                                    : const LinearGradient(
+                                  colors: [PortColor.grey, PortColor.grey],
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Center(
+                                child: !paytmVm.loading
+                                    ? TextConst(
+                                  title: "Proceed",
+                                  fontFamily: AppFonts.kanitReg,
+                                  color: isProceedEnabled
+                                      ? PortColor.black
+                                      : PortColor.gray,
+                                )
+                                    : const CupertinoActivityIndicator(
+                                  radius: 14,
+                                  color: PortColor.white,
+                                ),
+                              ),
                             ),
                           ),
-                          SizedBox(width: screenWidth * 0.04),
-                          _quickAddButton("+500", 500),
-                          SizedBox(width: screenWidth * 0.04),
-                          _quickAddButton("+1000", 1000),
-                          SizedBox(width: screenWidth * 0.04),
-                          _quickAddButton("+2000", 2000),
                         ],
                       ),
-                      SizedBox(height: screenHeight * 0.055),
-                      GestureDetector(
-                        onTap: isProceedEnabled
-                            ? () {
-                          double enteredAmount = double.tryParse(_controller.text) ?? 0;
-
-                          if (enteredAmount >= 10) {
-                            final formattedAmount = enteredAmount.toStringAsFixed(2);
-                            // ⭐ FIX
-                            //   Navigator.push(context, MaterialPageRoute(builder: (context)=> PaytmTesting()));
-                            paytmVm.paymentApi(
-                              5,
-                              formattedAmount, // "500.00"
-                              "",
-                              context,
-                            );
-                          } else {
-                            Utils.showErrorMessage(
-                              context,
-                              "Enter Amount At-least ₹10",
-                            );
-                          }
-
-                        }
-                            : null,
-                        child: Container(
-                          height: screenHeight * 0.06,
-                          width: screenWidth * 0.88,
-                          decoration: BoxDecoration(
-                            gradient: isProceedEnabled
-                                ? PortColor.subBtn
-                                : const LinearGradient(
-                                    colors: [PortColor.grey, PortColor.grey],
-                                  ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Center(
-                            child:
-                            !paytmVm.loading
-                                ?
-                            TextConst(
-                                    title: "Proceed",
-                                    fontFamily: AppFonts.kanitReg,
-                                    color: isProceedEnabled
-                                        ? PortColor.black
-                                        : PortColor.gray,
-                                  )
-                                :
-    const CupertinoActivityIndicator(
-                                    radius: 14, // size set karna ho to
-                                    color: PortColor
-                                        .white // iOS loader bhi color support karta hai (Flutter 3.7+)
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+
+                /// 🔴 CLOSE BUTTON ON TOP RIGHT
+                Positioned(
+                  right: 12,
+                  bottom: screenHeight * 0.26 + -17,
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isBottomSheetVisible = false;
+                        _controller.clear();
+                        isProceedEnabled = false;
+                      });
+                    },
+                    child: Container(
+                      height: 32,
+                      width: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.close, color: Colors.white, size: 18),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+
         ],
       ),
     );

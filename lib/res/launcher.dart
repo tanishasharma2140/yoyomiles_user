@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 import 'package:yoyomiles/utils/utils.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
 
 class Launcher {
   // static launchWhatsApp(context, String phone) async {
@@ -42,9 +44,12 @@ class Launcher {
   }
 
   static shareApk(String urlData, context) async {
+    final profile = Provider.of<ProfileViewModel>(context,listen: false);
+    String link = "https://yoyomiles.com/ref=${profile.profileModel?.data
+        ?.referralCode}}";
     if (urlData.isNotEmpty) {
       await Share.share(
-        "Hi, I recommend Yoyomiles for mini trucks requirement. It's convenient & cost effective. Download app ${Uri.parse(urlData)} & get up to Rs 50 cashback on first ride.",
+        "${profile.profileModel?.data?.referralMessages}\n${link}",
       );
     } else {
       if (kDebugMode) {

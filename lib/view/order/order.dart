@@ -208,25 +208,29 @@ class _OrderPageState extends State<OrderPage> {
                           color: PortColor.black,
                         ),
                         SizedBox(width: 8),
-                        Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.yellow.shade50,
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(15),
-                            onTap: () {
-                              generatePdf(context, history);
-                            },
-                            child: Icon(
-                              Icons.download,
-                              color: PortColor.blue,
-                              size: 18,
+                        if (history.rideStatus == 6)
+                          Container(
+                            height: 30,
+                            width: 30,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.yellow.shade50,
                             ),
-                          ),
-                        ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(15),
+                              onTap: () {
+                                generatePdf(context, history);
+                              },
+                              child: Icon(
+                                Icons.download,
+                                color: PortColor.blue,
+                                size: 18,
+                              ),
+                            ),
+                          )
+                        else
+                          const SizedBox(),
+
                       ],
                     ),
 

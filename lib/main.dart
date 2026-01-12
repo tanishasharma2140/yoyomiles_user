@@ -8,6 +8,7 @@ import 'package:yoyomiles/res/app_constant.dart';
 import 'package:yoyomiles/res/notification_service.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/utils/routes/routes_name.dart';
+import 'package:yoyomiles/view/auth/register_page.dart';
 import 'package:yoyomiles/view_model/active_ride_view_model.dart';
 import 'package:yoyomiles/view_model/add_address_view_model.dart';
 import 'package:yoyomiles/view_model/add_money_callback_view_model.dart';
@@ -32,7 +33,6 @@ import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/otp_count_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_call_back_viewmodel.dart';
 import 'package:yoyomiles/view_model/packer_mover_order_history_view_model.dart';
-import 'package:yoyomiles/view_model/packer_mover_payment_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_terms_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_view_model.dart';
 import 'package:yoyomiles/view_model/payment_view_model.dart';
@@ -53,31 +53,74 @@ import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
 import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:app_links/app_links.dart';
 
 String? fcmToken;
+String? globalReferralCode;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+class DeepLinkHandler {
+  static bool _hasHandledDeepLink = false;
+  final AppLinks _appLinks = AppLinks();
+
+  void initialize() {
+    initDeepLinks();
+  }
+
+  Future<void> initDeepLinks() async {
+    try {
+      final Uri? initialUri = await _appLinks.getInitialLink();
+      handleIncomingLink(initialUri);
+    } catch (e) {
+      print('Error getting initial app link: $e');
+    }
+
+    _appLinks.uriLinkStream.listen((Uri? uri) {
+      handleIncomingLink(uri);
+    });
+  }
+
+  void handleIncomingLink(Uri? uri) {
+    if (uri == null || _hasHandledDeepLink) return;
+
+    _hasHandledDeepLink = true;
+    final fullPath = uri.path;
+
+    if (fullPath.startsWith('/ref=')) {
+      final referralCode = fullPath.replaceFirst('/ref=', '');
+
+      navigatorKey.currentState?.pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => RegisterPage(referralCode: referralCode),
+        ),
+      );
+    }
+  }
+}
+
 
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  // 🔹 Get FCM Token
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  final deepLinkHandler = DeepLinkHandler();
+  deepLinkHandler.initialize();
+
   fcmToken = await FirebaseMessaging.instance.getToken();
-  if (kDebugMode) {
-    print("✅ FCM Token: $fcmToken");
-  }
+  if (kDebugMode) print("FCM TOKEN = $fcmToken");
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //
-
   runApp(const MyApp());
 }
+
 
 double screenHeight = 0.0;
 double screenWidth = 0.0;

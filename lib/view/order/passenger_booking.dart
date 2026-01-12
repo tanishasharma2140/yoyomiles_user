@@ -10,6 +10,7 @@ import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/res/shimmer_loader.dart';
 import 'package:yoyomiles/view/driver_searching/ride_map_screen.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
@@ -37,6 +38,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
   bool isSearchingDrop = false;
   TextEditingController pickupController = TextEditingController();
   TextEditingController dropController = TextEditingController();
+  bool isPickupLoading = true;
 
   // Separate coordinates storage
   double? pickupLat;
@@ -90,10 +92,14 @@ class _PassengerBookingState extends State<PassengerBooking> {
           // Set current location as pickup coordinates
           pickupLat = latitude;
           pickupLng = longitude;
+          isPickupLoading = false;
         }
       }
     } catch (e) {
       print('Error fetching address: $e');
+      setState(() {
+        isPickupLoading = false;
+      });
     }
   }
 
@@ -291,7 +297,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
             // Header Section
             Container(
               padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 16,
+                top: MediaQuery.of(context).padding.top + 5,
                 bottom: 16,
                 left: 16,
                 right: 16,
@@ -372,7 +378,13 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                       fontFamily: AppFonts.kanitReg,
                                     ),
                                     const SizedBox(height: 2),
-                                    TextConst(
+                                    isPickupLoading
+                                        ? ShimmerLoader(
+                                      height: 12,
+                                      width: screenWidth * 0.5,
+                                      borderRadius: 6,
+                                    )
+                                        : TextConst(
                                       title: pickupController.text.isNotEmpty
                                           ? pickupController.text
                                           : "Tap to select pickup location",
@@ -382,7 +394,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                           : Colors.grey[400],
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                    ),
+                                    )
                                   ],
                                 ),
                               ),
