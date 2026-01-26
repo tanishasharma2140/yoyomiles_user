@@ -15,6 +15,8 @@ class Routers {
             return (context) => const SplashScreen();
          case RoutesName.login:
             return (context) => const LoginPage();
+        case RoutesName.register:
+          return (context) => const RegisterPage();
          case RoutesName.bottomNavBar:
             return (context) => const BottomNavigationPage();
          case RoutesName.goodsType:

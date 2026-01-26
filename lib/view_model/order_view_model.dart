@@ -25,6 +25,17 @@ class OrderViewModel with ChangeNotifier {
   Map<String, dynamic>? _currentOrderData;
   Map<String, dynamic>? get currentOrderData => _currentOrderData;
 
+  void clearPickup() {
+    _pickupData = null;
+    notifyListeners();
+  }
+
+  void clearDrop() {
+    _dropData = null;
+    notifyListeners();
+  }
+
+
   setLocationType(int value) {
     _locationType = value;
     notifyListeners();

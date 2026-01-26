@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -11,10 +12,13 @@ import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/res/shimmer_loader.dart';
 import 'package:yoyomiles/services/internet_checker_service.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
+import 'package:yoyomiles/view/coins/coins.dart';
+import 'package:yoyomiles/view/driver_searching/driver_searching_screen.dart';
 import 'package:yoyomiles/view/home/widgets/category_Grid.dart';
 import 'package:yoyomiles/view/home/widgets/pick_up_location.dart';
 import 'package:yoyomiles/view_model/active_ride_view_model.dart';
 import 'package:yoyomiles/view_model/port_banner_view_model.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:yoyomiles/view_model/user_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -44,26 +48,57 @@ class _HomePageState extends State<HomePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       UserViewModel userViewModel = UserViewModel();
       String? userId = await userViewModel.getUser();
+
       print("activeRideVm");
+
       final activeRideVM = Provider.of<ActiveRideViewModel>(context, listen: false);
 
+      await activeRideVM.activeRideApi(userId.toString()); // <<< await important
+
+      final ride = activeRideVM.activeRideModel;
+
+      if (!mounted) return;
+
+      if (ride != null) {
+        Navigator.push(
+          context,
+          CupertinoPageRoute(
+            builder: (_) => DriverSearchingScreen(
+              orderData: {
+                ...ride.toJson(),
+                'document_id': ride.data?.id.toString(),
+                'sender_name': ride.data?.senderName,
+                'sender_phone': ride.data?.senderPhone,
+                'reciver_name': ride.data?.reciverName,
+                'reciver_phone': ride.data?.reciverPhone,
+                'pickup_address': ride.data?.pickupAddress,
+                'drop_address': ride.data?.dropAddress,
+                'order_type': ride.data?.orderType,
+              },
+            ),
+          ),
+        );
+        activeRideVM.setModelData(null);
+      } else {
+        print("🚫 No Active Ride Found");
+      }
+
       // Start listening to active ride
-      activeRideVM.listenToActiveRide(userId.toString());
 
       // Navigate automatically when active ride arrives
-      activeRideVM.addListener(() {
-        final ride = activeRideVM.activeRideModel;
-        if (ride != null && ride.data != null) {
-          // Use microtask to avoid navigation during build
-          Future.microtask(() {
-            Navigator.pushReplacementNamed(
-              context,
-              RoutesName.driverSearching,
-              arguments: ride,
-            );
-          });
-        }
-      });
+      // activeRideVM.addListener(() {
+      //   final ride = activeRideVM.activeRideModel;
+      //   if (ride != null && ride.data != null) {
+      //     // Use microtask to avoid navigation during build
+      //     Future.microtask(() {
+      //       Navigator.pushReplacementNamed(
+      //         context,
+      //         RoutesName.driverSearching,
+      //         arguments: ride,
+      //       );
+      //     });
+      //   }
+      // });
       print("chliactiveRideVm");
       final portBannerVm = Provider.of<PortBannerViewModel>(
         context,
@@ -80,22 +115,23 @@ class _HomePageState extends State<HomePage> {
       final bannerVm = Provider.of<PortBannerViewModel>(context, listen: false);
       final bannerLength = bannerVm.portBannerModel?.data?.length ?? 0;
 
-      if (bannerLength > 0) {
-        if (_currentPage < bannerLength - 1) {
-          _currentPage++;
-        } else {
-          _currentPage = 0;
-        }
+      if (bannerLength == 0) return;
 
-        if (_pageController.hasClients) {
-          _pageController.animateToPage(
-            _currentPage,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOut,
-          );
-        }
+      if (_currentPage < bannerLength - 1) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
       }
+
+      if (!mounted || !_pageController.hasClients) return;
+
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     });
+
   }
 
   Future<void> _refresh() async {
@@ -176,6 +212,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final banner = Provider.of<PortBannerViewModel>(context);
+    final profile = Provider.of<ProfileViewModel>(context);
+
     return SafeArea(
       top: false,
       child: Container(
@@ -330,13 +368,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(height: screenHeight * 0.03),
                       GestureDetector(
                         onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) =>
-                          //         DriverPickupScreen(),
-                          //   ),
-                          // );
+                         Navigator.push(context, CupertinoPageRoute(builder: (context)=>CoinsPage()));
                         },
                         child: Container(
                           width: screenWidth * 0.9,
@@ -369,7 +401,7 @@ class _HomePageState extends State<HomePage> {
                                     fontFamily: AppFonts.kanitReg,
                                   ),
                                   TextConst(
-                                    title: 'Earn 4 coins for every 100 spent',
+                                    title: 'Get ₹${profile.profileModel?.data?.referralAmount??"0"} coins for each referral!',
                                     color: PortColor.grayLight,
                                     fontFamily: AppFonts.poppinsReg,
                                     size: 12,

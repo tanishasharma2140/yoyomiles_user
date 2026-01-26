@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none'
 
-version: 1.0.9+10
+version: 1.0.11+12
 
 environment:
   sdk: ^3.8.1
@@ -23,9 +23,9 @@ dependencies:
   url_launcher: ^6.3.1
   share_plus: ^10.1.3
   curved_navigation_bar:
-  firebase_core: ^4.0.0
-  cloud_firestore: ^6.0.0
-  firebase_messaging: ^16.0.0
+  firebase_core: ^4.4.0
+  cloud_firestore: ^6.1.2
+  firebase_messaging: ^16.1.1
   flutter_local_notifications: ^19.4.1
   permission_handler:
   app_settings:
@@ -42,7 +42,8 @@ dependencies:
   location:
 #  paytm_allinonesdk:
   paytmpayments_allinonesdk: ^1.0.4
-  app_links:
+#  app_links:
+  scratcher: ^2.5.0
 
 
 dev_dependencies:

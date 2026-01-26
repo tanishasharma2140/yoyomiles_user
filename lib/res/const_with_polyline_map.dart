@@ -131,9 +131,12 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
       infoWindow: const InfoWindow(title: "You are here"),
     );
 
-    setState(() {
-      _markers.add(_currentLocationMarker!);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _markers.add(_currentLocationMarker!);
+      });
     });
+
 
     _fetchAddress(position.latitude, position.longitude);
 

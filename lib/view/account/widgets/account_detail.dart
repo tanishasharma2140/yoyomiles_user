@@ -73,38 +73,15 @@ class AccountDetail extends StatelessWidget {
             child: Column(
               children: [
                 buttonLayoutUi(
-                  // page: CoinsPage(),
+                  page: CoinsPage(),
                   context,
                   color: PortColor.rapidPurple,
                   Icons.star_border_purple500_outlined,
-                  "Courier Rewards",
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: screenWidth * 0.1,
-                        decoration: BoxDecoration(
-                          color: PortColor.white,
-                          border: Border.all(
-                              color: PortColor.gray.withOpacity(0.2)),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Row(
-                          children: [
-                            Image(
-                              image: const AssetImage(Assets.assetsCoin48),
-                              height: screenHeight * 0.025,
-                            ),
-                            TextConst(title: "0", color: PortColor.black),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: PortColor.black,
-                        size: screenHeight * 0.02,
-                      ),
-                    ],
+                  "Yoyomiles Rewards",
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: PortColor.black,
+                    size: screenHeight * 0.02,
                   ),
                 ),
                 buttonLayoutUi(

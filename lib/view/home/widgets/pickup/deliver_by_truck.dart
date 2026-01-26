@@ -27,8 +27,26 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+
+    // Local resets (safe)
+    hasData = false;
+    searchResults = [];
+    placeDetailsCache = {};
+    selectedLocation = null;
+    _currentAddress = null;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+
+      orderViewModel.clearPickup();
+      orderViewModel.clearDrop();
+      orderViewModel.setLocationType(0); // default pickup
+
+      _getCurrentLocation();
+    });
   }
+
+
   bool hasData = false;
   List<dynamic> searchResults = [];
   Map<String, String> placeDetailsCache = {};

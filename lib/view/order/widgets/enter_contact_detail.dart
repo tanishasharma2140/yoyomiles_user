@@ -408,7 +408,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                   labelText: "Receiver's Name",
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z]'),
+                      RegExp(r'[a-zA-Z ]'),
                     ),
                   ],
                   suffixIcon: const Icon(

@@ -37,4 +37,5 @@ class VehicleLoadingViewModel with ChangeNotifier {
       setLoading(false);
     }
   }
+
 }

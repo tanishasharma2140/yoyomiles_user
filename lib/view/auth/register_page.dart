@@ -36,7 +36,6 @@ class _RegisterPageState extends State<RegisterPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_){
-      refer.text=widget.referralCode??"";
       final requirementVm = Provider.of<RequirementViewModel>(context, listen: false);
       requirementVm.requirementApi();
     });
@@ -270,6 +269,7 @@ class _RegisterPageState extends State<RegisterPage>
                 ],
               ),
               SizedBox(height: 10,),
+
               TextFormField(
                 cursorColor: PortColor.portKaro,
                 controller: refer,
@@ -287,11 +287,11 @@ class _RegisterPageState extends State<RegisterPage>
                     borderSide: BorderSide(color: PortColor.gray),
                   ),
                 ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'[a-zA-Z\s]'),
-                  ),
-                ],
+                // inputFormatters: [
+                //   FilteringTextInputFormatter.allow(
+                //     RegExp(r'[a-zA-Z\s]'),
+                //   ),
+                // ],
               ),
               // SizedBox(height: screenHeight * 0.03),
               //
@@ -331,59 +331,12 @@ class _RegisterPageState extends State<RegisterPage>
               selectedBusinessUsage!,
               "111adf",
               fcmToken.toString(),
+              refer.text,
               context,
             );
           }
         }),
-              // Container(
-              //   padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-              //   child: Row(
-              //     children: [
-              //       Checkbox(
-              //         value: isSelected,
-              //         onChanged: (value) {
-              //           setState(() {
-              //             isSelected = value!;
-              //           });
-              //         },
-              //         activeColor: PortColor.gold,
-              //       ),
-              //       Expanded(
-              //         child: RichText(
-              //           text: TextSpan(
-              //             children: [
-              //               TextSpan(
-              //                 text: "Allow Porter to send updates on ",
-              //                 style: TextStyle(
-              //                   color: PortColor.black,
-              //                   fontSize: 12,
-              //                   fontFamily: AppFonts.kanitReg,
-              //                 ),
-              //               ),
-              //               WidgetSpan(
-              //                 alignment: PlaceholderAlignment.middle,
-              //                 child: Image.asset(
-              //                   Assets.assetsWhatsappIcon,
-              //                   width: 17,
-              //                   height: 17,
-              //                 ),
-              //               ),
-              //               TextSpan(
-              //                 text: "WhatsApp ",
-              //                 style: TextStyle(
-              //                   color: PortColor.gold,
-              //                   fontSize: 12,
-              //                   fontFamily: AppFonts.kanitReg,
-              //                   fontWeight: FontWeight.w600,
-              //                 ),
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+
               SizedBox(height: 30,),
 
               // 🔹 OTP Message

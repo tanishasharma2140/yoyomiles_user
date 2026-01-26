@@ -6,15 +6,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
 
 class Launcher {
-  // static launchWhatsApp(context, String phone) async {
-  //   var whatsAppUrlAndroid = 'whatsapp://send?phone=+91$phone&text=hello';
-  //   if (await canLaunchUrl(Uri.parse(whatsAppUrlAndroid))) {
-  //     await launchUrl(Uri.parse(whatsAppUrlAndroid));
-  //   } else {
-  //     Utils.showErrorMessage(context, "Whatsapp not installed");
-  //   }
-  // }
-
   static launchDialPad(context, String phone) async {
     var phoneCall = "tel:$phone";
     if (await canLaunchUrl(Uri.parse(phoneCall))) {
@@ -44,17 +35,24 @@ class Launcher {
   }
 
   static shareApk(String urlData, context) async {
-    final profile = Provider.of<ProfileViewModel>(context,listen: false);
-    String link = "https://yoyomiles.com/ref=${profile.profileModel?.data
-        ?.referralCode}}";
+    final profile = Provider.of<ProfileViewModel>(context, listen: false);
+
+    final referralMsg = profile.profileModel?.data?.referralMessages ?? "";
+    final referralCode = profile.profileModel?.data?.referralCode ?? "";
+    final downloadLink = profile.profileModel?.data?.downloadLink;
+
     if (urlData.isNotEmpty) {
-      await Share.share(
-        "${profile.profileModel?.data?.referralMessages}\n${link}",
-      );
+      final shareText =
+          """
+$referralMsg
+
+**Referral Code:** $referralCode
+**Download Link:** $downloadLink
+""";
+
+      await Share.share(shareText);
     } else {
-      if (kDebugMode) {
-        print('Inter Url');
-      }
+      if (kDebugMode) print('Inter Url');
     }
   }
 }

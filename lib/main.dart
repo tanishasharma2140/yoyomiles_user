@@ -8,21 +8,20 @@ import 'package:yoyomiles/res/app_constant.dart';
 import 'package:yoyomiles/res/notification_service.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/utils/routes/routes_name.dart';
-import 'package:yoyomiles/view/auth/register_page.dart';
 import 'package:yoyomiles/view_model/active_ride_view_model.dart';
 import 'package:yoyomiles/view_model/add_address_view_model.dart';
 import 'package:yoyomiles/view_model/add_money_callback_view_model.dart';
-import 'package:yoyomiles/view_model/add_money_payment_view_model.dart';
 import 'package:yoyomiles/view_model/add_wallet_view_model.dart';
 import 'package:yoyomiles/view_model/address_delete_view_model.dart';
 import 'package:yoyomiles/view_model/address_show_view_model.dart';
 import 'package:yoyomiles/view_model/apply_coupon_view_model.dart';
 import 'package:yoyomiles/view_model/call_back_view_model.dart';
-import 'package:yoyomiles/view_model/change_pay_mode_view_model.dart';
+import 'package:yoyomiles/view_model/claim_reward_view_model.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/coupon_list_view_model.dart';
 import 'package:yoyomiles/view_model/daily_slot_view_model.dart';
 import 'package:yoyomiles/view_model/driver_rating_view_model.dart';
+import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
 import 'package:yoyomiles/view_model/final_summary_view_model.dart';
 import 'package:yoyomiles/view_model/goods_type_view_model.dart';
 import 'package:yoyomiles/view_model/help_and_support_view_model.dart';
@@ -44,6 +43,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:yoyomiles/view_model/reason_cancel_ride_view_model.dart';
 import 'package:yoyomiles/view_model/register_view_model.dart';
 import 'package:yoyomiles/view_model/requirement_view_model.dart';
+import 'package:yoyomiles/view_model/reward_view_model.dart';
 import 'package:yoyomiles/view_model/save_selected_item_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
 import 'package:yoyomiles/view_model/service_type_view_model.dart';
@@ -53,50 +53,49 @@ import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
 import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
-import 'package:app_links/app_links.dart';
+// import 'package:app_links/app_links.dart';
 
 String? fcmToken;
 String? globalReferralCode;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-class DeepLinkHandler {
-  static bool _hasHandledDeepLink = false;
-  final AppLinks _appLinks = AppLinks();
-
-  void initialize() {
-    initDeepLinks();
-  }
-
-  Future<void> initDeepLinks() async {
-    try {
-      final Uri? initialUri = await _appLinks.getInitialLink();
-      handleIncomingLink(initialUri);
-    } catch (e) {
-      print('Error getting initial app link: $e');
-    }
-
-    _appLinks.uriLinkStream.listen((Uri? uri) {
-      handleIncomingLink(uri);
-    });
-  }
-
-  void handleIncomingLink(Uri? uri) {
-    if (uri == null || _hasHandledDeepLink) return;
-
-    _hasHandledDeepLink = true;
-    final fullPath = uri.path;
-
-    if (fullPath.startsWith('/ref=')) {
-      final referralCode = fullPath.replaceFirst('/ref=', '');
-
-      navigatorKey.currentState?.pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => RegisterPage(referralCode: referralCode),
-        ),
-      );
-    }
-  }
-}
+// class DeepLinkHandler {
+//   final AppLinks _appLinks = AppLinks();
+//   DateTime? _lastHandled;
+//
+//   void initialize() {
+//     _handleInitial();
+//     _listen();
+//   }
+//
+//   Future<void> _handleInitial() async {
+//     try {
+//       final uri = await _appLinks.getInitialLink();
+//       _handleUri(uri);
+//     } catch (_) {}
+//   }
+//
+//   void _listen() {
+//     _appLinks.uriLinkStream.listen(_handleUri);
+//   }
+//
+//   void _handleUri(Uri? uri) {
+//     if (uri == null) return;
+//
+//     if (_lastHandled != null &&
+//         DateTime.now().difference(_lastHandled!) < Duration(milliseconds: 300)) {
+//       return;
+//     }
+//     _lastHandled = DateTime.now();
+//
+//     final referral = uri.queryParameters['ref'];
+//     if (referral != null && referral.isNotEmpty) {
+//       navigatorKey.currentState?.pushReplacement(
+//         MaterialPageRoute(builder: (_) => RegisterPage(referralCode: referral)),
+//       );
+//     }
+//   }
+// }
 
 
 
@@ -107,12 +106,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final deepLinkHandler = DeepLinkHandler();
-  deepLinkHandler.initialize();
-
-  fcmToken = await FirebaseMessaging.instance.getToken();
-  if (kDebugMode) print("FCM TOKEN = $fcmToken");
-
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -120,6 +113,7 @@ Future<void> main() async {
 
   runApp(const MyApp());
 }
+
 
 
 double screenHeight = 0.0;
@@ -136,13 +130,33 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final notificationService = NotificationService(navigatorKey: navigatorKey);
+  // final deepLinkHandler = DeepLinkHandler();
 
   @override
   void initState() {
     super.initState();
     notificationService.requestedNotificationPermission();
+    initFCM();
     notificationService.firebaseInit(context);
     notificationService.setupInteractMassage(context);
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   deepLinkHandler.initialize();
+    // });
+  }
+
+  void initFCM() async {
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (kDebugMode) print("FCM TOKEN = $token");
+    } else {
+      if (kDebugMode) print("Permission denied: no FCM token");
+    }
   }
 
   @override
@@ -203,10 +217,15 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> AddMoneyCallbackViewModel()),
           ChangeNotifierProvider(create: (context)=> UserTransactionViewModel()),
           ChangeNotifierProvider(create: (context)=> OtpCountViewModel()),
-          ChangeNotifierProvider(create: (context)=> ChangePayModeViewModel()),
+          // ChangeNotifierProvider(create: (context)=> ChangePayModeViewModel()),
           ChangeNotifierProvider(create: (context)=> VehicleLoadingViewModel()),
+          ChangeNotifierProvider(create: (context)=> RewardViewModel()),
+          ChangeNotifierProvider(create: (context)=> ClaimRewardViewModel()),
+          ChangeNotifierProvider(create: (context)=> DriverRideViewModel()),
+
         ],
         child: MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           initialRoute: RoutesName.splash,
           onGenerateRoute: (settings){

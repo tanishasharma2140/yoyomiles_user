@@ -805,7 +805,7 @@ class _ReviewBookingState extends State<ReviewBooking> {
                     widget.distance,
                     PaymentMethod,
                     [selectedGoodsType!],
-                    orderViewModel.pickupData["order_type"],
+                    orderViewModel.pickupData["order_type"]?? 1,
                     orderViewModel.pickupData["pickup_date"],
                     orderViewModel.pickupData["save_as"],
                     orderViewModel.dropData["save_as"],

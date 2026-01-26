@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:yoyomiles/view_model/change_pay_mode_view_model.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
+import 'package:yoyomiles/view_model/payment_view_model.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
-import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/const_with_polyline_map.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/view/bottom_nav_bar.dart';
-import 'package:yoyomiles/view/payment_summary_screen.dart';
 import 'package:provider/provider.dart';
 
 class DriverSearchingScreen extends StatefulWidget {
@@ -27,11 +26,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   late double screenHeight;
   late double screenWidth;
 
-  // 🔥 FLAGS FOR DIALOGS
   bool _showRideCompletedDialog = false;
   bool _showRideCancelledDialog = false;
-  bool _showOtpVerifiedDialog = false;
-  bool _showCollectPaymentDialog = false;
 
   Timer? _searchTimer;
   bool _noDriverDialogShown = false;
@@ -46,11 +42,47 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   @override
   void initState() {
     super.initState();
-    print("🟢 Received orderData: ${widget.orderData}");
+    print("🟢 DriverSearchingScreen initialized");
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startListening();
+    });
+  }
+
+  void _startListening() {
+    final orderId =
+        widget.orderData?['document_id']?.toString() ??
+        widget.orderData?['id']?.toString();
+
+    if (orderId == null) {
+      print("❌ No order ID found");
+      return;
+    }
+
+    print("🎧 Starting DriverRideViewModel listener for: $orderId");
+
+    final driverRideVm = Provider.of<DriverRideViewModel>(
+      context,
+      listen: false,
+    );
+    driverRideVm.startListening(orderId);
+  }
+
+  @override
+  void dispose() {
+    // _cancelSearchTimeoutTimer();
+    //
+    // // Stop listener when leaving screen
+    // final driverRideVm = Provider.of<DriverRideViewModel>(
+    //   context,
+    //   listen: false,
+    // );
+    // driverRideVm.stopListening();
+
+    super.dispose();
   }
 
   int? _selectedIndex;
-  final TextEditingController _commentController = TextEditingController();
   final List<String> _reasons = [
     "Wrong/Inappropriate Vehicle",
     "My reason is not listed",
@@ -62,37 +94,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     "Driver asking for extra money",
     "Driver not moving",
   ];
-
-  // ✅ SAFE CONVERSION METHODS
-  double? _safeToDouble(dynamic value) {
-    if (value == null) return null;
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) {
-      try {
-        return double.tryParse(value);
-      } catch (e) {
-        print("❌ Error converting string to double: $value");
-        return null;
-      }
-    }
-    return null;
-  }
-
-  int? _safeToInt(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is double) return value.toInt();
-    if (value is String) {
-      try {
-        return int.tryParse(value);
-      } catch (e) {
-        print("❌ Error converting string to int: $value");
-        return null;
-      }
-    }
-    return null;
-  }
 
   void _startSearchTimeoutTimer() {
     if (_searchTimer != null || _noDriverDialogShown) return;
@@ -118,103 +119,78 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       barrierDismissible: false,
       builder: (dialogCtx) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 40,
+            vertical: 24,
           ),
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icon Section
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.orange.shade100,
-                      width: 2,
-                    ),
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Colors.orange.shade600,
+                ),
+                const SizedBox(height: 12),
+
+                // TITLE
+                const Text(
+                  "Oops! Something went wrong",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    color: Colors.black87,
                   ),
-                  child: Icon(
-                    Icons.directions_car_outlined,
-                    size: 40,
-                    color: Colors.orange.shade600,
-                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // MESSAGE
+                Text(
+                  "Please try again after some time.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Title
-                const Text(
-                  "No Driver Available",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 20,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 12),
-
-                // Content
-                Text(
-                  "No drivers are available right now. "
-                      "Please try again after some time.",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade600,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 24),
-
-                // Action Button
+                // BUTTON
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(dialogCtx).pop();
+                      _cancelSearchTimeoutTimer();
+
+                      // Stop listener when leaving screen
+                      final driverRideVm = Provider.of<DriverRideViewModel>(
+                        context,
+                        listen: false,
+                      );
+                      driverRideVm.stopListening();
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
-                          builder: (ctx) => BottomNavigationPage(),
+                          builder: (_) => BottomNavigationPage(),
                         ),
-                            (route) => false,
+                        (route) => false,
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       elevation: 0,
                     ),
                     child: const Text(
                       "OK",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
                   ),
                 ),
@@ -223,11 +199,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           ),
         );
       },
-    ).then((_) {
-      _noDriverDialogShown = false;
-    });
+    ).then((_) => _noDriverDialogShown = false);
   }
-
 
   void _showCancelBottomSheet() {
     final updateRideStatusVm = Provider.of<UpdateRideStatusViewModel>(
@@ -256,9 +229,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Drag handle
                     Center(
                       child: Container(
                         width: 40,
@@ -270,35 +241,20 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                         ),
                       ),
                     ),
-
-                    // Title
                     TextConst(
                       title: "Cancel Ride",
                       color: PortColor.black,
                       fontWeight: FontWeight.w600,
                       size: 18,
                     ),
-                    const SizedBox(height: 4),
-                    TextConst(
-                      title: "Please choose a reason for cancellation 😊",
-                      color: Colors.grey[600],
-                    ),
                     const SizedBox(height: 12),
-
-                    // Reasons List
                     SizedBox(
                       height: (_reasons.length * 50).toDouble().clamp(150, 300),
                       child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
                         itemCount: _reasons.length,
                         itemBuilder: (context, index) {
                           return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _selectedIndex = index;
-                              });
-                            },
+                            onTap: () => setState(() => _selectedIndex = index),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: Row(
@@ -306,19 +262,10 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                                   Radio<int>(
                                     value: index,
                                     groupValue: _selectedIndex,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedIndex = value;
-                                      });
-                                    },
+                                    onChanged: (value) =>
+                                        setState(() => _selectedIndex = value),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      _reasons[index],
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ),
+                                  Expanded(child: Text(_reasons[index])),
                                 ],
                               ),
                             ),
@@ -326,69 +273,40 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                         },
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
-                    // Buttons
                     Row(
                       children: [
-                        // Go Back button
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: BorderSide(color: Colors.grey[400]!),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              "Go Back",
-                              style: TextStyle(color: Colors.grey),
-                            ),
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("Go Back"),
                           ),
                         ),
                         const SizedBox(width: 12),
-
-                        // Submit button
                         Expanded(
-                          child: GestureDetector(
-                            onTap: _selectedIndex == null
+                          child: ElevatedButton(
+                            onPressed: _selectedIndex == null
                                 ? null
                                 : () {
-                              updateRideStatusVm.updateRideApi(
-                                context,
-                                widget.orderData?['document_id'],
-                                "7",
-                              );
-                              Navigator.of(context).pop();
-                            },
-                            child: Container(
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: _selectedIndex == null
-                                    ? Colors.red[200]
-                                    : Colors.red,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  if (_selectedIndex != null)
-                                    BoxShadow(
-                                      color: Colors.red.withOpacity(0.4),
-                                      offset: const Offset(0, 3),
-                                      blurRadius: 5,
-                                    ),
-                                ],
-                              ),
-                              alignment: Alignment.center,
-                              child: const Text(
-                                "Submit",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                                    updateRideStatusVm.updateRideApi(
+                                      context,
+                                      widget.orderData?['document_id'],
+                                      "7",
+                                    );
+                                    _cancelSearchTimeoutTimer();
+
+                                    // Stop listener when leaving screen
+                                    final driverRideVm =
+                                        Provider.of<DriverRideViewModel>(
+                                          context,
+                                          listen: false,
+                                        );
+                                    driverRideVm.stopListening();
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
                             ),
+                            child: const Text("Submit"),
                           ),
                         ),
                       ],
@@ -403,202 +321,129 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     );
   }
 
-  // 🔥 RIDE COMPLETED DIALOG FOR CASH PAYMENT
   void _showRideCompletedDialogMethod() {
-    if (_showRideCompletedDialog) {
-      print("⚠️ Ride completed dialog already showing");
-      return;
-    }
-
-    print("✅ Showing RIDE COMPLETED dialog for cash payment");
-
-    setState(() {
-      _showRideCompletedDialog = true;
-    });
+    if (_showRideCompletedDialog) return;
+    _showRideCompletedDialog = true;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return _buildRideCompletedDialog();
-      },
-    ).then((_) {
-      print("🔒 Ride completed dialog closed");
-      setState(() {
-        _showRideCompletedDialog = false;
-      });
-    });
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 50),
+                const SizedBox(height: 15),
+                Text(
+                  "Ride Completed!🎉",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: PortColor.gold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Your ride has been completed successfully. Thank you!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: PortColor.gold,
+                    minimumSize: const Size(120, 45),
+                  ),
+                  onPressed: () {
+                    _cancelSearchTimeoutTimer();
+
+                    // Stop listener when leaving screen
+                    final driverRideVm = Provider.of<DriverRideViewModel>(
+                      context,
+                      listen: false,
+                    );
+                    driverRideVm.stopListening();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => BottomNavigationPage()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).then((_) => _showRideCompletedDialog = false);
   }
 
   void _showRideCancelledDialogMethod(String orderId) {
-    if (_showRideCancelledDialog) {
-      print("⚠️ Ride cancelled dialog already showing");
-      return;
-    }
-
-    print("❌ Showing RIDE CANCELLED dialog by driver for order: $orderId");
-
-    setState(() {
-      _showRideCancelledDialog = true;
-    });
+    if (_showRideCancelledDialog) return;
+    _showRideCancelledDialog = true;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return _buildRideCancelledDialog(orderId);
-      },
-    ).then((_) {
-      print("🔒 Ride cancelled dialog closed");
-      setState(() {
-        _showRideCancelledDialog = false;
-      });
-    });
-  }
-
-  // 🔥 RIDE COMPLETED DIALOG WIDGET
-  Widget _buildRideCompletedDialog() {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.check_circle, color: PortColor.rapidGreen, size: 50),
-              const SizedBox(height: 15),
-              Text(
-                "Ride Completed!🎉🎉",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: PortColor.gold,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Your ride has been completed successfully. Thank you!",
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: PortColor.gold,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.cancel, color: Colors.red, size: 50),
+                const SizedBox(height: 15),
+                const Text(
+                  "Ride Cancelled!",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
                   ),
-                  minimumSize: const Size(120, 45),
                 ),
-                onPressed: () {
-                  print("🏠 OK pressed from ride completed");
-                  Navigator.pop(context);
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => BottomNavigationPage(),
-                    ),
-                        (route) => false,
-                  );
-                },
-                child: const Text(
-                  "OK",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                const SizedBox(height: 10),
+                const Text(
+                  "Your ride has been cancelled by driver",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    minimumSize: const Size(120, 45),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => BottomNavigationPage()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    );
+    ).then((_) => _showRideCancelledDialog = false);
   }
 
-  // 🔥 RIDE CANCELLED DIALOG WIDGET (Driver side cancellation)
-  Widget _buildRideCancelledDialog(String orderId) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.cancel, color: Colors.red, size: 50),
-              const SizedBox(height: 15),
-              Text(
-                "Ride Cancelled!",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                "Your ride has been cancelled by driver",
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                "Order ID: $orderId",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: PortColor.gold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  minimumSize: const Size(120, 45),
-                ),
-                onPressed: () {
-                  print("🏠 OK pressed from cancelled - Navigating to Home");
-                  Navigator.pop(context);
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (context) => BottomNavigationPage(),
-                    ),
-                        (route) => false,
-                  );
-                },
-                child: const Text(
-                  "OK",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper method to get payment method text
-  String _getPaymentMethodText(int payMode) {
-    switch (payMode) {
-      case 1:
-        return "Cash";
-      case 2:
-        return "Online";
-      case 3:
-        return "Wallet";
-      default:
-        return "Cash";
-    }
-  }
-
-  // Helper method to get ride status text
   String _getRideStatusText(int rideStatus) {
     switch (rideStatus) {
       case 0:
@@ -612,7 +457,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       case 4:
         return "OTP Verified - Ride Started";
       case 5:
-        return "Ride Completed";
+        return "Reached destination";
       case 6:
         return "Ride Completed Successfully";
       case 7:
@@ -624,34 +469,28 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     }
   }
 
-  // ✅ METHOD: Real-time data ke saath map build karein
-  Widget _buildMapContainerWithData(Map<String, dynamic>? orderData) {
+  Widget _buildMapContainer(Map<String, dynamic>? orderData) {
     return SizedBox(
-      // height: screenHeight * 0.5,
       child: ConstWithPolylineMap(
         data: orderData != null
             ? [
-          {
-            'id': orderData['document_id'] ?? 'unknown',
-            'pickup_address': orderData['pickup_address'],
-            'pickup_latitute': orderData['pickup_latitute'],
-            'pick_longitude': orderData['pick_longitude'],
-            'drop_address': orderData['drop_address'],
-            'drop_latitute': orderData['drop_latitute'],
-            'drop_logitute': orderData['drop_logitute'],
-            'ride_status': _safeToInt(orderData['ride_status']) ?? 0,
-          },
-        ]
+                {
+                  'id': orderData['document_id'] ?? 'unknown',
+                  'pickup_address': orderData['pickup_address'],
+                  'pickup_latitute': orderData['pickup_latitute'],
+                  'pick_longitude': orderData['pick_longitude'],
+                  'drop_address': orderData['drop_address'],
+                  'drop_latitute': orderData['drop_latitute'],
+                  'drop_logitute': orderData['drop_logitute'],
+                  'ride_status': orderData['rideStatus'] ?? 0,
+                },
+              ]
             : null,
-        rideStatus: _safeToInt(orderData?['ride_status']) ?? 0,
+        rideStatus: orderData?['rideStatus'] ?? 0,
         backIconAllowed: false,
         onAddressFetched: (address) {
-          if (_currentAddress != address) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              setState(() {
-                _currentAddress = address;
-              });
-            });
+          if (_currentAddress != address && mounted) {
+            setState(() => _currentAddress = address);
           }
         },
       ),
@@ -659,452 +498,157 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Future<bool> _onBackPressed() async {
-    final updateRideStatusVm = Provider.of<UpdateRideStatusViewModel>(
-      context,
-      listen: false,
-    );
-
-    bool? exit = await showDialog(
+    final result = await showDialog<bool>(
       context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-          ),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 26),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 18,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade100, width: 1.5),
-                  ),
-                  child: Icon(
-                    Icons.warning_amber_rounded,
-                    color: Colors.red.shade400,
-                    size: 42,
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
-                // Title
-                const Text(
-                  "Exit Ride?",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Subtitle
-                Text(
-                  "Are you sure you want to exit this ride?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    height: 1.4,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-
-                const SizedBox(height: 26),
-
-                // Buttons Row
-                Row(
-                  children: [
-                    // No Button
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context, false);
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey.shade300),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          "No",
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey.shade700,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.red, size: 42),
+              const SizedBox(height: 18),
+              const Text(
+                "Exit Ride?",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Are you sure you want to exit this ride?",
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 26),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text("No"),
                     ),
-
-                    const SizedBox(width: 12),
-
-                    // Yes Button
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          updateRideStatusVm.updateRideApi(
-                            context,
-                            widget.orderData?['document_id'],
-                            "9",
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text(
-                          "Yes",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Provider.of<UpdateRideStatusViewModel>(
+                          context,
+                          listen: false,
+                        ).updateRideApi(
+                          context,
+                          widget.orderData?['document_id'],
+                          "9",
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
                       ),
+                      child: const Text("Yes"),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
-
-    return exit ?? false;
+    return result ?? false;
   }
 
   @override
   Widget build(BuildContext context) {
-    final orderId = widget.orderData?['document_id']?.toString();
-    if (orderId == null) {
-      return const Scaffold(body: Center(child: Text("Order ID not found")));
-    }
-
-
-
-    return SafeArea(
-      top: false,
-      bottom: true,
-      child: WillPopScope(
-        onWillPop: _onBackPressed,
-        child: Scaffold(
-          backgroundColor: PortColor.bg,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () async {
-                bool exit = await _onBackPressed();
-                if (exit) Navigator.pop(context);
-              },
-            ),
-            title: const Text(
-              "Trip Status",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ),
-          body: StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('order')
-                .doc(orderId)
-                .snapshots(),
-            builder: (context, orderSnapshot) {
-              if (orderSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child:  CupertinoActivityIndicator(
-                  radius: 14,
-                  color: PortColor.gold,
-                ),);
-              }
-
-              if (!orderSnapshot.hasData || !orderSnapshot.data!.exists) {
-                return const Center(child: Text("Order not found"));
-              }
-
-              final orderData =
-                  orderSnapshot.data!.data() as Map<String, dynamic>? ?? {};
-
-              // ✅ SAFE CONVERSIONS FOR ALL NUMERIC FIELDS
-              final rideStatus = _safeToInt(orderData['ride_status']) ?? 0;
-              final driverId = orderData['accepted_driver_id'];
-              final payMode = _safeToInt(orderData['paymode']) ?? 1;
-              final amount = _safeToDouble(orderData['amount']) ?? 0.0;
-              final distance = _safeToDouble(orderData['distance']) ?? 0.0;
-              final firebaseOrderId = orderId;
-              final otp = orderData['otp']?.toString() ?? "N/A";
-
-
-
-              // ✅ DEBUG PRINT
-              print("""
-        🔍 ORDER STATUS UPDATE:
-           - Ride Status: $rideStatus (${_getRideStatusText(rideStatus)})
-           - Driver ID: $driverId
-           - Payment Mode: $payMode (${_getPaymentMethodText(payMode)})
-           - OTP: $otp
-           - Amount: $amount
-        """);
-
-              // ✅ REAL-TIME ORDER DATA UPDATE WITH SAFE CONVERSIONS (INCLUDING PAYMODE)
-              final updatedOrderData = {
-                ...widget.orderData ?? {},
-                'document_id': orderId,
-                'ride_status': rideStatus,
-                'paymode': payMode, // ✅ Real-time paymode update
-                'amount': amount,
-                'distance': distance,
-                'pickup_latitute': orderData['pickup_latitute'],
-                'pick_longitude': orderData['pick_longitude'],
-                'drop_latitute': orderData['drop_latitute'],
-                'drop_logitute': orderData['drop_logitute'],
-                'pickup_address': orderData['pickup_address'],
-                'drop_address': orderData['drop_address'],
-                'otp': otp,
-              };
-
-
-
-
-              /// ⏱️ 3 minute search timeout yahi pe lagao (ab updatedOrderData available hai)
-              if (driverId == null && rideStatus == 0) {
-                // searching state
-                _startSearchTimeoutTimer();
-                return _buildSearchingSection(updatedOrderData);
-              } else {
-                // jaise hi driver assign ho ya status change ho, timer cancel
-                _cancelSearchTimeoutTimer();
-              }
-
-              // 🔥 CONDITION 1: Online payment - navigate to PaymentSummaryScreen
-              if (rideStatus == 5 && payMode == 2) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  print("💳 Navigating to Payment Summary (Online Payment)");
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaymentSummaryScreen(
-                        amount: amount,
-                        distance: distance,
-                        firebaseOrderId: firebaseOrderId,
-                      ),
-                    ),
-                  );
-                });
-              }
-
-              // 🔥 CONDITION 2: Cash payment completed - show ride completed dialog
-              if (rideStatus == 5 && payMode == 1 && !_showCollectPaymentDialog) {
-                print("💵 STREAMBUILDER: Reached destination with cash payment - show collect payment dialog!");
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _showCollectPaymentDialogMethod();
-                });
-              }
-
-              if (rideStatus == 6 && (payMode == 1 || payMode == 3) && !_showRideCompletedDialog) {
-                print("💵 STREAMBUILDER: Ride completed with cash payment!");
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _showRideCompletedDialogMethod();
-                });
-              }
-              // 🔥 CONDITION 3: OTP Verified (Status 4) - show OTP verified dialog
-              if (rideStatus == 4 && !_showOtpVerifiedDialog) {
-                print("✅ STREAMBUILDER: OTP Verified - Ride Started!");
-                WidgetsBinding.instance.addPostFrameCallback((_) {});
-              }
-
-              // 🔥 CONDITION 4: Ride cancelled by driver (status 8) - show cancelled dialog
-              if (rideStatus == 8 && !_showRideCancelledDialog) {
-                print("❌ STREAMBUILDER: Ride cancelled by driver detected!");
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _showRideCancelledDialogMethod(orderId);
-                });
-              }
-
-              // if (rideStatus == 9 && !_noDriverDialogShown) {
-              //   WidgetsBinding.instance.addPostFrameCallback((_) {
-              //     _showNoDriverAvailableDialogStatus9();
-              //   });
-              // }
-
-              if (driverId == null) {
-                // No driver assigned
-                return _buildSearchingSection(updatedOrderData);
-              }
-
-              // Driver assigned, show driver info + OTP for appropriate status
-              return StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('driver')
-                    .doc(driverId.toString())
-                    .snapshots(),
-                builder: (context, driverSnapshot) {
-                  if (driverSnapshot.connectionState == ConnectionState.waiting) {
-                    return _buildMainLayout(
-                      middleSection: _buildSearchingStatus(),
-                      orderData: updatedOrderData,
-                      driverData: null,
-                    );
-                  }
-
-                  if (!driverSnapshot.hasData || !driverSnapshot.data!.exists) {
-                    return _buildMainLayout(
-                      middleSection: _buildSearchingStatus(),
-                      orderData: updatedOrderData,
-                      driverData: null,
-                    );
-                  }
-
-                  final driverData =
-                  driverSnapshot.data!.data() as Map<String, dynamic>;
-
-                  return _buildMainLayout(
-                    middleSection: _buildDriverInfo(driverData),
-                    orderData: updatedOrderData,
-                    driverData: driverData,
-                  );
-                },
-              );
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        backgroundColor: PortColor.bg,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () async {
+              if (await _onBackPressed()) Navigator.pop(context);
             },
           ),
+          title: const Text(
+            "Trip Status",
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+        ),
+
+        body: Consumer<DriverRideViewModel>(
+          builder: (context, driverRideVm, child) {
+            final orderData = driverRideVm.currentRideData;
+
+            if (orderData == null) {
+              return const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 14,
+                  color: PortColor.gold,
+                ),
+              );
+            }
+
+            final rideStatus = driverRideVm.rideStatus;
+            final payMode = driverRideVm.payMode;
+            final orderId = orderData['document_id']?.toString() ?? '';
+
+            // Status 5 = Reached destination → Show payment screen
+            if (rideStatus == 5) {
+              print("📍 Status 5 detected - Preparing to navigate to Payment");
+              return CollectPaymentScreen(orderId: orderId);
+            }
+
+            // Status 6 = Payment completed → Show success dialog
+            if (rideStatus == 6 && (payMode == 1 || payMode == 3) && !_showRideCompletedDialog) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                print("✅ Cash Payment - Showing Ride Completed Dialog NOW");
+                _showRideCompletedDialogMethod();
+              });
+            }
+
+            if (rideStatus == 8 && !_showRideCancelledDialog) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showRideCancelledDialogMethod(orderId);
+              });
+            }
+
+            // Searching state
+            if (driverRideVm.isSearching) {
+              _startSearchTimeoutTimer();
+            } else {
+              _cancelSearchTimeoutTimer();
+            }
+
+            return _buildMainLayout(
+              orderData: orderData,
+              driverData: driverRideVm.driverData,
+              rideStatus: rideStatus,
+              payMode: payMode,
+              otp: driverRideVm.otp,
+            );
+          },
         ),
       ),
     );
   }
 
-  void _showCollectPaymentDialogMethod() {
-    if (_showCollectPaymentDialog) return;
-    _showCollectPaymentDialog = true;
-
-    showDialog(
-      context: context,
-      // barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: PortColor.gold, width: 2),
-          ),
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
-          elevation: 8,
-          shadowColor: Colors.black26,
-          title: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green[100]!, width: 1),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.location_on, color: Colors.white, size: 18),
-                ),
-                SizedBox(width: 10),
-                TextConst(
-                  title: "Reached Destination",
-                  size: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green[800],
-                ),
-              ],
-            ),
-          ),
-          content: Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[200]!, width: 1),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.payment, color: PortColor.grey, size: 14),
-                    SizedBox(width: 6),
-                    TextConst(
-                      title: "Make Payment of Trip",
-                      color: PortColor.blackLight,
-                      size: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    ).then((value) {
-      _showCollectPaymentDialog = false;
-    });
-  }
-
-  // Main Layout - UPDATED WITH PROPER OTP HANDLING AND PAYMODE
   Widget _buildMainLayout({
-    required Widget middleSection,
-    Map<String, dynamic>? orderData,
+    required Map<String, dynamic> orderData,
     Map<String, dynamic>? driverData,
+    required int rideStatus,
+    required int payMode,
+    required String otp,
   }) {
-    final rideStatus = _safeToInt(orderData?['ride_status']) ?? 0;
-    final payMode = _safeToInt(orderData?['paymode']) ?? 1;
-    final otp = orderData?['otp']?.toString() ?? "N/A";
-
-    String rideStatusText = _getRideStatusText(rideStatus);
-
-    // ✅ UPDATED: Check if we should show OTP and Cancel Ride
-    bool showOtpAndCancel = rideStatus >= 1 && rideStatus <= 3;
-    bool showOtpSection = showOtpAndCancel && otp != "N/A" && otp.isNotEmpty;
-
-    print("🎨 _buildMainLayout called with payMode = $payMode");
+    // 🔥 Show searching only when status 0 AND no driver
+    final isSearching = driverData == null && rideStatus == 0;
+    final showOtpAndCancel = rideStatus >= 1 && rideStatus <= 3;
+    final showOtp = showOtpAndCancel && otp != "N/A" && otp.isNotEmpty;
 
     return Stack(
       children: [
-        // Map stays fixed in the background - WITH REAL-TIME DATA
-        _buildMapContainerWithData(orderData),
-
-        // Draggable bottom sheet
+        _buildMapContainer(orderData),
         DraggableScrollableSheet(
           initialChildSize: 0.65,
           minChildSize: 0.65,
@@ -1114,153 +658,39 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
               ),
               child: SingleChildScrollView(
                 controller: scrollController,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // small drag handle
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 5,
-                        margin: const EdgeInsets.only(top: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                    Container(
+                      width: 40,
+                      height: 5,
+                      margin: const EdgeInsets.only(top: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // ✅ UPDATED: Ride status with icons
-                    Column(
-                      children: [
-                        if (rideStatus == 4) // OTP Verified
-                          Icon(Icons.verified, color: Colors.green, size: 40),
-                        if (rideStatus == 5 || rideStatus == 6) // Completed
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                            size: 40,
-                          ),
-                        if (rideStatus == 7 || rideStatus == 8) // Cancelled
-                          Icon(Icons.cancel, color: Colors.red, size: 40),
-
-                        Center(
-                          child: TextConst(
-                            title: rideStatusText,
-                            fontFamily: AppFonts.kanitReg,
-                            fontWeight: FontWeight.bold,
-                            size: 16,
-                            color: _getStatusColor(rideStatus),
-                          ),
-                        ),
-
-                        if (rideStatus == 6 && payMode == 1)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              "Payment completed with cash",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.green[700],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-
+                    _buildStatusHeader(rideStatus, payMode),
                     const SizedBox(height: 16),
 
-                    middleSection,
+                    // 🔥 SAFE NULL CHECK - Show searching OR driver info
+                    if (isSearching)
+                      _buildSearchingStatus()
+                    else if (driverData != null)
+                      _buildDriverInfo(driverData)
+                    else
+                      _buildDriverLoadingPlaceholder(),
 
-                    if (showOtpSection) _buildOtpSection(otp),
-
-                    // Address card
-                    buildAddressCard(),
-
-                    // ✅ Payment container - passing real-time payMode
-                    buildPaymentContainer(payMode, orderData),
-
-                    if (showOtpAndCancel)
-                      GestureDetector(
-                        onTap: _showCancelBottomSheet,
-                        child: Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: PortColor.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: PortColor.red),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          alignment: Alignment.center,
-                          child: TextConst(
-                            title: "Cancel Ride",
-                            fontFamily: AppFonts.kanitReg,
-                            color: PortColor.red,
-                            size: 16,
-                          ),
-                        ),
-                      ),
-
-                    // ✅ COMPLETION MESSAGE for status 4,5,6
+                    if (showOtp) _buildOtpSection(otp),
+                    AddressCard(orderData: orderData),
+                    _buildPaymentContainer(payMode, orderData),
+                    if (showOtpAndCancel) _buildCancelButton(),
                     if (rideStatus >= 4 && rideStatus <= 6)
-                      Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor(rideStatus).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _getStatusColor(rideStatus),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              _getCompletionMessage(rideStatus),
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: _getStatusColor(rideStatus),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _getCompletionSubtitle(rideStatus, payMode),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: _getStatusColor(rideStatus),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
+                      _buildCompletionMessage(rideStatus, payMode),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -1272,139 +702,184 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     );
   }
 
-  // Helper method to get status color
-  Color _getStatusColor(int rideStatus) {
-    switch (rideStatus) {
-      case 4: // OTP Verified
-        return Colors.green;
-      case 5: // Completed
-      case 6: // Completed Successfully
-        return Colors.green;
-      case 7: // Cancelled by User
-      case 8: // Cancelled by Driver
-        return Colors.red;
-      case 1: // Accepted
-      case 2: // On the way
-      case 3: // Arrived
-        return PortColor.gold;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  // Helper method to get completion message
-  String _getCompletionMessage(int rideStatus) {
-    switch (rideStatus) {
-      case 4:
-        return "🚗 Ride Started!";
-      case 5:
-      case 6:
-        return "🎉 Trip Completed!";
-      default:
-        return "";
-    }
-  }
-
-  // Helper method to get completion subtitle
-  String _getCompletionSubtitle(int rideStatus, int payMode) {
-    switch (rideStatus) {
-      case 4:
-        return "Your ride has started. Have a safe journey!";
-      case 5:
-        return payMode == 1
-            ? "Payment completed with cash"
-            : "Please complete the payment";
-      case 6:
-        return "Thank you for choosing our service";
-      default:
-        return "";
-    }
-  }
-
-  // Searching Section
-  Widget _buildSearchingSection(Map<String, dynamic>? orderData) {
-    return _buildMainLayout(
-      middleSection: _buildSearchingStatus(),
-      orderData: orderData,
-      driverData: null,
-    );
-  }
-
-  Widget _buildSearchingStatus() {
+  // 🔥 LOADING PLACEHOLDER FOR DRIVER INFO
+  Widget _buildDriverLoadingPlaceholder() {
     return Container(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
         children: [
-          TextConst(
-            title: "Searching for drivers nearby...",
-            color: PortColor.gold,
-          ),
-          const SizedBox(height: 8),
-          TextConst(
-            title: "Finding partner near you.",
-            color: Colors.grey[600],
-          ),
-          const SizedBox(height: 16),
-          LinearProgressIndicator(
+          CircleAvatar(
+            radius: 24,
             backgroundColor: Colors.grey[300],
-            valueColor: AlwaysStoppedAnimation<Color>(PortColor.gold),
-            minHeight: 4,
+            child: Icon(Icons.person, color: Colors.grey[600]),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 16,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  height: 14,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  // OTP Section - ENHANCED WITH BETTER UI
-  Widget _buildOtpSection(String otp) {
-    print("🔑 OTP Section Called - OTP Value: $otp");
+  Widget _buildStatusHeader(int rideStatus, int payMode) {
+    return Column(
+      children: [
+        if (rideStatus == 4)
+          Icon(Icons.verified, color: Colors.green, size: 40),
+        if (rideStatus == 5 || rideStatus == 6)
+          Icon(Icons.check_circle, color: Colors.green, size: 40),
+        if (rideStatus == 7 || rideStatus == 8)
+          Icon(Icons.cancel, color: Colors.red, size: 40),
+        TextConst(
+          title: _getRideStatusText(rideStatus),
+          fontWeight: FontWeight.bold,
+          size: 16,
+          color: _getStatusColor(rideStatus),
+        ),
+      ],
+    );
+  }
 
+  Color _getStatusColor(int status) {
+    if (status >= 4 && status <= 6) return Colors.green;
+    if (status == 7 || status == 8) return Colors.red;
+    if (status >= 1 && status <= 3) return PortColor.gold;
+    return Colors.grey;
+  }
+
+  Widget _buildSearchingStatus() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          TextConst(
+            title: "Searching for drivers nearby...",
+            color: PortColor.gold,
+          ),
+          const SizedBox(height: 16),
+          LinearProgressIndicator(
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation<Color>(PortColor.gold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDriverInfo(Map<String, dynamic> driverData) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 6),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundImage: NetworkImage(
+              driverData['owner_selfie'] ?? 'https://via.placeholder.com/150',
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextConst(
+                  title:
+                      "${driverData['vehicle_type_name']} - ${driverData['vehicle_no']}",
+                  fontWeight: FontWeight.bold,
+                ),
+                TextConst(
+                  title:
+                      "${driverData['driver_name']} • ${driverData['phone']}",
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              final phone = driverData['phone']?.toString();
+              if (phone != null && phone.isNotEmpty) {
+                LauncherI.launchCall(phone);
+              }
+            },
+            child: Container(
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.call, color: Colors.green),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOtpSection(String otp) {
+    return Container(
+      margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue[50],
         border: Border.all(color: Colors.blue),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Lock Icon with background
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
+              Icon(Icons.lock, color: Colors.blue),
+              const SizedBox(width: 8),
+              Text(
+                "Your Trip OTP",
+                style: TextStyle(
+                  color: Colors.blue[800],
+                  fontWeight: FontWeight.w600,
                 ),
-                child: Icon(Icons.lock, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-
-              // OTP Label
-              TextConst(
-                title: "Your Trip OTP",
-                color: Colors.blue[800],
-                fontWeight: FontWeight.w600,
-                size: 16,
               ),
             ],
           ),
           const SizedBox(height: 12),
-
-          // OTP Display
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
@@ -1416,94 +891,376 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.blue[800],
-                fontFamily: AppFonts.kanitReg,
                 letterSpacing: 4,
               ),
             ),
           ),
-          const SizedBox(height: 8),
-
-          Text(
-            "Share this OTP with driver at pickup time",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.blue[700], fontSize: 12),
-          ),
         ],
       ),
     );
   }
 
-  // Driver Info
-  Widget _buildDriverInfo(Map<String, dynamic> driverData) {
-    final name = driverData['driver_name'] ?? "Unknown Driver";
-    final phone = driverData['phone']?.toString() ?? "N/A";
-    final vehicle = driverData['vehicle_no'] ?? "N/A";
-    final vehicleType = driverData['vehicle_type_name'] ?? "Vehicle";
-    final driverImage =
-        driverData['owner_selfie'] ??
-            driverData['vehicle_type_image'] ??
-            'assets/images/driver_avatar.png';
-
+  Widget _buildPaymentContainer(int payMode, Map<String, dynamic> orderData) {
+    final method = payMode == 2
+        ? "Online"
+        : payMode == 3
+        ? "Wallet"
+        : "Cash";
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: PortColor.white,
+        color: Colors.white,
+        border: Border.all(color: Colors.grey[300]!),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundImage: driverImage.startsWith('http')
-                ? NetworkImage(driverImage) as ImageProvider
-                : AssetImage(driverImage),
-          ),
+          Icon(Icons.payment, color: PortColor.gold),
           const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextConst(
-                  title: "$vehicleType - $vehicle",
-                  fontWeight: FontWeight.bold,
-                  size: 15,
-                ),
-                Row(
-                  children: [
-                    TextConst(title: name, color: PortColor.blackLight),
-                    SizedBox(width: screenWidth * 0.02),
-                    TextConst(title: "• $phone", color: PortColor.blackLight),
-                  ],
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(method, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                "Payment method",
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
           ),
-          Container(
-            height: 35,
-            width: 35,
-            decoration: BoxDecoration(
-              color: PortColor.gold.withOpacity(0.7),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Icon(Icons.call, color: PortColor.black, size: 18),
-            ),
+          const Spacer(),
+          Text(
+            "₹${orderData['amount']}",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  // Address Card
-  Widget buildAddressCard() {
+  Widget _buildCancelButton() {
+    return GestureDetector(
+      onTap: _showCancelBottomSheet,
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.red),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Center(
+          child: TextConst(title: "Cancel Ride", color: Colors.red, size: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompletionMessage(int status, int payMode) {
+    String message = status == 4 ? "🚗 Ride Started!" : "🎉 Trip Completed!";
+
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.1),
+        border: Border.all(color: Colors.green),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.green,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class CollectPaymentScreen extends StatelessWidget {
+  final String orderId;
+
+  const CollectPaymentScreen({super.key, required this.orderId});
+
+  /// 💰 Complete Cash Payment
+  // void _completeCashPayment(BuildContext context) {
+  //   final updateRideStatusVm = Provider.of<UpdateRideStatusViewModel>(
+  //     context,
+  //     listen: false,
+  //   );
+  //
+  //   // Update ride status to 6 (Completed Successfully)
+  //   updateRideStatusVm.updateRideApi(context, orderId, "6");
+  //
+  //   print("💵 Cash payment completed for order: $orderId");
+  // }
+
+  /// 💳 Complete Online Payment
+  void _completeOnlinePayment(BuildContext context) {
+    final paymentVm = Provider.of<PaymentViewModel>(context, listen: false);
+    final driverRideVm = Provider.of<DriverRideViewModel>(
+      context,
+      listen: false,
+    );
+
+    final amount = driverRideVm.currentRideData?['amount']?.toString() ?? "0";
+
+    // Call payment API with:
+    // paymode: 1 (for online payment)
+    // amount: ride amount
+    // orderId: firebase order ID
+    paymentVm.paymentApi(
+      1, // paymode for online payment
+      amount,
+      orderId,
+      context,
+    );
+
+    print("💳 Online payment initiated for order: $orderId, amount: ₹$amount");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DriverRideViewModel>(
+      builder: (context, driverRideVm, child) {
+        final payMode = driverRideVm.payMode;
+        final amount = driverRideVm.currentRideData?['amount'] ?? 0;
+
+        print("🎨 CollectPaymentScreen - PayMode: $payMode, Amount: ₹$amount");
+
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              title: const Text(
+                "Payment",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // 🔥 Icon based on paymode
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: payMode == 1
+                            ? Colors.green.withOpacity(0.1)
+                            : Colors.orange.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        payMode == 1 ? Icons.money : Icons.credit_card,
+                        color: payMode == 1 ? Colors.green : Colors.orange,
+                        size: 60,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 🔥 Title
+                    Text(
+                      payMode == 1 ? "Cash Payment" : "Online Payment",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: payMode == 1 ? Colors.green : Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 🔥 Amount Display
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.currency_rupee,
+                            color: PortColor.gold,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            amount.toString(),
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: PortColor.gold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // 🔥 Dynamic Content based on paymode
+                    if (payMode == 1) ...[
+                      // ✅ CASH PAYMENT UI
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.blue,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                "Please pay cash to the driver",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+
+                      // COMPLETE PAYMENT BUTTON (Cash)
+                      // SizedBox(
+                      //   width: double.infinity,
+                      //   child: ElevatedButton(
+                      //     onPressed: () => _completeCashPayment(context),
+                      //     style: ElevatedButton.styleFrom(
+                      //       backgroundColor: Colors.green,
+                      //       padding: const EdgeInsets.symmetric(vertical: 16),
+                      //       shape: RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(12),
+                      //       ),
+                      //       elevation: 0,
+                      //     ),
+                      //     child: const Text(
+                      //       "Payment Done",
+                      //       style: TextStyle(
+                      //         color: Colors.white,
+                      //         fontSize: 18,
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                    ] else ...[
+                      // ✅ ONLINE PAYMENT UI
+                      const Text(
+                        "Complete your online payment below",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // PAYMENT GATEWAY SECTION
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () =>
+                              _completeOnlinePayment(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: PortColor.gold,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.lock,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              TextConst(
+                                title:
+                                "Pay Now",
+                                color: Colors.white,
+                                size: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      // Payment Methods Info
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[50],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.security,
+                              color: Colors.grey[600],
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Secure payment powered by Razorpay",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class AddressCard extends StatelessWidget {
+  final Map<String, dynamic>? orderData;
+
+  const AddressCard({Key? key, required this.orderData}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
       padding: const EdgeInsets.all(12),
@@ -1522,57 +1279,32 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.green,
-                ),
-                child: const Icon(
-                  Icons.arrow_upward,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ),
-              Container(
-                width: 2,
-                height: widget.orderData?['order_type'] == 2 ? 25 : 45,
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: CustomPaint(painter: DottedLinePainter()),
-              ),
-              Container(
-                width: 24,
-                height: 24,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.red,
-                ),
-                child: const Icon(
-                  Icons.arrow_downward,
-                  color: Colors.white,
-                  size: 14,
-                ),
-              ),
-            ],
-          ),
+          // 📍 Pickup/Drop Icons with Dotted Line
+          _buildLocationIndicator(),
+
           const SizedBox(width: 16),
+
+          // 📝 Address Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _singleAddressDetail(
-                  name: widget.orderData?['sender_name'] ?? "",
-                  phone: widget.orderData?['sender_phone']?.toString() ?? "",
-                  address: widget.orderData?['pickup_address'] ?? "",
+                // Pickup Address
+                _buildAddressDetail(
+                  name: orderData?['sender_name'] ?? "",
+                  phone: orderData?['sender_phone']?.toString() ?? "",
+                  address: orderData?['pickup_address'] ?? "",
+                  orderType: orderData?['order_type'] ?? 1,
                 ),
+
                 const SizedBox(height: 12),
-                _singleAddressDetail(
-                  name: widget.orderData?['reciver_name'] ?? "",
-                  phone: widget.orderData?['reciver_phone']?.toString() ?? "",
-                  address: widget.orderData?['drop_address'] ?? "",
+
+                // Drop Address
+                _buildAddressDetail(
+                  name: orderData?['reciver_name'] ?? "",
+                  phone: orderData?['reciver_phone']?.toString() ?? "",
+                  address: orderData?['drop_address'] ?? "",
+                  orderType: orderData?['order_type'] ?? 1,
                 ),
               ],
             ),
@@ -1582,21 +1314,66 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     );
   }
 
-  Widget _singleAddressDetail({
+  /// 📍 Location Indicator (Green -> Dotted Line -> Red)
+  Widget _buildLocationIndicator() {
+    final orderType = orderData?['order_type'] ?? 1;
+
+    return Column(
+      children: [
+        // Green Pickup Icon
+        Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.green,
+          ),
+          child: const Icon(Icons.arrow_upward, color: Colors.white, size: 14),
+        ),
+
+        // Dotted Line
+        Container(
+          width: 2,
+          height: orderType == 2 ? 25 : 45,
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: CustomPaint(painter: DottedLinePainter()),
+        ),
+
+        // Red Drop Icon
+        Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.red,
+          ),
+          child: const Icon(
+            Icons.arrow_downward,
+            color: Colors.white,
+            size: 14,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 📝 Single Address Detail Widget
+  /// order_type: 1 → Name + Phone + Address
+  /// order_type: 2 → Only Address
+  Widget _buildAddressDetail({
     required String name,
     required String phone,
     required String address,
+    required int orderType,
   }) {
-    final orderType = widget.orderData?['order_type'] ?? 1;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
-        // ⭐ SHOW NAME & PHONE ONLY IF order_type != 1
-        if (orderType != 1 && name.isNotEmpty) ...[
+        // ⭐ SHOW NAME & PHONE ONLY IF order_type == 1 (Ride)
+        if (orderType == 1 && name.isNotEmpty) ...[
           Row(
             children: [
+              // Name
               Text(
                 name,
                 style: TextStyle(
@@ -1606,6 +1383,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   color: PortColor.gold,
                 ),
               ),
+
+              // Phone (if available)
               if (phone.isNotEmpty) ...[
                 const SizedBox(width: 8),
                 Text(
@@ -1622,7 +1401,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           const SizedBox(height: 4),
         ],
 
-        // ⭐ Address ALWAYS visible
+        // ⭐ Address - ALWAYS VISIBLE
         Text(
           address,
           style: TextStyle(
@@ -1636,221 +1415,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       ],
     );
   }
-
-
-
-
-
-  // ✅ Updated Payment Container with real-time payment method
-  Widget buildPaymentContainer(int payMode, Map<String, dynamic>? orderData) {
-    print("🎨 buildPaymentContainer CALLED with payMode = $payMode");
-    final paymentMethod = payMode == 2
-        ? "Online"
-        : payMode == 3
-        ? "Wallet"
-        : "Cash";
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: PortColor.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: PortColor.grey),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Image.asset(Assets.assetsRupeetwo, height: 46, width: 46),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextConst(
-                    title: paymentMethod,
-                    size: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Payment method",
-                    style: TextStyle(fontSize: 13, color: Colors.grey),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                "₹ ${orderData?['amount'] ?? '0'}",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: PortColor.gold,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-          Divider(color: PortColor.grey.withOpacity(0.4)),
-
-          GestureDetector(
-            onTap: () => _openChangePayModeSheet(payMode),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(
-                children: const [
-                  Text(
-                    "Change Pay Mode",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: PortColor.button,
-                    ),
-                  ),
-                  Spacer(),
-                  Icon(Icons.arrow_forward_ios, size: 16),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  void _openChangePayModeSheet(int currentPayMode) {
-    int selectedPayMode = currentPayMode;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: PortColor.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Change Pay Mode",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  _payModeTile(
-                    title: "Online (UPI)",
-                    payMode: 2,
-                    selectedPayMode: selectedPayMode,
-                    onTap: () {
-                      setState(() => selectedPayMode = 2);
-                      _changePayModeApi(2);
-                    },
-                  ),
-
-                  _payModeTile(
-                    title: "Cash",
-                    payMode: 1,
-                    selectedPayMode: selectedPayMode,
-                    onTap: () {
-                      setState(() => selectedPayMode = 1);
-                      _changePayModeApi(1);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-
-
-  void _changePayModeApi(int payMode) {
-    final orderId = widget.orderData?['document_id'];
-    if (orderId == null) return;
-
-    Provider.of<ChangePayModeViewModel>(context, listen: false)
-        .changePayModeApi(
-      context: context,
-      orderId: orderId,
-      payMode: payMode,
-    );
-
-    // ✅ Close the bottom sheet after API call
-    // Navigator.of(context).pop();
-  }
-
-
-
-  Widget _payModeTile({
-    required String title,
-    required int payMode,
-    required int selectedPayMode,
-    required VoidCallback onTap,
-  }) {
-    final bool isSelected = payMode == selectedPayMode;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? PortColor.gold.withOpacity(0.15)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? PortColor.gold : PortColor.grey,
-            width: isSelected ? 1.5 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              payMode == 1 ? Icons.account_balance_wallet : Icons.money,
-              color: isSelected ? PortColor.gold : Colors.grey[700],
-            ),
-            const SizedBox(width: 12),
-
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontFamily: AppFonts.kanitReg,
-                  fontWeight:
-                  isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-              ),
-            ),
-
-            if (isSelected)
-              Icon(
-                Icons.check_circle,
-                color: PortColor.gold,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-
-
 }
 
-// Dotted Line
+/// 🎨 Dotted Line Painter for Visual Separator
 class DottedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1871,4 +1438,13 @@ class DottedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class LauncherI {
+  static Future<void> launchCall(String phone) async {
+    final Uri url = Uri(scheme: 'tel', path: phone);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 }

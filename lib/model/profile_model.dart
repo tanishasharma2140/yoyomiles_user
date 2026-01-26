@@ -46,6 +46,7 @@ class Data {
   String? referralLink;
   int? referralAmount;
   String? referralMessages;
+  String? downloadLink;
 
   Data(
       {this.id,
@@ -67,7 +68,9 @@ class Data {
         this.coins,
         this.referralLink,
         this.referralAmount,
-        this.referralMessages});
+        this.referralMessages,
+        this.downloadLink,
+      });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -90,6 +93,7 @@ class Data {
     referralLink = json['referral_link'];
     referralAmount = json['referral_amount'];
     referralMessages = json['referral_messages'];
+    downloadLink = json['download_link'];
   }
 
   Map<String, dynamic> toJson() {
@@ -114,6 +118,7 @@ class Data {
     data['referral_link'] = referralLink;
     data['referral_amount'] = referralAmount;
     data['referral_messages'] = referralMessages;
+    data['download_link'] = downloadLink;
     return data;
   }
 }
