@@ -24,6 +24,7 @@ import 'package:yoyomiles/view_model/driver_rating_view_model.dart';
 import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
 import 'package:yoyomiles/view_model/final_summary_view_model.dart';
 import 'package:yoyomiles/view_model/goods_type_view_model.dart';
+import 'package:yoyomiles/view_model/gst_percentage_view_model.dart';
 import 'package:yoyomiles/view_model/help_and_support_view_model.dart';
 import 'package:yoyomiles/view_model/login_view_model.dart';
 import 'package:yoyomiles/view_model/moving_detail_view_model.dart';
@@ -222,6 +223,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> RewardViewModel()),
           ChangeNotifierProvider(create: (context)=> ClaimRewardViewModel()),
           ChangeNotifierProvider(create: (context)=> DriverRideViewModel()),
+          ChangeNotifierProvider(create: (context)=> GstPercentageViewModel()),
 
         ],
         child: MaterialApp(

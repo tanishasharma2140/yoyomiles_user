@@ -501,6 +501,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(
+        backgroundColor: PortColor.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         child: Padding(
           padding: const EdgeInsets.all(22),
@@ -509,12 +510,14 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.red, size: 42),
               const SizedBox(height: 18),
-              const Text(
+              const TextConst(
+                title:
                 "Exit Ride?",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                  size: 20, fontWeight: FontWeight.w700
               ),
               const SizedBox(height: 10),
-              const Text(
+              const TextConst(
+                title:
                 "Are you sure you want to exit this ride?",
                 textAlign: TextAlign.center,
               ),
@@ -524,7 +527,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text("No"),
+                      child: const Text("No",style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.black),),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -543,7 +546,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      child: const Text("Yes"),
+                      child: const Text("Yes",style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
                     ),
                   ),
                 ],

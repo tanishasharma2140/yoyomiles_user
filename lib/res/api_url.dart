@@ -41,6 +41,7 @@ class ApiUrl{
   static const String vehicleLoadingUrl ="${baseUrl}vehicle-loading-time?";
   static const String referralRewardHistoryUrl ="${baseUrl}referral-reward-history";
   static const String claimedRewardUrl ="${baseUrl}claim-reward";
+  static const String gstPercentageUrl ="${baseUrl}gst-percentage";
 
   static const String sendOtpUrl ="https://otp.fctechteam.org/send_otp.php?mode=live&digit=4&mobile=";
   static const String verifyOtpUrl ="https://otp.fctechteam.org/verifyotp.php?mobile=";

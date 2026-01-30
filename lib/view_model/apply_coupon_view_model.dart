@@ -23,6 +23,14 @@ class ApplyCouponViewModel with ChangeNotifier {
   int? _applyStatus; // 🟢 New field
   int? get applyStatus => _applyStatus;
 
+  String? _vehicleId;
+  String? get vehicleId => _vehicleId;
+
+  void setVehicleId(String id) {
+    _vehicleId = id;
+    notifyListeners();
+  }
+
   setLoading(bool value) {
     _loading = value;
     notifyListeners();
@@ -110,16 +118,19 @@ class ApplyCouponViewModel with ChangeNotifier {
         response: response,
         couponCode: couponCode,
         onContinue: () {
-          final serviceTypeViewModel =
-          Provider.of<ServiceTypeViewModel>(context, listen: false);
           final couponListVm =
           Provider.of<CouponListViewModel>(context, listen: false);
-          couponListVm.couponListApi(
-            userId.toString(),
-            serviceTypeViewModel.selectedVehicleId!,
-          );
+
+          if (_vehicleId != null) {
+            couponListVm.couponListApi(
+              userId.toString(),
+              _vehicleId!, // ✅ NOW WORKS
+            );
+          }
+          Navigator.pop(context); // coupons screen close (optional)
         },
       ),
     );
   }
+
 }

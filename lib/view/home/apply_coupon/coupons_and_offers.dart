@@ -12,7 +12,8 @@ import 'package:provider/provider.dart';
 
 class CouponsAndOffers extends StatefulWidget {
   final String price;
-  const CouponsAndOffers({super.key, required this.price});
+  final String vehicleId;
+  const CouponsAndOffers({super.key, required this.price, required this.vehicleId});
 
   @override
   State<CouponsAndOffers> createState() => _CouponsAndOffersState();
@@ -27,17 +28,13 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       UserViewModel userViewModel = UserViewModel();
       String? userId = await userViewModel.getUser();
-      final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(
-        context,
-        listen: false,
-      );
       final couponListVm = Provider.of<CouponListViewModel>(
         context,
         listen: false,
       );
       couponListVm.couponListApi(
         userId.toString(),
-        serviceTypeViewModel.selectedVehicleId!,
+        widget.vehicleId,
       );
     });
   }

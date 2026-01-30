@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -22,80 +24,67 @@ class SelectVehicles extends StatefulWidget {
 class _SelectVehiclesState extends State<SelectVehicles> {
   int? selectedIndex;
 
+  double? distance;
+  bool isDistanceLoading = true;
+
+
+
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(
-        context,
-        listen: false,
-      );
-      final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(
-        context,
-        listen: false,
-      );
-      final orderViewModel = Provider.of<OrderViewModel>(
-        context,
-        listen: false,
-      );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+      final selectVehiclesViewModel =
+      Provider.of<SelectVehiclesViewModel>(context, listen: false);
+      final serviceTypeViewModel =
+      Provider.of<ServiceTypeViewModel>(context, listen: false);
 
-      // ✅ Null check - agar data null hai to back chale jao
-      if (orderViewModel.pickupData == null || orderViewModel.dropData == null) {
-        debugPrint("❌ Error: Pickup or Drop data is null!");
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please select pickup and drop locations first'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          Navigator.pop(context);
-        });
-        return;
-      }
-
-      // ✅ Safe parsing with null checks
       double pickupLat = double.tryParse(
-          orderViewModel.pickupData?["latitude"]?.toString() ?? "0"
+        orderViewModel.pickupData!["latitude"].toString(),
       ) ?? 0.0;
 
-      double pickupLon = double.tryParse(
-          orderViewModel.pickupData?["longitude"]?.toString() ?? "0"
+      double pickupLng = double.tryParse(
+        orderViewModel.pickupData!["longitude"].toString(),
       ) ?? 0.0;
 
       double dropLat = double.tryParse(
-          orderViewModel.dropData?["latitude"]?.toString() ?? "0"
+        orderViewModel.dropData!["latitude"].toString(),
       ) ?? 0.0;
 
-      double dropLon = double.tryParse(
-          orderViewModel.dropData?["longitude"]?.toString() ?? "0"
+      double dropLng = double.tryParse(
+        orderViewModel.dropData!["longitude"].toString(),
       ) ?? 0.0;
 
-      double distance = calculateDistance(
-        pickupLat,
-        pickupLon,
-        dropLat,
-        dropLon,
+
+      final roadDistance = await GoogleDistanceService.getRoadDistance(
+        pickupLat: pickupLat,
+        pickupLng: pickupLng,
+        dropLat: dropLat,
+        dropLng: dropLng,
       );
 
-      debugPrint("Distance: $distance km");
-
-      // ✅ Additional null checks before API call
-      if (serviceTypeViewModel.selectedVehicleId == null ||
-          serviceTypeViewModel.selectedVehicleType == null) {
-        debugPrint("❌ Error: Vehicle type not selected!");
+      if (roadDistance == null) {
+        debugPrint("❌ Google distance fetch failed");
         return;
       }
 
+      debugPrint("✅ Google Road Distance: $roadDistance km");
+
+      setState(() {
+        distance = roadDistance; // 🔥🔥 THIS WAS MISSING
+        isDistanceLoading = false;
+      });
+
+
       selectVehiclesViewModel.selectVehicleApi(
         serviceTypeViewModel.selectedVehicleId!,
-        distance.toString(),
+        roadDistance.toStringAsFixed(2),
         serviceTypeViewModel.selectedVehicleType!,
-        orderViewModel.pickupData?['latitude'],
-        orderViewModel.pickupData?['longitude'],
-        orderViewModel.dropData?['latitude'],
-        orderViewModel.dropData?['longitude'],
+        pickupLat,
+        pickupLng,
+        dropLat,
+        dropLng,
         context,
       );
     });
@@ -116,25 +105,6 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     }
   }
 
-  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const double earthRadius = 6371.0;
-
-    double dLat = _degreeToRadian(lat2 - lat1);
-    double dLon = _degreeToRadian(lon2 - lon1);
-
-    double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(_degreeToRadian(lat1)) *
-            cos(_degreeToRadian(lat2)) *
-            sin(dLon / 2) *
-            sin(dLon / 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    return earthRadius * c;
-  }
-
-  double _degreeToRadian(double degree) {
-    return degree * pi / 180;
-  }
 
   List<dynamic> getOtherVehicles(SelectVehiclesViewModel viewModel) {
     return viewModel.selectVehicleModel?.data
@@ -145,27 +115,21 @@ class _SelectVehiclesState extends State<SelectVehicles> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (isDistanceLoading) {
+      return const Scaffold(
+        backgroundColor: PortColor.white,
+        body: Center(
+          child: CircularProgressIndicator(color: PortColor.gold,),
+        ),
+      );
+    }
+
     final orderViewModel = Provider.of<OrderViewModel>(context);
     final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(context);
+    final usedDistance = distance ?? 0.0;
 
-    // ✅ Safe data extraction with null checks
-    double pickupLat = double.tryParse(
-        orderViewModel.pickupData?["latitude"]?.toString() ?? "0"
-    ) ?? 0.0;
 
-    double pickupLon = double.tryParse(
-        orderViewModel.pickupData?["longitude"]?.toString() ?? "0"
-    ) ?? 0.0;
-
-    double dropLat = double.tryParse(
-        orderViewModel.dropData?["latitude"]?.toString() ?? "0"
-    ) ?? 0.0;
-
-    double dropLon = double.tryParse(
-        orderViewModel.dropData?["longitude"]?.toString() ?? "0"
-    ) ?? 0.0;
-
-    double distance = calculateDistance(pickupLat, pickupLon, dropLat, dropLon);
 
     print("Distance: $distance km");
 
@@ -421,7 +385,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             vehicle: vehicle,
                             isSelected: isSelected,
                             index: index,
-                            distance: distance,
+                            distance: usedDistance,
                             onTap: () {
                               setState(() {
                                 selectedIndex = index;
@@ -475,22 +439,17 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                           selectedVehicle.vehicleBodyDetailsId?.toString() ?? "0";
                       final vehicleBodyTypeId =
                           selectedVehicle.vehicleBodyTypesId?.toString() ?? "0";
+                      final double amount =
+                          double.tryParse(selectedVehicle.amount.toString()) ?? 0.0;
 
-                      final distanceStr = distance.toInt().toString();
-                      final price = (double.tryParse(
-                        selectedVehicle.amount?.toString() ?? "0",
-                      ) ??
-                          0)
-                          .toInt()
-                          .toString();
 
                       print("======== Vehicle Selection Details ========");
                       print("Vehicle Name: $vehicleName");
                       print("Vehicle ID: $vehicleId");
                       print("Vehicle Body Detail ID: $vehicleBodyDetailId");
                       print("Vehicle Body Type ID: $vehicleBodyTypeId");
-                      print("Distance: $distanceStr");
-                      print("Price: $price");
+                      print("Distance: $usedDistance");
+                      print("Price: $amount");
                       print("==========================================");
 
                       Navigator.push(
@@ -500,8 +459,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                           pageBuilder: (_, __, ___) => ReviewBooking(
                             vehicleName: vehicleName,
                             index: selectedIndex,
-                            price: price,
-                            distance: distanceStr,
+                            price: amount.toString(),
+                            distance: usedDistance.toString(),
                             vehicleBodyDetailId: vehicleBodyDetailId,
                             vehicleBodyTypeId: vehicleBodyTypeId,
                             vehicleIds : vehicleId.toString(),
@@ -698,5 +657,41 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         ),
       ),
     );
+  }
+}
+
+
+
+class GoogleDistanceService {
+  static const String apiKey = "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM";
+
+  static Future<double?> getRoadDistance({
+    required double pickupLat,
+    required double pickupLng,
+    required double dropLat,
+    required double dropLng,
+  }) async {
+    final url =
+        'https://maps.googleapis.com/maps/api/distancematrix/json'
+        '?origins=$pickupLat,$pickupLng'
+        '&destinations=$dropLat,$dropLng'
+        '&mode=driving'
+        '&units=metric'
+        '&key=$apiKey';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['rows'][0]['elements'][0]['status'] == "OK") {
+        final distanceInMeters =
+        data['rows'][0]['elements'][0]['distance']['value'];
+
+        // KM me convert
+        return distanceInMeters / 1000;
+      }
+    }
+    return null;
   }
 }
