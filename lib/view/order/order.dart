@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -45,64 +46,6 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  Future<void> generatePdf(context, history) async {
-    final pdf = pw.Document();
-
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text(
-                "Order Invoice",
-                style: pw.TextStyle(
-                  fontSize: 20,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text("Vehicle: ${history.vehicleName ?? ""}"),
-              pw.Text("Amount: ₹ ${history.amount ?? ""}"),
-              pw.Text("Date: ${history.datetime.toString()}"),
-              pw.SizedBox(height: 10),
-              pw.Text(
-                "Sender: ${history.senderName ?? ""} (${history.senderPhone})",
-              ),
-              pw.Text("Pickup Address: ${history.pickupAddress ?? ""}"),
-              pw.SizedBox(height: 10),
-              pw.Text(
-                "Receiver: ${history.reciverName ?? ""} (${history.reciverPhone})",
-              ),
-              pw.Text("Drop Address: ${history.dropAddress ?? ""}"),
-              pw.SizedBox(height: 20),
-              pw.Text(
-                "Payment Status: ${history.paymentStatus == 0
-                    ? "Pending"
-                    : history.paymentStatus == 1
-                    ? "Success"
-                    : "Failed"}",
-              ),
-              pw.Text(
-                "Pay Mode: ${history.paymode == 1
-                    ? "Cash on Delivery"
-                    : history.paymode == 2
-                    ? "Online Payment"
-                    : "Nothing"}",
-              ),
-            ],
-          );
-        },
-      ),
-    );
-
-    final output = await getTemporaryDirectory();
-    final file = File("${output.path}/order_invoice_${history.id}.pdf");
-    await file.writeAsBytes(await pdf.save());
-
-    // ✅ Ab ye use karo
-    await OpenFilex.open(file.path);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +162,10 @@ class _OrderPageState extends State<OrderPage> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(15),
                               onTap: () {
-                                generatePdf(context, history);
+                                if (history.invoiceLink != null &&
+                                    history.invoiceLink.toString().isNotEmpty) {
+                                  openInvoicePdf(history.invoiceLink.toString());
+                                }
                               },
                               child: Icon(
                                 Icons.download,
@@ -791,5 +737,19 @@ class _OrderPageState extends State<OrderPage> {
         ),
       ),
     );
+  }
+}
+
+
+Future<void> openInvoicePdf(String url) async {
+  final Uri uri = Uri.parse(url);
+
+  if (await canLaunchUrl(uri)) {
+    await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication, // browser / pdf viewer
+    );
+  } else {
+    debugPrint("Could not open PDF");
   }
 }

@@ -1,6 +1,7 @@
 class ApiUrl{
 
-  static const String baseUrl ="https://admin.yoyomiles.com/api/";
+  static const String baseUrl ="https://yoyo.codescarts.com/api/";
+  // static const String baseUrl ="https://admin.yoyomiles.com/api/";
   static const String registerUrl="${baseUrl}register";
   static const String profileUrl="${baseUrl}user_profile/";
   static const String loginUrl="${baseUrl}login";

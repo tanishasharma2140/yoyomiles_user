@@ -14,6 +14,7 @@ import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view_model/gst_percentage_view_model.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
 import 'package:yoyomiles/view_model/service_type_view_model.dart';
@@ -56,27 +57,10 @@ class _RideMapScreenState extends State<RideMapScreen> {
     print("Pickup - Lat: ${widget.pickupLat}, Lng: ${widget.pickupLng}");
     print("Drop - Lat: ${widget.dropLat}, Lng: ${widget.dropLng}");
     _initializeMap();
+    final gstPercentageVm = Provider.of<GstPercentageViewModel>(context,listen: false);
+    gstPercentageVm.gstPercentageApi();
   }
 
-  // Calculate distance between two LatLng points in kilometers
-  double _calculateDistance(LatLng start, LatLng end) {
-    const double earthRadius = 6371; // Earth's radius in kilometers
-
-    double lat1 = start.latitude * (3.141592653589793 / 180);
-    double lon1 = start.longitude * (3.141592653589793 / 180);
-    double lat2 = end.latitude * (3.141592653589793 / 180);
-    double lon2 = end.longitude * (3.141592653589793 / 180);
-
-    double dLat = lat2 - lat1;
-    double dLon = lon2 - lon1;
-
-    double a =
-        sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    return earthRadius * c;
-  }
 
   Future<BitmapDescriptor> resizeMarkerIcon(
     String assetPath,
@@ -195,9 +179,6 @@ class _RideMapScreenState extends State<RideMapScreen> {
       print("Pickup: $pickupLatLng");
       print("Drop: $dropLatLng");
 
-      // Calculate distance
-      distance = _calculateDistance(pickupLatLng, dropLatLng);
-      print("📍 Calculated Distance: ${distance.toStringAsFixed(2)} km");
       final pickupIcon = await resizeMarkerIcon(
         Assets.assetsRedLocationPin,
         80, // marker width → change size here
@@ -282,30 +263,49 @@ class _RideMapScreenState extends State<RideMapScreen> {
   }
 
   Future<List<LatLng>> _getRoutePoints(
-    LatLng origin,
-    LatLng destination,
-  ) async {
+      LatLng origin,
+      LatLng destination,
+      ) async {
     const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
+
     final url =
-        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey';
+        'https://maps.googleapis.com/maps/api/directions/json'
+        '?origin=${origin.latitude},${origin.longitude}'
+        '&destination=${destination.latitude},${destination.longitude}'
+        '&key=$apiKey';
 
     try {
       final response = await http.get(Uri.parse(url));
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
         if (data['status'] == 'OK' &&
             data['routes'] != null &&
             data['routes'].isNotEmpty) {
-          final polyline = data['routes'][0]['overview_polyline']['points'];
+
+          /// ✅ DISTANCE (meters → km)
+          final legs = data['routes'][0]['legs'];
+          if (legs != null && legs.isNotEmpty) {
+            final int distanceInMeters = legs[0]['distance']['value'];
+            setState(() {
+              distance = distanceInMeters / 1000; // km
+            });
+          }
+
+          /// ✅ POLYLINE
+          final polyline =
+          data['routes'][0]['overview_polyline']['points'];
           return _decodePolyline(polyline);
         }
       }
     } catch (e) {
-      print("Error fetching route points: $e");
+      print("❌ Error fetching route points: $e");
     }
+
     return [];
   }
+
 
   List<LatLng> _decodePolyline(String encoded) {
     List<LatLng> polyline = [];
@@ -400,7 +400,6 @@ class _RideMapScreenState extends State<RideMapScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // Map Section - 50% of screen
           Expanded(
             flex: 1,
             child: Stack(
@@ -680,6 +679,25 @@ class _RideMapScreenState extends State<RideMapScreen> {
       listen: false,
     );
 
+    final gstVm =
+    Provider.of<GstPercentageViewModel>(context, listen: false);
+
+// Vehicle base amount
+    double vehicleAmount =
+        double.tryParse(vehicle['amount'].toString()) ?? 0.0;
+
+// GST / Booking fee DIRECT AMOUNT (₹)
+    double bookingFee =
+        double.tryParse(
+          gstVm.gstPercentageModel?.data?.gstPercentage ?? "0",
+        ) ??
+            0.0;
+
+// Total amount
+    double totalAmount = vehicleAmount + bookingFee;
+
+
+
     // Reset payment selection every time sheet opens
     selectedPayment = 1;
 
@@ -855,6 +873,42 @@ class _RideMapScreenState extends State<RideMapScreen> {
                         fontFamily: AppFonts.kanitReg,
                       ),
                     ),
+                    // Booking Fee
+                    Row(
+                      children: [
+                        const TextConst(
+                          title: "Booking Fees & Convenience Charges",
+                          size: 12,
+                        ),
+                        const Spacer(),
+                        TextConst(
+                          title: "₹${bookingFee.toStringAsFixed(2)}",
+                          size: 12,
+                          color: Colors.green,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 6),
+
+// Total Amount
+                    Row(
+                      children: [
+                        const TextConst(
+                          title: "Total Amount",
+                          size: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        const Spacer(),
+                        TextConst(
+                          title: "₹${totalAmount.toStringAsFixed(2)}",
+                          size: 14,
+                          fontWeight: FontWeight.w600,
+                          color: PortColor.gold,
+                        ),
+                      ],
+                    ),
+
 
                     const SizedBox(height: 20),
 
@@ -932,7 +986,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                                 "",
                                 "",
                                 "",
-                                vehicle["amount"],
+                                  totalAmount.toStringAsFixed(2),
                                 distance.toStringAsFixed(1),
                                 selectedPayment,
                                 [],
@@ -982,16 +1036,4 @@ class _RideMapScreenState extends State<RideMapScreen> {
     );
   }
 
-  void _handleRideConfirmation(Map<String, dynamic> vehicle) {
-    print('Ride confirmed: ${vehicle['vehicle_name']}');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${vehicle['vehicle_name']} ride confirmed!'),
-        backgroundColor: Colors.green,
-      ),
-    );
-
-    // Navigate to next screen or process the booking
-  }
 }

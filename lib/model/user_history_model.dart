@@ -76,6 +76,7 @@ class Data {
   String? vehicleName;
   int? userRating;
   String? ratingDate;
+  String? invoiceLink;
 
   Data(
       {this.id,
@@ -125,7 +126,9 @@ class Data {
         this.vehicleImage,
         this.vehicleName,
         this.userRating,
-        this.ratingDate});
+        this.ratingDate,
+        this.invoiceLink
+      });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -176,6 +179,7 @@ class Data {
     vehicleName = json['vehicle_name'];
     userRating = json['user_rating'];
     ratingDate = json['rating_date'];
+    invoiceLink = json['invoice_link'];
   }
 
   Map<String, dynamic> toJson() {
@@ -228,6 +232,7 @@ class Data {
     data['vehicle_name'] = vehicleName;
     data['user_rating'] = userRating;
     data['rating_date'] = ratingDate;
+    data['invoice_link'] = invoiceLink;
     return data;
   }
 }
