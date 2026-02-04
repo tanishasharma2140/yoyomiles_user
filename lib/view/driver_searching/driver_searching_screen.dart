@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
 import 'package:yoyomiles/view_model/payment_view_model.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
@@ -46,6 +47,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startListening();
+      Provider.of<ContactListViewModel>(context, listen: false)
+          .contactListApi();
     });
   }
 
@@ -692,6 +695,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     AddressCard(orderData: orderData),
                     _buildPaymentContainer(payMode, orderData),
                     if (showOtpAndCancel) _buildCancelButton(),
+                    _buildEmergencySection(),
                     if (rideStatus >= 4 && rideStatus <= 6)
                       _buildCompletionMessage(rideStatus, payMode),
                     const SizedBox(height: 20),
@@ -902,6 +906,106 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       ),
     );
   }
+
+  Widget _buildEmergencySection() {
+    final contactListVm =
+    Provider.of<ContactListViewModel>(context, listen: false);
+
+    final String supportNumber =
+        contactListVm.contactListModel?.sosNumber ?? "6306513131";
+    final String sosMessage =
+        contactListVm.contactListModel?.sosMessage ?? "Hello";
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          /// LEFT INFO
+          Expanded(
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.red,
+                  size: 22,
+                ),
+                SizedBox(width: 6),
+                TextConst(
+                  title: "Emergency",
+                  size: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ],
+            ),
+          ),
+
+          /// 🔴 SOS BUTTON
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              _openWhatsApp(
+                phone: supportNumber,
+                message: sosMessage,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const TextConst(
+                title: "SOS",
+                color: Colors.white,
+                size: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          /// 🟡 CHAT SUPPORT
+          InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: () {
+              _openWhatsApp(
+                phone: supportNumber,
+                message: "Hello Support, I need help with my ongoing ride.",
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: PortColor.gold,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(
+                Icons.chat_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
 
   Widget _buildPaymentContainer(int payMode, Map<String, dynamic> orderData) {
     final method = payMode == 2
@@ -1418,6 +1522,7 @@ class AddressCard extends StatelessWidget {
       ],
     );
   }
+
 }
 
 /// 🎨 Dotted Line Painter for Visual Separator
@@ -1451,3 +1556,30 @@ class LauncherI {
     }
   }
 }
+
+
+void _openWhatsApp({
+  required String phone,
+  String message = "",
+}) async {
+  final cleanNumber = phone
+      .replaceAll("+", "")
+      .replaceAll(" ", "")
+      .replaceAll("-", "");
+
+  final encodedMessage = Uri.encodeComponent(message);
+
+  final Uri whatsappUrl = Uri.parse(
+    "https://wa.me/$cleanNumber?text=$encodedMessage",
+  );
+
+  if (await canLaunchUrl(whatsappUrl)) {
+    await launchUrl(
+      whatsappUrl,
+      mode: LaunchMode.externalApplication,
+    );
+  } else {
+    debugPrint("❌ WhatsApp not installed");
+  }
+}
+

@@ -788,27 +788,11 @@
                       return;
                     }
 
-                    // final applyCouponVm = Provider.of<ApplyCouponViewModel>(context, listen: false);
-                    // final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
-                    // final vehicle = Provider.of<SelectVehiclesViewModel>(context, listen: false)
-                    //     .selectVehicleModel!
-                    //     .data![widget.index!];
-                    //
-                    // // ✅ Step 1: Calculate Final Amount (Discount + GST)
-                    // double finalAmount;
-                    // if (applyCouponVm.discount != null && applyCouponVm.discount != "0") {
-                    //   final double base = double.parse(widget.price);
-                    //   final double discount = double.parse(applyCouponVm.discount.toString());
-                    //   final double discountedPrice = base - discount;
-                    //   finalAmount = discountedPrice + (discountedPrice * 0.18);
-                    // } else {
-                    //   final double base = double.parse(widget.price);
-                    //   finalAmount = base + (base * 0.18);
-                    // }
-
-                    // print("✅ Final Amount to send in API: ₹${finalAmount.toStringAsFixed(0)}");
                     double finalAmount = netFare;
                     print("✅ Final Amount to send in API: ₹${finalAmount.toStringAsFixed(0)}");
+                    facebookAppEvents.logEvent(
+                      name: 'booking_for_logistics',
+                    );
                     // ✅ Step 2: Call order API with computed amount
                     orderViewModel.orderApi(
                       vehicle.vehicleId.toString(),

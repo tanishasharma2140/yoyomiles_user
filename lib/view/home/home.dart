@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:yoyomiles/check_for_update.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/animated_text_slider.dart';
@@ -42,6 +43,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
+    facebookAppEvents.logEvent(
+      name: 'home_screen_opened',
+    );
+    checkForUpdate();
 
     // 🔹 Banner API call after build
     checker.startMonitoring(context);
@@ -368,6 +374,9 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(height: screenHeight * 0.03),
                       GestureDetector(
                         onTap: () {
+                          facebookAppEvents.logEvent(
+                            name: 'yoyomiles_reward_page',
+                          );
                          Navigator.push(context, CupertinoPageRoute(builder: (context)=>CoinsPage()));
                         },
                         child: Container(

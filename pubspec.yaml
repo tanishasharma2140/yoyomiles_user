@@ -44,6 +44,8 @@ dependencies:
   paytmpayments_allinonesdk: ^1.0.4
 #  app_links:
   scratcher: ^2.5.0
+  facebook_app_events: ^0.24.0
+  in_app_update: ^4.2.5
 
 
 dev_dependencies:

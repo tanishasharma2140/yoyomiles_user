@@ -973,6 +973,9 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       builder: (context, orderViewModel, child) {
                         return GestureDetector(
                           onTap: () {
+                            facebookAppEvents.logEvent(
+                              name: 'booking_for_passengers',
+                            );
                             if (!orderViewModel.loading) {
                               orderViewModel.orderApi(
                                 vehicle["vehicle_id"],

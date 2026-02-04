@@ -408,6 +408,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           setState(() {
                             _slotConfirmed = true;
                           });
+                          facebookAppEvents.logEvent(
+                            name: 'slot_confirm',
+                          );
                         }
                             : null,
                         child: Container(

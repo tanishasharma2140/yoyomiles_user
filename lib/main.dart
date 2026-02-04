@@ -1,3 +1,4 @@
+import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:yoyomiles/firebase_options.dart';
 import 'package:yoyomiles/res/app_constant.dart';
 import 'package:yoyomiles/res/notification_service.dart';
+import 'package:yoyomiles/services/internet_checker_service.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/utils/routes/routes_name.dart';
 import 'package:yoyomiles/view_model/active_ride_view_model.dart';
@@ -54,49 +56,15 @@ import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
 import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
-// import 'package:app_links/app_links.dart';
 
+import 'check_for_update.dart';
+
+
+
+final FacebookAppEvents facebookAppEvents = FacebookAppEvents();
 String? fcmToken;
 String? globalReferralCode;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-// class DeepLinkHandler {
-//   final AppLinks _appLinks = AppLinks();
-//   DateTime? _lastHandled;
-//
-//   void initialize() {
-//     _handleInitial();
-//     _listen();
-//   }
-//
-//   Future<void> _handleInitial() async {
-//     try {
-//       final uri = await _appLinks.getInitialLink();
-//       _handleUri(uri);
-//     } catch (_) {}
-//   }
-//
-//   void _listen() {
-//     _appLinks.uriLinkStream.listen(_handleUri);
-//   }
-//
-//   void _handleUri(Uri? uri) {
-//     if (uri == null) return;
-//
-//     if (_lastHandled != null &&
-//         DateTime.now().difference(_lastHandled!) < Duration(milliseconds: 300)) {
-//       return;
-//     }
-//     _lastHandled = DateTime.now();
-//
-//     final referral = uri.queryParameters['ref'];
-//     if (referral != null && referral.isNotEmpty) {
-//       navigatorKey.currentState?.pushReplacement(
-//         MaterialPageRoute(builder: (_) => RegisterPage(referralCode: referral)),
-//       );
-//     }
-//   }
-// }
 
 
 
@@ -131,6 +99,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final notificationService = NotificationService(navigatorKey: navigatorKey);
+  final InternetCheckerService _internetCheckerService =
+  InternetCheckerService();
   // final deepLinkHandler = DeepLinkHandler();
 
   @override
@@ -143,6 +113,10 @@ class _MyAppState extends State<MyApp> {
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   deepLinkHandler.initialize();
     // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _internetCheckerService.startMonitoring(navigatorKey.currentContext!);
+      checkForUpdate();
+    });
   }
 
   void initFCM() async {

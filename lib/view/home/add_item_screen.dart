@@ -318,6 +318,9 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
       print("═══════════════════════════════════════");
       print("distance: ${widget.movingDetailsData['distance']} -> $distance");
       print("═══════════════════════════════════════");
+      facebookAppEvents.logEvent(
+        name: 'add_items_for_packer_mover',
+      );
 
       // Check which fields are missing
       List<String> missingFields = [];

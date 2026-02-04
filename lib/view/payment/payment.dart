@@ -145,6 +145,9 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             setState(() {
                               isBottomSheetVisible = true;
                             });
+                            facebookAppEvents.logEvent(
+                              name: 'add_money_from_wallet',
+                            );
                           },
                           child: Container(
                             height: screenHeight * 0.04,

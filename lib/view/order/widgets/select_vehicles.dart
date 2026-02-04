@@ -451,6 +451,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                       print("Distance: $usedDistance");
                       print("Price: $amount");
                       print("==========================================");
+                      facebookAppEvents.logEvent(
+                        name: 'select_vehicle_for_logistic',
+                      );
 
                       Navigator.push(
                         context,

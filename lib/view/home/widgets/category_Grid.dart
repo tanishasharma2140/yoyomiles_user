@@ -62,6 +62,9 @@ class _CategoryGridState extends State<CategoryGrid> {
 
     // ✅ Navigation logic based on section
     if (section == "Logistic Parcel Delivery") {
+      facebookAppEvents.logEvent(
+        name: 'logistic_parcel_delivery',
+      );
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -82,6 +85,9 @@ class _CategoryGridState extends State<CategoryGrid> {
         ),
       );
     } else if (section == "Packers and Movers") {
+      facebookAppEvents.logEvent(
+        name: 'packer_movers_clicked',
+      );
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -102,6 +108,9 @@ class _CategoryGridState extends State<CategoryGrid> {
         ),
       );
     } else if (section == "Passenger Booking") {
+      facebookAppEvents.logEvent(
+        name: 'passenger_booking',
+      );
       // ✅ Fix: Correct syntax + navigation
       Navigator.push(
         context,
