@@ -334,6 +334,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
         child: Dialog(
+          backgroundColor: PortColor.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -367,7 +368,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   onPressed: () {
                     _cancelSearchTimeoutTimer();
 
-                    // Stop listener when leaving screen
                     final driverRideVm = Provider.of<DriverRideViewModel>(
                       context,
                       listen: false,
@@ -379,7 +379,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       (route) => false,
                     );
                   },
-                  child: const Text("OK"),
+                  child: const Text("OK",style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),
@@ -537,6 +537,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        final driverRideVm = Provider.of<DriverRideViewModel>(
+                          context,
+                          listen: false,
+                        );
+                        driverRideVm.stopListening();
                         Provider.of<UpdateRideStatusViewModel>(
                           context,
                           listen: false,

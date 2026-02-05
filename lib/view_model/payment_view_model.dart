@@ -87,7 +87,7 @@ class PaymentViewModel with ChangeNotifier {
         amount: model.data!.amount.toString(),
         userType: userType,
         firebaseOrderId: firebaseOrderId.toString(),
-        callbackUrl: "https://yoyo.codescarts.com/api/paytm/callback",
+        callbackUrl: "https://admin.yoyomiles.com/api/paytm/callback",
         context: context,
       );
     } catch (e) {

@@ -47,7 +47,6 @@ class _HomePageState extends State<HomePage> {
     facebookAppEvents.logEvent(
       name: 'home_screen_opened',
     );
-    checkForUpdate();
 
     // 🔹 Banner API call after build
     checker.startMonitoring(context);

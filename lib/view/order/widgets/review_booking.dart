@@ -11,6 +11,7 @@
   import 'package:yoyomiles/view_model/apply_coupon_view_model.dart';
   import 'package:yoyomiles/view_model/gst_percentage_view_model.dart';
   import 'package:yoyomiles/view_model/order_view_model.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
   import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
   import 'package:provider/provider.dart';
   import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
@@ -66,6 +67,12 @@
       ).selectVehicleModel!.data![widget.index!];
 
       final gstAmountVm = Provider.of<GstPercentageViewModel>(context);
+      final profileVm = Provider.of<ProfileViewModel>(context);
+
+// 🔥 Convert wallet to double safely
+      double walletBalance = double.tryParse(
+          profileVm.profileModel?.data?.wallet?.toString() ?? "0"
+      ) ?? 0.0;
 
 // GST amount from API (direct)
       double gstAmount = double.tryParse(
@@ -87,6 +94,8 @@
 // ✅ FINAL NET FARE (UI + API ke liye)
       double netFare =
       discount > 0 ? fareAfterDiscount + gstAmount : baseFare + gstAmount;
+
+      bool canPayViaWallet = walletBalance >= netFare;
 
       return SafeArea(
         top: false,
@@ -593,13 +602,13 @@
                       //   fontFamily: AppFonts.kanitReg,
                       //   size: 12,
                       // ),
-                      const SizedBox(height: 8),
-                      TextConst(
-                        title: '• Fare may change if route or location changes.',
-                        color: PortColor.black,
-                        fontFamily: AppFonts.kanitReg,
-                        size: 12,
-                      ),
+                      // const SizedBox(height: 8),
+                      // TextConst(
+                      //   title: '• Fare may change if route or location changes.',
+                      //   color: PortColor.black,
+                      //   fontFamily: AppFonts.kanitReg,
+                      //   size: 12,
+                      // ),
                       const SizedBox(height: 8),
                       TextConst(
                         title: '• Parking charges to be paid by customer.',
@@ -714,35 +723,32 @@
                           ),
                         ),
                       ),
-                      const Divider(),
-                      // SizedBox(height: screenHeight * 0.01),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            PaymentMethod = "3";
-                          });
-                        },
-                        child: SizedBox(
-                          height: 40,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextConst(
-                                  title: "Pay Via Wallet",
-                                  color: PortColor.black,
-                                  fontFamily: AppFonts.poppinsReg,
-                                  size: 13,
+                      if (canPayViaWallet) ...[
+                        const Divider(),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              PaymentMethod = "3";
+                            });
+                          },
+                          child: SizedBox(
+                            height: 40,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextConst(
+                                    title: "Pay Via Wallet",
+                                    fontFamily: AppFonts.poppinsReg,
+                                    size: 13,
+                                  ),
                                 ),
-                              ),
-                              if (PaymentMethod == "3")
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                ),
-                            ],
+                                if (PaymentMethod == "3")
+                                  const Icon(Icons.check_circle, color: Colors.green),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

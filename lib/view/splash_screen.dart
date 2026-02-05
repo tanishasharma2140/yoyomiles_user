@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/check_for_update.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/services.dart';
 import '../generated/assets.dart';
@@ -21,6 +22,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkForUpdate();
+    });
 
     // Animation controller
     _controller = AnimationController(

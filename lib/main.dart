@@ -115,7 +115,6 @@ class _MyAppState extends State<MyApp> {
     // });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _internetCheckerService.startMonitoring(navigatorKey.currentContext!);
-      checkForUpdate();
     });
   }
 

@@ -543,7 +543,6 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             ],
                           ),
                         ),
-                        Icon(Icons.info_outline, color: Colors.grey[500]),
                       ],
                     ),
                   ),

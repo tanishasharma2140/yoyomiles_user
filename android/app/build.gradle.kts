@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 }
 android {
     namespace = "com.foundercode.yoyomiles"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "29.0.14206865"
 
     compileOptions {
