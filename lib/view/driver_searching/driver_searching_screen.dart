@@ -122,6 +122,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       barrierDismissible: false,
       builder: (dialogCtx) {
         return Dialog(
+          backgroundColor: Colors.white,
           insetPadding: const EdgeInsets.symmetric(
             horizontal: 40,
             vertical: 24,
@@ -137,29 +138,28 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 Icon(
                   Icons.error_outline,
                   size: 48,
-                  color: Colors.orange.shade600,
+                  color: PortColor.gold,
                 ),
                 const SizedBox(height: 12),
 
                 // TITLE
-                const Text(
-                  "Oops! Something went wrong",
+                const TextConst(
+                  title:
+                  "We Couldn't Find a Driver",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: Colors.black87,
-                  ),
+                  fontWeight: FontWeight.w700,
+                  size: 14,
+                  color: Colors.black87,
                 ),
 
                 const SizedBox(height: 10),
 
                 // MESSAGE
-                Text(
-                  "Please try again after some time.",
+                TextConst(
+                  title:
+                  "It seems there are no drivers available on this route right now. Please try again in a little while.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
+                    size: 11, color: Colors.grey.shade600                ),
 
                 const SizedBox(height: 20),
 
@@ -184,7 +184,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade600,
+                      backgroundColor: PortColor.gold,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -297,7 +297,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                                       "7",
                                     );
                                     _cancelSearchTimeoutTimer();
-
                                     // Stop listener when leaving screen
                                     final driverRideVm =
                                         Provider.of<DriverRideViewModel>(
@@ -409,19 +408,19 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               children: [
                 Icon(Icons.cancel, color: Colors.red, size: 50),
                 const SizedBox(height: 15),
-                const Text(
+                const TextConst(
+                  title:
                   "Ride Cancelled!",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
+                  size: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                const TextConst(
+                  title:
                   "Your ride has been cancelled by driver",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
+                    color: Colors.grey
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
@@ -430,14 +429,24 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     minimumSize: const Size(120, 45),
                   ),
                   onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pushAndRemoveUntil(
+                    _cancelSearchTimeoutTimer();
+
+                    // Stop listener when leaving screen
+                    final driverRideVm = Provider.of<DriverRideViewModel>(
                       context,
-                      MaterialPageRoute(builder: (_) => BottomNavigationPage()),
-                      (route) => false,
+                      listen: false,
+                    );
+                    driverRideVm.stopListening();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (_) => BottomNavigationPage(),
+
+
+                      ),
+                          (route) => false,
                     );
                   },
-                  child: const Text("OK"),
+                  child: const Text("Ok",style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
                 ),
               ],
             ),
@@ -537,6 +546,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        _cancelSearchTimeoutTimer();
                         final driverRideVm = Provider.of<DriverRideViewModel>(
                           context,
                           listen: false,

@@ -53,12 +53,16 @@ class _RideMapScreenState extends State<RideMapScreen> {
   @override
   void initState() {
     super.initState();
-    print("📍 Received Coordinates:");
-    print("Pickup - Lat: ${widget.pickupLat}, Lng: ${widget.pickupLng}");
-    print("Drop - Lat: ${widget.dropLat}, Lng: ${widget.dropLng}");
-    _initializeMap();
-    final gstPercentageVm = Provider.of<GstPercentageViewModel>(context,listen: false);
-    gstPercentageVm.gstPercentageApi();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      _initializeMap();
+
+      final gstPercentageVm =
+      context.read<GstPercentageViewModel>();
+      gstPercentageVm.gstPercentageApi();
+    });
   }
 
 
@@ -464,7 +468,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       ],
                     ),
                     child: Text(
-                      '${distance.toStringAsFixed(1)} km',
+                      '${ distance.toStringAsFixed(2)} km',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,

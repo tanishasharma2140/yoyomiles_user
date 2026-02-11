@@ -29,6 +29,11 @@ class SelectVehiclesViewModel with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearVehicleData() {
+    _selectVehicleModel = null;
+    notifyListeners();
+  }
+
   Future<void> selectVehicleApi(
       dynamic vehicleId,
       dynamic range,
@@ -66,6 +71,7 @@ class SelectVehiclesViewModel with ChangeNotifier {
         // ✅ Success case
         setVehicleData(value);
       } else {
+        clearVehicleData();
         // ❌ Non-200 but success callback (agar repo aise return kare)
         final String title = value.message?.toString() ?? "";
         final String subMessage = value.subMessage?.toString() ?? "";
@@ -79,8 +85,9 @@ class SelectVehiclesViewModel with ChangeNotifier {
     }).onError((error, stackTrace) {
       setLoading(false);
 
-      // 👇 YAHAN tumhare log me aa raha hai:
-      // Error occurred during selectVehicleApi: Invalid Request{"status":400,"message":"Pickup location is not serviceable","sub_message":"Sorry, this pickup location is not serviceable currently","data":[]}
+      clearVehicleData();
+
+
       if (kDebugMode) {
         print("❌ onError raw: $error");
       }

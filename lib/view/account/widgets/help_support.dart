@@ -384,7 +384,7 @@ void _openWhatsApp({
   final encodedMessage = Uri.encodeComponent(message);
 
   final Uri whatsappUrl = Uri.parse(
-    "https://wa.me/$cleanNumber?text=$encodedMessage",
+    "whatsapp://send?phone=$cleanNumber&text=$encodedMessage",
   );
 
   if (await canLaunchUrl(whatsappUrl)) {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:yoyomiles/generated/assets.dart';
@@ -65,21 +64,25 @@ class _SelectVehiclesState extends State<SelectVehicles> {
       );
 
       if (roadDistance == null) {
-        debugPrint("❌ Google distance fetch failed");
+        debugPrint(" Google distance fetch failed");
         return;
       }
 
-      debugPrint("✅ Google Road Distance: $roadDistance km");
+      final double formattedDistance =
+      double.parse(roadDistance.toStringAsFixed(1));
+
+      debugPrint("✅ Google Road Distance: $formattedDistance km");
 
       setState(() {
-        distance = roadDistance; // 🔥🔥 THIS WAS MISSING
+        distance = formattedDistance;
         isDistanceLoading = false;
       });
 
 
+
       selectVehiclesViewModel.selectVehicleApi(
         serviceTypeViewModel.selectedVehicleId!,
-        roadDistance.toStringAsFixed(2),
+        formattedDistance,
         serviceTypeViewModel.selectedVehicleType!,
         pickupLat,
         pickupLng,
@@ -302,6 +305,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                     color: PortColor.black,
                                     fontFamily: AppFonts.poppinsReg,
                                   ),
+                                  Spacer(),
+                                  TextConst(title: "Distance: $distance",size: 12,)
                                 ],
                               ),
                             ),

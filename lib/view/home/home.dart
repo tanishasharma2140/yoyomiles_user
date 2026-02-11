@@ -88,29 +88,12 @@ class _HomePageState extends State<HomePage> {
         print("🚫 No Active Ride Found");
       }
 
-      // Start listening to active ride
-
-      // Navigate automatically when active ride arrives
-      // activeRideVM.addListener(() {
-      //   final ride = activeRideVM.activeRideModel;
-      //   if (ride != null && ride.data != null) {
-      //     // Use microtask to avoid navigation during build
-      //     Future.microtask(() {
-      //       Navigator.pushReplacementNamed(
-      //         context,
-      //         RoutesName.driverSearching,
-      //         arguments: ride,
-      //       );
-      //     });
-      //   }
-      // });
       print("chliactiveRideVm");
       final portBannerVm = Provider.of<PortBannerViewModel>(
         context,
         listen: false,
       );
       portBannerVm.portBannerApi();
-
     });
 
     // 🔹 Get current

@@ -15,6 +15,7 @@ import 'package:yoyomiles/view/driver_searching/ride_map_screen.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
 
 class PassengerBooking extends StatefulWidget {
   const PassengerBooking({super.key});
@@ -181,6 +182,9 @@ class _PassengerBookingState extends State<PassengerBooking> {
 
   // When selecting from history, use stored coordinates and navigate to map
   void _onHistoryLocationSelected(Map<String, dynamic> location, bool isPickup) {
+
+    Provider.of<SelectVehiclesViewModel>(context, listen: false)
+        .clearVehicleData();
     if (isPickup) {
       setState(() {
         pickupController.text = location['name'];
@@ -262,6 +266,9 @@ class _PassengerBookingState extends State<PassengerBooking> {
         );
         return;
       }
+
+      Provider.of<SelectVehiclesViewModel>(context, listen: false)
+          .clearVehicleData();
 
       print("Proceed button pressed");
       print("Pickup: ${pickupController.text}");
