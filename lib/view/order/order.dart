@@ -593,7 +593,7 @@ class _OrderPageState extends State<OrderPage> {
                     SizedBox(height: 24),
 
                     // Buttons Container
-                    Container(
+                    SizedBox(
                       height: 50,
                       child: Row(
                         children: [

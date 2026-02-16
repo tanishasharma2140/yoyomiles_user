@@ -2,7 +2,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:yoyomiles/controller/language_controller.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -29,7 +31,7 @@ class _LoginPageState extends State<LoginPage>
   final FocusNode _focusNode = FocusNode();
   bool _isFocused = false;
 
-  Country _selectedCountry = Country(
+  final Country _selectedCountry = Country(
     name: "India",
     code: "IND",
     dialCode: "+91",
@@ -55,6 +57,7 @@ class _LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     final loginViewModel = Provider.of<AuthViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
@@ -83,6 +86,61 @@ class _LoginPageState extends State<LoginPage>
               ],
             ),
             if (loginViewModel.loading) const Center(child: ConstLoader()),
+            Positioned(
+              top: screenHeight * 0.05,
+              right: screenWidth * 0.05,
+              child: Consumer<LanguageController>(
+                builder: (context, languageProvider, child) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                        )
+                      ],
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: languageProvider.currentLanguageCode,
+                        dropdownColor: Colors.white, // ✅ Dropdown menu white
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: PortColor.portKaro,
+                        ),
+                        style: const TextStyle(
+                          color: PortColor.portKaro,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'en',
+                            child: Text("English"),
+                          ),
+                          DropdownMenuItem(
+                            value: 'hi',
+                            child: Text("Hindi"),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value == 'en') {
+                            languageProvider.changeLanguage(const Locale('en'));
+                          } else if (value == 'hi') {
+                            languageProvider.changeLanguage(const Locale('hi'));
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+
           ],
         ),
         bottomSheet: Container(
@@ -112,7 +170,7 @@ class _LoginPageState extends State<LoginPage>
               Row(
                 children: [
                   TextConst(
-                    title: "Welcome",
+                    title: loc.welcome,
                     color: PortColor.portKaro,
                     fontFamily: AppFonts.kanitReg,
                     fontWeight: FontWeight.w400,
@@ -128,7 +186,7 @@ class _LoginPageState extends State<LoginPage>
               SizedBox(height: screenHeight * 0.016),
               TextConst(
                 title:
-                    "With a valid number, you can access deliveries, and our other services",
+                    loc.valid_number,
                 color: PortColor.gray,
                 fontFamily: AppFonts.poppinsReg,
               ),
@@ -169,7 +227,7 @@ class _LoginPageState extends State<LoginPage>
                     child: CustomTextField(
                       controller: loginViewModel.phoneController,
                       height: screenHeight * 0.05,
-                      hintText: "Mobile Number",
+                      hintText: loc.mobile_number,
                       fillColor: PortColor.white,
                       keyboardType: TextInputType.number,
                       maxLength: 10,
@@ -202,11 +260,12 @@ class _LoginPageState extends State<LoginPage>
 
   Widget loginButton() {
     final loginViewModel = Provider.of<AuthViewModel>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         SizedBox(height: screenHeight * 0.03),
         AppBtn(
-          title: "Login",
+          title: loc.login,
           loading: loginViewModel.loading,
           onTap: () {
             if (loginViewModel.phoneController.text.length == 10 &&
@@ -219,7 +278,7 @@ class _LoginPageState extends State<LoginPage>
             } else {
               Utils.showErrorMessage(
                 context,
-                "please enter a valid 10 digit number",
+                loc.please_enter_mobile,
               );
             }
           },
@@ -228,7 +287,7 @@ class _LoginPageState extends State<LoginPage>
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            text: "By clicking on login you agree to the ",
+            text: loc.login_agree,
             style: const TextStyle(
               color: PortColor.gray,
               fontSize: 12,
@@ -236,7 +295,7 @@ class _LoginPageState extends State<LoginPage>
             ),
             children: [
               TextSpan(
-                text: "Terms of Service",
+                text: loc.terms_service,
                 style: const TextStyle(
                   color: PortColor.gold,
                   fontWeight: FontWeight.bold,
@@ -268,8 +327,8 @@ class _LoginPageState extends State<LoginPage>
                     );
                   },
               ),
-              const TextSpan(
-                text: " and ",
+               TextSpan(
+                text: loc.and,
                 style: TextStyle(
                   color: PortColor.gray,
                   fontSize: 12,
@@ -277,7 +336,7 @@ class _LoginPageState extends State<LoginPage>
                 ),
               ),
               TextSpan(
-                text: "Privacy Policy",
+                text: loc.privacy_policy,
                 style: const TextStyle(
                   color: PortColor.gold,
                   fontWeight: FontWeight.bold,

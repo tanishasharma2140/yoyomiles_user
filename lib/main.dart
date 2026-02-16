@@ -4,7 +4,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yoyomiles/controller/language_controller.dart';
 import 'package:yoyomiles/firebase_options.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/res/app_constant.dart';
 import 'package:yoyomiles/res/notification_service.dart';
 import 'package:yoyomiles/services/internet_checker_service.dart';
@@ -56,8 +59,7 @@ import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
 import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
-
-import 'check_for_update.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 
 
@@ -70,6 +72,8 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences sp = await SharedPreferences.getInstance();
+  final String languageCode = sp.getString('language_code') ?? '';
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -80,7 +84,9 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(const MyApp());
+  runApp( MyApp(
+    locale: languageCode,
+  ));
 }
 
 
@@ -91,7 +97,8 @@ double topPadding = 0.0;
 double bottomPadding = 0.0;
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final String locale;
+  const MyApp({super.key, required this.locale});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -197,26 +204,42 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> ClaimRewardViewModel()),
           ChangeNotifierProvider(create: (context)=> DriverRideViewModel()),
           ChangeNotifierProvider(create: (context)=> GstPercentageViewModel()),
+          ChangeNotifierProvider(create: (context)=> LanguageController()),
 
         ],
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          initialRoute: RoutesName.splash,
-          onGenerateRoute: (settings){
-            if (settings.name !=null){
-              return MaterialPageRoute(builder: Routers.generateRoute(settings.name!),
-              settings: settings,
-              );
-            }
-            return null;
-          },
-          title: AppConstant.appName,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            useMaterial3: true,
-          ),
-         // home: const SplashScreen(),
+        child: Consumer<LanguageController>(
+          builder: (context, provider, child) {
+            return MaterialApp(
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              initialRoute: RoutesName.splash,
+              onGenerateRoute: (settings){
+                if (settings.name !=null){
+                  return MaterialPageRoute(builder: Routers.generateRoute(settings.name!),
+                  settings: settings,
+                  );
+                }
+                return null;
+              },
+              title: AppConstant.appName,
+              locale: provider.appLocale,
+              localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate
+              ],
+              supportedLocales: [
+                Locale('en'),
+                Locale('hi'),
+              ],
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                useMaterial3: true,
+              ),
+             // home: const SplashScreen(),
+            );
+          }
         ),
       ),
     );

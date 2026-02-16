@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -57,6 +58,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
 
   void _verifyOtp() {
     final enteredOtp = _otpController.text.trim();
+    final loc = AppLocalizations.of(context)!;
     if (enteredOtp.length == 4 && int.tryParse(enteredOtp) != null) {
       final loginViewModel = Provider.of<AuthViewModel>(context, listen: false);
       loginViewModel.verifyOtpApi(
@@ -69,12 +71,13 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
       print(enteredOtp);
       print("enteredOtp");
     } else {
-      Utils.showErrorMessage(context, "Please enter a valid 4-digit OTP.");
+      Utils.showErrorMessage(context, loc.please_enter_otp);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final otp = Provider.of<AuthViewModel>(context);
     return WillPopScope(
       onWillPop: () async {
@@ -129,7 +132,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                         );
                       },
                       child: TextConst(
-                        title: "CHANGE",
+                        title: loc.change,
                         color: PortColor.gold,
                         fontFamily: AppFonts.kanitReg,
                         fontWeight: FontWeight.w600,
@@ -140,7 +143,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                 SizedBox(height: screenHeight * 0.03),
                 TextConst(
                   textAlign: TextAlign.center,
-                  title: "One Time Password (OTP) has been sent to this number",
+                  title: loc.otp,
                   color: PortColor.gray,
                   fontFamily: AppFonts.kanitReg,
                 ),
@@ -149,7 +152,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                   controller: _otpController,
                   autofillHints: const [AutofillHints.oneTimeCode],
                   decoration: InputDecoration(
-                    hintText: "Enter OTP Manually",
+                    hintText: loc.enter_otp,
                     counterText: '',
                     hintStyle: TextStyle(
                       color: Colors.black.withOpacity(0.3),
@@ -211,7 +214,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                       color: Colors.white,
                     )
                         : TextConst(
-                      title: "Verify",
+                      title: loc.verify,
                       color: _isButtonActive ? Colors.black : Colors.black,
                       fontFamily: AppFonts.kanitReg,
                       fontWeight: FontWeight.w600,
@@ -222,7 +225,7 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                 SizedBox(height: screenHeight * 0.02),
                 _remainingTime > 0
                     ? Text(
-                  "Resend OTP in $_remainingTime seconds",
+                  "${loc.resend_otp} $_remainingTime ${loc.seconds}",
                   style: const TextStyle(color: Colors.black54),
                 )
                     : GestureDetector(
@@ -238,8 +241,8 @@ class _OtpPageState extends State<OtpPage> with SingleTickerProviderStateMixin {
                         .read<AuthViewModel>()
                         .otpReSentApi(widget.mobile, context);
                   },
-                  child: const TextConst(
-                    title: "Resend OTP",
+                  child:  TextConst(
+                    title: loc.resend_otp,
                     color: PortColor.gold,
                     fontFamily: AppFonts.poppinsReg,
                     fontWeight: FontWeight.w600,

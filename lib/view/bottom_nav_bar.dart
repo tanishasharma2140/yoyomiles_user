@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/view/account/account.dart';
 import 'package:yoyomiles/view/home/home.dart';
@@ -18,6 +19,7 @@ class BottomNavigationPage extends StatefulWidget {
 class _BottomNavigationPageState extends State<BottomNavigationPage> {
   int _selectedIndex = 0;
 
+
   final List<Widget> _pages = [
     const HomePage(),
     const OrderPage(),
@@ -32,6 +34,8 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   }
 
   Future<bool> _onWillPop() async {
+    final loc = AppLocalizations.of(context)!;
+
     if (_selectedIndex != 0) {
       // 🔹 If not on Home, go back to Home
       setState(() {
@@ -48,30 +52,30 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             borderRadius: BorderRadius.circular(12),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          title: const Text(
-            "Exit App",
+          title:  Text(
+             loc.exit_app,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: PortColor.blue,
             ),
           ),
-          content: const Text(
-            "Are you sure you want to exit this app?",
+          content:  Text(
+           loc.want_to_exit_app,
             style: TextStyle(fontSize: 14, color: Colors.black87),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text(
-                "Cancel",
+              child:  Text(
+                loc.cancel,
                 style: TextStyle(color: Colors.black54, fontSize: 14),
               ),
             ),
             TextButton(
               onPressed: () => SystemNavigator.pop(),
-              child: const Text(
-                "Exit",
+              child:  Text(
+                loc.exit,
                 style: TextStyle(color: Colors.red, fontSize: 14),
               ),
             ),
@@ -84,6 +88,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return WillPopScope(
       onWillPop: _onWillPop,
       child: SafeArea(
@@ -110,10 +115,10 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(Icons.home, "Home", 0),
-                _buildNavItem(Icons.receipt_long, "Orders", 1),
-                _buildNavItem(Icons.account_balance_wallet, "Payments", 2),
-                _buildNavItem(Icons.account_circle, "Account", 3),
+                _buildNavItem(Icons.home, loc.home, 0),
+                _buildNavItem(Icons.receipt_long, loc.orders, 1),
+                _buildNavItem(Icons.account_balance_wallet, loc.payments, 2),
+                _buildNavItem(Icons.account_circle, loc.account, 3),
               ],
             ),
           ),

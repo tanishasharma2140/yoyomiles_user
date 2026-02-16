@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -47,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage>
     print(widget.mobile);
     final registerViewModel = Provider.of<RegisterViewModel>(context);
     final requirementVm = Provider.of<RequirementViewModel>(context);
-
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: PortColor.white,
@@ -96,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage>
                       );
                     },
                     child: TextConst(
-                      title: "CHANGE",
+                      title: loc.change,
                       color: PortColor.gold,
                       fontWeight: FontWeight.w600,
                     ),
@@ -111,8 +112,8 @@ class _RegisterPageState extends State<RegisterPage>
                     child: TextFormField(
                       cursorColor: PortColor.portKaro,
                       controller: nameController,
-                      decoration: const InputDecoration(
-                        hintText: "First Name",
+                      decoration:  InputDecoration(
+                        hintText: loc.first_name,
                         hintStyle: TextStyle(
                           fontSize: 16,
                           color: PortColor.gray,
@@ -137,8 +138,8 @@ class _RegisterPageState extends State<RegisterPage>
                     child: TextFormField(
                       cursorColor: PortColor.portKaro,
                       controller: lastnameController,
-                      decoration: const InputDecoration(
-                        hintText: "Last Name",
+                      decoration:  InputDecoration(
+                        hintText: loc.last_name,
                         hintStyle: TextStyle(
                           fontSize: 16,
                           color: PortColor.gray,
@@ -165,8 +166,8 @@ class _RegisterPageState extends State<RegisterPage>
                 cursorColor: PortColor.portKaro,
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  hintText: "Email Id",
+                decoration:  InputDecoration(
+                  hintText: loc.email_id,
                   hintStyle: TextStyle(
                     fontSize: 16,
                     color: PortColor.gray,
@@ -181,12 +182,12 @@ class _RegisterPageState extends State<RegisterPage>
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter email';
+                    return loc.please_enter_email;
                   }
                   // Simple email regex
                   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                   if (!emailRegex.hasMatch(value)) {
-                    return 'Enter a valid email';
+                    return loc.enter_valid;
                   }
                   return null;
                 },
@@ -199,7 +200,7 @@ class _RegisterPageState extends State<RegisterPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextConst(
-                    title: "Requirement",
+                    title: loc.requirement,
                     size: 14,
                     color: PortColor.gray,
                     fontWeight: FontWeight.w400,
@@ -222,7 +223,7 @@ class _RegisterPageState extends State<RegisterPage>
                             horizontal: screenWidth * 0.03,
                           ),
                           child: TextConst(
-                            title: "Select Business Usage",
+                            title: loc.select_business,
                             color: PortColor.gray,
                             size: 14,
                             fontFamily: AppFonts.poppinsReg,
@@ -273,8 +274,8 @@ class _RegisterPageState extends State<RegisterPage>
               TextFormField(
                 cursorColor: PortColor.portKaro,
                 controller: refer,
-                decoration: const InputDecoration(
-                  hintText: "Referral Code(Optional)",
+                decoration:  InputDecoration(
+                  hintText: loc.referral_code,
                   hintStyle: TextStyle(
                     fontSize: 16,
                     color: PortColor.gray,
@@ -305,22 +306,22 @@ class _RegisterPageState extends State<RegisterPage>
               //   ),
               // ),
               SizedBox(height: screenHeight * 0.05),
-        AppBtn(title: "Register",
+        AppBtn(title: loc.register,
             loading: registerViewModel.loading,
             onTap: (){
           if (nameController.text.isEmpty) {
-            Utils.showErrorMessage(context, "Please enter First Name");
+            Utils.showErrorMessage(context, loc.please_enter_name);
           } else if (lastnameController.text.isEmpty) {
-            Utils.showErrorMessage(context, "Please enter Last Name");
+            Utils.showErrorMessage(context, loc.please_enter_last);
           } else if (emailController.text.isEmpty) {
             Utils.showErrorMessage(
               context,
-              "Please enter Email Address",
+              loc.please_enter_email,
             );
           } else if (selectedBusinessUsage == null) {
             Utils.showErrorMessage(
               context,
-              "Please select Business Usage",
+              loc.select_business,
             );
           } else {
             registerViewModel.registerApi(
@@ -342,7 +343,7 @@ class _RegisterPageState extends State<RegisterPage>
               // 🔹 OTP Message
               TextConst(
                 title:
-                    "A one time password (OTP) will be sent to this number for verification.",
+                    loc.number_verification,
                 color: PortColor.gray,
                 size: 12,
                 textAlign: TextAlign.center,

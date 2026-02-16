@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:yoyomiles/check_for_update.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/animated_text_slider.dart';
@@ -12,11 +11,10 @@ import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/res/shimmer_loader.dart';
 import 'package:yoyomiles/services/internet_checker_service.dart';
-import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/view/coins/coins.dart';
 import 'package:yoyomiles/view/driver_searching/driver_searching_screen.dart';
 import 'package:yoyomiles/view/home/widgets/category_Grid.dart';
-import 'package:yoyomiles/view/home/widgets/pick_up_location.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/deliver_by_truck.dart';
 import 'package:yoyomiles/view_model/active_ride_view_model.dart';
 import 'package:yoyomiles/view_model/port_banner_view_model.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
@@ -286,6 +284,25 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: InkWell(
                           onTap: () {
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(milliseconds: 400),
+                                pageBuilder: (_, __, ___) => const DeliverByTruck(),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  final offsetAnimation = Tween<Offset>(
+                                    begin: const Offset(0, 1),
+                                    end: Offset.zero,
+                                  ).animate(
+                                    CurvedAnimation(
+                                      parent: animation,
+                                      curve: Curves.easeOutCubic,
+                                    ),
+                                  );
+                                  return SlideTransition(position: offsetAnimation, child: child);
+                                },
+                              ),
+                            );
                             // Navigator.push(
                             //   context,
                             //   MaterialPageRoute(

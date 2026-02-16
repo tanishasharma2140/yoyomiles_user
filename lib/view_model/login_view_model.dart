@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/repo/login_repo.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -44,6 +45,7 @@ class AuthViewModel with ChangeNotifier {
 
   Future<void> loginApi(BuildContext context) async {
     setLoading(true);
+
 
     final Map<String, dynamic> data = {
       "phone": phoneController.text,
@@ -107,6 +109,7 @@ class AuthViewModel with ChangeNotifier {
 
 
   void _showPopup(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -117,12 +120,12 @@ class AuthViewModel with ChangeNotifier {
           ),
           backgroundColor: PortColor.white,
           title: TextConst(
-            title: 'Account Suspicion Alert!',
+            title: loc.account_suspicion,
             color: PortColor.red,
             textAlign: TextAlign.center,
           ),
-          content: const Text(
-            'Your account is suspected. Please contact the admin for more details.',
+          content:  Text(
+            loc.account_is_suspected,
             style: TextStyle(
                 color: Color(0xFF721C24),
                 fontSize: 16,
@@ -151,9 +154,9 @@ class AuthViewModel with ChangeNotifier {
                     ),
                   ],
                 ),
-                child: const Center(
+                child:  Center(
                   child: Text(
-                    'OK',
+                    loc.oK,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
