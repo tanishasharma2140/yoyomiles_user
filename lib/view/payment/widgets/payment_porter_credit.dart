@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
@@ -92,6 +93,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
   Widget build(BuildContext context) {
     final userTransactionVm = Provider.of<UserTransactionViewModel>(context);
     final profileVm = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: PortColor.bg,
       body: Column(
@@ -124,7 +126,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                   ),
                 ),
                 SizedBox(width: screenWidth * 0.28),
-                TextConst(title: "Yoyomiles Credits", color: PortColor.black),
+                TextConst(title: loc.yoyomiles_credit, color: PortColor.black),
               ],
             ),
           ),
@@ -141,7 +143,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                 children: [
                   TextConst(
                     title:
-                        "Balance ₹${profileVm.profileModel?.data?.wallet ?? "e"}",
+                        "${loc.yoyomiles_credit} ₹${profileVm.profileModel?.data?.wallet ?? "e"}",
                     color: PortColor.black,
                   ),
                   const Spacer(),
@@ -314,7 +316,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                   )
                 : Center(
                     child: TextConst(
-                      title: "No Transactions Found",
+                      title: loc.no_transaction,
                       fontFamily: AppFonts.kanitReg,
                       size: 16,
                       color: Colors.grey,
@@ -348,7 +350,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: screenHeight * 0.015),
-                    TextConst(title: "Add Money", color: PortColor.black),
+                    TextConst(title: loc.add_money, color: PortColor.black),
                     SizedBox(height: screenHeight * 0.012),
                     Row(
                       children: [
@@ -362,7 +364,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                               FilteringTextInputFormatter.digitsOnly,
                             ],
                             decoration: InputDecoration(
-                              hintText: 'Enter Amount',
+                              hintText: loc.enter_amount,
                               hintStyle: const TextStyle(color: PortColor.gray),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -415,7 +417,7 @@ class _PaymentPorterCreditState extends State<PaymentPorterCredit> {
                         ),
                         child: Center(
                           child: TextConst(
-                            title: "Proceed",
+                            title: loc.proceed,
                             fontFamily: AppFonts.kanitReg,
                             fontWeight: FontWeight.w600,
                             color: isProceedEnabled

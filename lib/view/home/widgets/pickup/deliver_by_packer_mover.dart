@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -256,19 +257,20 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
 
   // 🔹 Function to validate city selection - SIMPLIFIED VERSION
   Future<bool> _validateCitySelection() async {
+    final loc = AppLocalizations.of(context)!;
     // Check if locations are filled
     if (pickupController.text.isEmpty || dropController.text.isEmpty) {
-      Utils.showErrorMessage(context, "Please enter both pickup and drop locations first.");
+      Utils.showErrorMessage(context, loc.please_enter_both);
       return false;
     }
 
     // Check floor numbers if lift is not available
     if (!pickupLiftAvailable && pickupFloorController.text.isEmpty) {
-      Utils.showErrorMessage(context, "Please enter pickup floor number");
+      Utils.showErrorMessage(context, loc.please_enter_pickup_floor);
       return false;
     }
     if (!dropLiftAvailable && dropFloorController.text.isEmpty) {
-      Utils.showErrorMessage(context, "Please enter drop floor number");
+      Utils.showErrorMessage(context, loc.please_enter_drop_floor);
       return false;
     }
 
@@ -280,32 +282,33 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
     setState(() => isCityValidationLoading = false);
 
     if (pickupCity.isEmpty || dropCity.isEmpty) {
-      Utils.showErrorMessage(context, "Could not fetch city details. Please check the addresses and try again.");
+      Utils.showErrorMessage(context, loc.could_not_fetch_city);
       return false;
     }
 
     // 🔹 VALIDATE IF WITHIN CITY SERVICE IS POSSIBLE
     if (isWithinCitySelected) {
       if (pickupCity != dropCity) {
-        Utils.showErrorMessage(context ,"Within City service is not available for different cities");
+        Utils.showErrorMessage(context ,loc.with_in_city_service);
         return false;
       } else {
-        Utils.showSuccessMessage(context, "Within City service confirmed! Both locations are in $pickupCity");
+        Utils.showSuccessMessage(context, "${loc.within_city_service_confirmed} $pickupCity");
         return true;
       }
     } else {
       // Between Cities validation
       if (pickupCity == dropCity) {
-        Utils.showErrorMessage(context, " Between Cities service is not available for same city.");
+        Utils.showErrorMessage(context, loc.between_cities_service);
         return false;
       } else {
-        Utils.showSuccessMessage(context, "Between Cities service confirmed! From $pickupCity to $dropCity");
+        Utils.showSuccessMessage(context, "${loc.between_cities_service_confirmed} $pickupCity to $dropCity");
         return true;
       }
     }
   }
 
   void _navigateToAddItemsScreen() async {
+    final loc = AppLocalizations.of(context)!;
     // USE SEPARATE LOADING VARIABLE FOR CHECK PRICE
     setState(() => isCheckPriceLoading = true);
 
@@ -315,18 +318,18 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
     try {
       // Fast validations
       if (pickupController.text.isEmpty || dropController.text.isEmpty) {
-        Utils.showErrorMessage(context, "Please fill all required fields");
+        Utils.showErrorMessage(context,  loc.please_fill_all_req);
         setState(() => isCheckPriceLoading = false);
         return;
       }
 
       if (!pickupLiftAvailable && pickupFloorController.text.isEmpty) {
-        Utils.showErrorMessage(context, "Please enter pickup floor number");
+        Utils.showErrorMessage(context, loc.please_enter_pickup_floor);
         setState(() => isCheckPriceLoading = false);
         return;
       }
       if (!dropLiftAvailable && dropFloorController.text.isEmpty) {
-        Utils.showErrorMessage(context, "Please enter drop floor number");
+        Utils.showErrorMessage(context, loc.please_enter_drop_floor);
         setState(() => isCheckPriceLoading = false);
         return;
       }
@@ -386,7 +389,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
     } catch (e) {
       print("Error in navigation: $e");
       if (mounted) {
-        Utils.showErrorMessage(context, "Something went wrong. Please try again.");
+        Utils.showErrorMessage(context, loc.something_wnt_wrng);
       }
     } finally {
       if (mounted) {
@@ -426,6 +429,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -483,7 +487,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                             ),
                             SizedBox(width: screenWidth * 0.03),
                             TextConst(
-                              title: "Packer and Mover",
+                              title: loc.packer_move,
                               color: PortColor.black,
                               fontWeight: FontWeight.w600,
                               size: 16,
@@ -499,21 +503,21 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                               icon: currentStep > 0
                                   ? Icons.check
                                   : Icons.location_on,
-                              text: 'Moving details',
+                              text: loc.moving_detail,
                               isActive: true,
                               isCompleted: currentStep > 0,
                             ),
                             const DottedLine(),
                             StepWidget(
                               icon: Icons.inventory,
-                              text: 'Add items',
+                              text: loc.add_items,
                               isActive: currentStep >= 1,
                               isCompleted: currentStep > 1,
                             ),
                             const DottedLine(),
                             StepWidget(
                               icon: Icons.receipt,
-                              text: 'Schedule',
+                              text: loc.schedule,
                               isActive: currentStep >= 2,
                               isCompleted: currentStep > 2,
                             ),
@@ -582,7 +586,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                               ),
                             ),
                           ),
-                          hintText: 'Pick up Location',
+                          hintText: loc.pick_up_location,
                           hintStyle: TextStyle(
                             color: Colors.black54,
                             fontFamily: AppFonts.kanitReg,
@@ -596,7 +600,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                             children: [
                               Expanded(
                                 child: TextConst(
-                                  title: "Service lift available at pickup",
+                                  title: loc.select_lift_available,
                                   color: PortColor.black.withOpacity(0.7),
                                   fontFamily: AppFonts.kanitReg,
                                   size: 13,
@@ -627,7 +631,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                               height: screenHeight * 0.055,
                               cursorHeight: screenHeight * 0.022,
                               prefixIcon: const Icon(Icons.stairs, size: 17),
-                              hintText: 'Floor Number at Pickup',
+                              hintText: loc.floor_number_at_pickup,
                               hintStyle: TextStyle(
                                 color: Colors.black54,
                                 fontFamily: AppFonts.kanitReg,
@@ -670,13 +674,13 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                         CustomTextField(
                           controller: dropController,
                           focusNode: dropFocus,
-                          readOnly: true, // ⛔ keyboard band
+                          readOnly: true,
                           onTap: () async {
                             final result = await Navigator.push<PlaceResult>(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const LocationSearchPage(
-                                  title: "Select Drop Location",
+                                builder: (_) =>  LocationSearchPage(
+                                  title: loc.select_drop,
                                 ),
                               ),
                             );
@@ -712,9 +716,9 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                           height: screenHeight * 0.055,
                           cursorHeight: screenHeight * 0.022,
                           prefixIcon: Padding(
-                            padding: const EdgeInsets.all(9.0),
+                            padding:  EdgeInsets.all(9.0),
                             child: Container(
-                              decoration: const BoxDecoration(
+                              decoration:  BoxDecoration(
                                 color: PortColor.red,
                                 shape: BoxShape.circle,
                               ),
@@ -725,7 +729,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                               ),
                             ),
                           ),
-                          hintText: 'Drop Location',
+                          hintText: loc.drop_location,
                           hintStyle: TextStyle(
                             color: Colors.black54,
                             fontFamily: AppFonts.kanitReg,
@@ -740,7 +744,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                             children: [
                               Expanded(
                                 child: TextConst(
-                                  title: "Service lift available at drop",
+                                  title: loc.service_lift_available_drop,
                                   color: PortColor.black.withOpacity(0.7),
                                   fontFamily: AppFonts.kanitReg,
                                   size: 13,
@@ -772,7 +776,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                               height: screenHeight * 0.055,
                               cursorHeight: screenHeight * 0.022,
                               prefixIcon: const Icon(Icons.stairs, size: 17),
-                              hintText: 'Floor Number at Drop',
+                              hintText: loc.floor_number_at_drop,
                               hintStyle: TextStyle(
                                 color: Colors.black54,
                                 fontFamily: AppFonts.kanitReg,
@@ -906,7 +910,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      'Processing...',
+                      loc.processing,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: PortColor.black,
@@ -918,7 +922,7 @@ class _DeliverByPackerMoverState extends State<DeliverByPackerMover> {
                   ],
                 )
                     : Text(
-                  'Check Price',
+                  loc.check_price,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: (pickupController.text.isNotEmpty &&
@@ -1077,6 +1081,7 @@ class _LocationSearchPageState extends State<LocationSearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -1101,13 +1106,13 @@ class _LocationSearchPageState extends State<LocationSearchPage> {
 
           /// 🔍 SEARCH FIELD
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding:  EdgeInsets.all(16),
             child: TextField(
               controller: searchController,
               autofocus: true,
               onChanged: placeSearchApi,
               decoration: InputDecoration(
-                hintText: "Search location",
+                hintText: loc.search_location,
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.grey.shade100,

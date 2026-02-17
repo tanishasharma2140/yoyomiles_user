@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_text.dart';
@@ -24,6 +25,7 @@ class _ConstantAppbarState extends State<ConstantAppbar> {
   @override
   Widget build(BuildContext context) {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return  Container(
       decoration: const BoxDecoration(
         color: PortColor.white,
@@ -55,7 +57,7 @@ class _ConstantAppbarState extends State<ConstantAppbar> {
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddGstDetail()));
                   },
-                  child: TextConst(title: "Edit Profile", color: PortColor.blackLight)),
+                  child: TextConst(title: loc.edit_profile, color: PortColor.blackLight)),
             ],
           ),
           SizedBox(height: screenHeight*0.001),
@@ -83,7 +85,7 @@ class _ConstantAppbarState extends State<ConstantAppbar> {
               ),
               child: Center(
                 child: TextConst(title:
-                "Add GST Details",color: PortColor.blackList,
+                loc.add_gst,color: PortColor.blackList,
                   fontFamily: AppFonts.kanitReg,
 
                 ),

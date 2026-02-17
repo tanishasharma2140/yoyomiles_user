@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/utils/utils.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/main.dart';
@@ -380,6 +381,7 @@ class _SenderAddressState extends State<SenderAddress>
 
   Widget buildBottomSheet(BuildContext context) {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return Container(
       width: screenWidth,
@@ -407,7 +409,7 @@ class _SenderAddressState extends State<SenderAddress>
                   controller: nameController,
                   height: screenHeight * 0.055,
                   cursorHeight: screenHeight * 0.023,
-                  labelText: "Sender's Name",
+                  labelText: loc.sender_name,
                   suffixIcon: const Icon(
                     Icons.perm_contact_cal_outlined,
                     color: PortColor.blue,
@@ -418,7 +420,7 @@ class _SenderAddressState extends State<SenderAddress>
                   controller: mobileController,
                   height: screenHeight * 0.055,
                   cursorHeight: screenHeight * 0.023,
-                  labelText: "Sender's Mobile Number",
+                  labelText: loc.sender_mob_no,
                   keyboardType: TextInputType.phone,
                   maxLength: 10,
                 ),
@@ -465,7 +467,7 @@ class _SenderAddressState extends State<SenderAddress>
                       Row(
                         children: [
                           TextConst(
-                            title: "Use My Mobile Number:",
+                            title: loc.use_my_num,
                             color: PortColor.black,
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
@@ -484,7 +486,7 @@ class _SenderAddressState extends State<SenderAddress>
                 ),
                 SizedBox(height: screenHeight * 0.03),
                 TextConst(
-                  title: "Save as (optional):",
+                  title: loc.save_as_opt,
                   color: PortColor.gray,
                   size: 12,
                   fontFamily: AppFonts.poppinsReg,
@@ -493,9 +495,9 @@ class _SenderAddressState extends State<SenderAddress>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    buildSaveOption("Home", Icons.home_filled, null, 0),
-                    buildSaveOption("Shop", null, Assets.assetsShop, 1),
-                    buildSaveOption("Other", Icons.favorite, null, 2),
+                    buildSaveOption(loc.home_ji, Icons.home_filled, null, 0),
+                    buildSaveOption(loc.shop, null, Assets.assetsShop, 1),
+                    buildSaveOption(loc.other, Icons.favorite, null, 2),
                   ],
                 ),
               ],
@@ -508,6 +510,7 @@ class _SenderAddressState extends State<SenderAddress>
   }
 
   Widget buildLocationDetailsSmall(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       height: screenHeight * 0.2,
       width: screenWidth,
@@ -614,7 +617,7 @@ class _SenderAddressState extends State<SenderAddress>
                     gradient: PortColor.subBtn,
                   ),
                   child: TextConst(
-                    title: "Confirm Pickup Location",
+                    title: loc.confirm_pickup_location,
                     color: Colors.white,
                     fontFamily: AppFonts.kanitReg,
                     size: 16,
@@ -629,6 +632,7 @@ class _SenderAddressState extends State<SenderAddress>
   }
 
   Widget buildLocationDetails() {
+    final loc = AppLocalizations.of(context)!;
     return Row(
       children: [
         Image(
@@ -695,7 +699,7 @@ class _SenderAddressState extends State<SenderAddress>
             ),
             child: Center(
               child: TextConst(
-                title: "Change",
+                title: loc.change,
                 color: PortColor.blue,
                 fontFamily: AppFonts.poppinsReg,
                 size: 11,
@@ -762,6 +766,7 @@ class _SenderAddressState extends State<SenderAddress>
 
   Widget buildProceedButton(BuildContext context) {
     final orderViewModel = Provider.of<OrderViewModel>(context,listen: false);
+    final loc = AppLocalizations.of(context)!;
 
     bool isMobileNumberFilled =
         mobileController.text.isNotEmpty && mobileController.text.length == 10;
@@ -785,9 +790,9 @@ class _SenderAddressState extends State<SenderAddress>
         child: GestureDetector(
             onTap: () {
               if (nameController.text.isEmpty) {
-                Utils.showErrorMessage(context, "Enter sender's name");
+                Utils.showErrorMessage(context, loc.please_enter_sender);
               } else if (mobileController.text.isEmpty) {
-                Utils.showErrorMessage(context, "Enter sender's mobile number");
+                Utils.showErrorMessage(context, loc.please_enter_valid);
               } else {
                 // Determine Save As label
                 String saveAs = "";
@@ -841,8 +846,8 @@ class _SenderAddressState extends State<SenderAddress>
               ),
               child: TextConst(
                 title: isMobileNumberFilled
-                    ? "Confirm and proceed"
-                    : "Enter Contact Details",
+                    ? loc.confirm_proceed
+                    : loc.enter_contact_detail,
                 color: isMobileNumberFilled ? Colors.white : PortColor.gray,
                 fontFamily: AppFonts.kanitReg,
               ),

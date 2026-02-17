@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
@@ -15,6 +16,7 @@ class TermsCondition extends StatefulWidget {
 class _TermsConditionState extends State<TermsCondition> {
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -55,7 +57,7 @@ class _TermsConditionState extends State<TermsCondition> {
                     width: screenWidth * 0.2,
                   ),
                   TextConst(
-                    title: "Terms and Condition",
+                    title: loc.terms_condition,
                     color: PortColor.black,
                   ),
                 ],
@@ -81,7 +83,7 @@ class _TermsConditionState extends State<TermsCondition> {
                       height: 50,
                       child: Row(
                         children: [
-                              TextConst(title: "Terms and Condition",color: PortColor.black),
+                              TextConst(title: loc.terms_condition,color: PortColor.black),
                           Spacer(),
                           Icon(Icons.arrow_forward_ios_rounded,size: screenHeight*0.015,),
                         ],
@@ -101,7 +103,7 @@ class _TermsConditionState extends State<TermsCondition> {
                       height: 50,
                       child: Row(
                         children: [
-                    TextConst(title: "Privacy and policy",color: PortColor.black),
+                    TextConst(title: loc.privacy_policy,color: PortColor.black),
                           Spacer(),
                           Icon(Icons.arrow_forward_ios_rounded,size: screenHeight*0.015,),
                         ],

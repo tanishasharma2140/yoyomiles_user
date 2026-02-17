@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -31,6 +32,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
   @override
   Widget build(BuildContext context) {
     final addressShowViewModel = Provider.of<AddressShowViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -73,7 +75,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                     width: screenWidth * 0.25,
                   ),
                   TextConst(
-                    title: "Saved Addresses",
+                    title: loc.saved_address,
                     color: PortColor.black,
                   ),
                 ],
@@ -116,7 +118,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                       ),
                     ),
                     title: TextConst(
-                        title: "Add New Address", color: PortColor.gold,fontFamily: AppFonts.kanitReg,),
+                        title: loc.add_new_add, color: PortColor.gold,fontFamily: AppFonts.kanitReg,),
                     trailing: Icon(
                       Icons.arrow_forward_ios_rounded,
                       color: PortColor.black,
@@ -129,7 +131,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: TextConst(
-                  title: "Your saved addresses",
+                  title: loc.your_saved_add,
                   color: PortColor.black.withOpacity(0.6)),
             ),
             SizedBox(height: screenHeight * 0.02),
@@ -241,7 +243,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                                       height: screenHeight * 0.01,
                                     ),
                                     TextConst(
-                                      title: " Pin code: ${saveAddress?.pincode.toString() ?? ""} ",
+                                      title: " ${loc.pin_code} ${saveAddress?.pincode.toString() ?? ""} ",
                                       color: PortColor.gray,
                                       fontFamily: AppFonts.poppinsReg,
                                       size: 12,
@@ -297,7 +299,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                                             ),
                                             child: Center(
                                                 child: TextConst(
-                                                    title: 'Delete',
+                                                    title: loc.delete,
                                                     fontFamily: AppFonts.kanitReg,
                                                     fontWeight: FontWeight.w600,
                                                     color: PortColor.gold)),
@@ -311,7 +313,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                             );
                           },
                         )
-                      : const Center(child: Text("No Address Available")),
+                      :  Center(child: Text(loc.no_add_available)),
             ),
           ],
         ),
@@ -320,6 +322,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
   }
   Widget deleteBottomSheet(context, String addressId){
     final addressDeleteViewModel = Provider.of<AddressDeleteViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.all(screenHeight * 0.02),
       child: Column(
@@ -327,7 +330,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextConst(
-              title: "Delete Shop address?",
+              title: loc.delete_shop_add,
               color: PortColor.black),
           SizedBox(height: screenHeight * 0.03),
           Row(
@@ -350,7 +353,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                   ),
                   child: Center(
                     child: TextConst(
-                        title: "No",
+                        title: loc.no,
                         fontFamily: AppFonts.kanitReg,
                         fontWeight: FontWeight.w600,
                         color: PortColor.gold),
@@ -377,7 +380,7 @@ class _SaveAddressDetailState extends State<SaveAddressDetail> {
                     child: TextConst(
                         fontFamily: AppFonts.kanitReg,
                         fontWeight: FontWeight.w600,
-                        title: "Yes", color: PortColor.white),
+                        title: loc.yes, color: PortColor.white),
                   ),
                 ),
               ),

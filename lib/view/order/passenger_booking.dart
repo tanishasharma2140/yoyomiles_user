@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -207,6 +208,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
 
   // Navigate to map screen from history selection
   void _navigateToMapFromHistory() {
+    final loc = AppLocalizations.of(context)!;
     // Check if both pickup and drop locations are filled with coordinates
     if (pickupController.text.isNotEmpty &&
         dropController.text.isNotEmpty &&
@@ -237,7 +239,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please ensure both pickup and drop locations are selected'),
+          content: Text(loc.please_ensure_both),
           backgroundColor: Colors.orange,
         ),
       );
@@ -259,10 +261,11 @@ class _PassengerBookingState extends State<PassengerBooking> {
 
   // Navigate to map screen
   void _proceedToMapScreen() {
+    final loc = AppLocalizations.of(context)!;
     if (dropController.text.isNotEmpty && pickupController.text.isNotEmpty) {
       if (pickupLat == null || pickupLng == null || dropLat == null || dropLng == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please wait, fetching location coordinates...')),
+          SnackBar(content: Text(loc.please_wait_fetching)),
         );
         return;
       }
@@ -294,6 +297,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       bottom: true,
@@ -333,7 +337,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                       ),
                       const SizedBox(width: 16),
                       TextConst(
-                        title: "Drop",
+                        title: loc.drop,
                         size: 17,
                         fontWeight: FontWeight.w600,
                         color: Colors.black,
@@ -378,7 +382,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     TextConst(
-                                      title: "Pickup Location",
+                                      title: loc.pick_up_location,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black,
                                       fontFamily: AppFonts.kanitReg,
@@ -393,7 +397,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                         : TextConst(
                                       title: pickupController.text.isNotEmpty
                                           ? pickupController.text
-                                          : "Tap to select pickup location",
+                                          : loc.tap_to_select_pickup,
                                       size: 12,
                                       color: pickupController.text.isNotEmpty
                                           ? Colors.grey[600]
@@ -441,7 +445,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     TextConst(
-                                      title: "Drop Location",
+                                      title: loc.drop_location,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black,
                                       fontFamily: AppFonts.kanitReg,
@@ -450,7 +454,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                                     TextConst(
                                       title: dropController.text.isNotEmpty
                                           ? dropController.text
-                                          : "Tap to select drop location",
+                                          : loc.tap_to_select_drop,
                                       size: 12,
                                       color: dropController.text.isNotEmpty
                                           ? Colors.grey[600]
@@ -496,7 +500,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
             if (dropController.text.isNotEmpty && pickupController.text.isNotEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20),
-                child: AppBtn(title: "Proceed", onTap: _proceedToMapScreen),
+                child: AppBtn(title: loc.proceed, onTap: _proceedToMapScreen),
               ),
             SizedBox(height: screenHeight * 0.02)
           ],
@@ -508,6 +512,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
   void _showLocationSearchSheet(bool isPickup) {
     TextEditingController searchController = TextEditingController();
     List<dynamic> localSearchResults = [];
+    final loc = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -533,7 +538,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        isPickup ? "Select Pickup" : "Select Drop",
+                        isPickup ? loc.select_pickup : loc.select_drop,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -554,7 +559,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                     child: TextField(
                       controller: searchController,
                       decoration: InputDecoration(
-                        hintText: "Search location...",
+                        hintText: loc.search_location,
                         hintStyle: TextStyle(
                           color: Colors.grey[500],
                           fontFamily: AppFonts.kanitReg,
@@ -626,12 +631,13 @@ class _PassengerBookingState extends State<PassengerBooking> {
   }
 
   Widget _buildSearchHistoryInSheet(bool isPickup, Function setModalState) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (searchHistory.isNotEmpty) ...[
           Text(
-            "Recent Searches",
+            loc.recent_search,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -683,7 +689,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "No recent searches",
+                    loc.recent_search,
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -692,7 +698,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Your recent location searches will appear here",
+                    loc.your_recent_location,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[500],
@@ -710,6 +716,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
   }
 
   Widget _buildSearchHistory() {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       color: Colors.white,
       child: Column(
@@ -718,7 +725,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              searchHistory.isNotEmpty ? "Recent Searches" : "Search History",
+              searchHistory.isNotEmpty ? loc.recent_search : loc.search_history,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -776,6 +783,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
   }
 
   Widget _buildEmptyState() {
+    final loc = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -787,7 +795,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
           ),
           const SizedBox(height: 16),
           Text(
-            "No search history",
+            loc.no_search_history,
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -796,7 +804,7 @@ class _PassengerBookingState extends State<PassengerBooking> {
           ),
           const SizedBox(height: 8),
           Text(
-            "Your recent location searches will appear here",
+            loc.your_recent_location,
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/model/packer_mover_model.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/utils/utils.dart';
 import 'package:yoyomiles/view_model/packer_mover_view_model.dart';
 import 'package:yoyomiles/view_model/save_selected_item_view_model.dart';
 import 'package:provider/provider.dart';
@@ -291,10 +293,9 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   }
 
   void _checkPrice() {
+    final loc = AppLocalizations.of(context)!;
     if (selectedItemsCount == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please add at least one item")),
-      );
+       Utils.showErrorMessage(context, loc.please_enter_atleast_one );
       return;
     }
 
@@ -387,6 +388,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final packerMoverVm = Provider.of<PackerMoverViewModel>(context);
     // Process API data when it's available
     if (packerMoverVm.packerMoversData != null && !_isDataProcessed) {
@@ -444,7 +446,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                       ),
                       SizedBox(width: screenWidth * 0.03),
                       TextConst(
-                        title: "Packer and Mover",
+                        title: loc.packer_move,
                         color: PortColor.black,
                         fontWeight: FontWeight.w600,
                         size: 16,
@@ -457,21 +459,21 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                     children: [
                       StepWidget(
                         icon: Icons.check,
-                        text: 'Moving details',
+                        text: loc.moving_detail,
                         isActive: true,
                         isCompleted: true,
                       ),
                       const DottedLine(),
                       StepWidget(
                         icon: Icons.inventory,
-                        text: 'Add items',
+                        text: loc.add_items,
                         isActive: true,
                         isCompleted: false,
                       ),
                       const DottedLine(),
                       StepWidget(
                         icon: Icons.receipt,
-                        text: 'Schedule',
+                        text: loc.schedule,
                         isActive: false,
                         isCompleted: false,
                       ),
@@ -492,7 +494,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                       CircularProgressIndicator(color: PortColor.gold),
                       SizedBox(height: screenHeight * 0.02),
                       Text(
-                        'Loading items...',
+                        loc.loading_item,
                         style: TextStyle(
                           color: PortColor.black,
                           fontSize: 16,
@@ -537,7 +539,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           ),
                         ),
                         child: Text(
-                          'Retry',
+                          loc.retry,
                           style: TextStyle(
                             fontFamily: AppFonts.kanitReg,
                             fontSize: 16,
@@ -550,7 +552,6 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 ),
               )
             else if (_hasNoData(packerMoverVm.packerMoversData))
-              // NO DATA STATE - Jab API response aaye lekin koi data na ho
                 Expanded(
                   child: Center(
                     child: Column(
@@ -563,7 +564,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                         ),
                         SizedBox(height: screenHeight * 0.02),
                         Text(
-                          'No items available',
+                          loc.no_item_available,
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 16,
@@ -572,7 +573,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                         ),
                         SizedBox(height: screenHeight * 0.01),
                         Text(
-                          'Please try again later',
+                          loc.please_try_again_later,
                           style: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 14,
@@ -646,7 +647,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                           horizontal: screenWidth * 0.04,
                         ),
                         child: Text(
-                          'Add items to get the exact quote, you can edit this later',
+                          loc.add_items_to_get_the,
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 12,
@@ -697,7 +698,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '$selectedItemsCount Items added',
+                                  '$selectedItemsCount ${loc.item_added}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
@@ -708,7 +709,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   GestureDetector(
                                     onTap: _showSelectedItems,
                                     child: Text(
-                                      'View all',
+                                      loc.view_all,
                                       style: TextStyle(
                                         color: PortColor.button,
                                         fontSize: 12,
@@ -730,7 +731,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  'View all',
+                                  loc.view_all,
                                   style: TextStyle(
                                     color: PortColor.button,
                                     fontWeight: FontWeight.w500,
@@ -754,7 +755,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                                   ),
                                   alignment: Alignment.center,
                                   child: Text(
-                                    "Check price",
+                                    loc.check_price,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily: AppFonts.kanitReg,
@@ -796,10 +797,11 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   }
 
   void _showSelectedItems() {
+    final loc = AppLocalizations.of(context)!;
     if (selectedItemsList.isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("No items selected")));
+      ).showSnackBar( SnackBar(content: Text(loc.no_item_selected)));
       return;
     }
 
@@ -843,7 +845,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Selected Items",
+                      loc.selected_item,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -875,7 +877,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                 child: Row(
                   children: [
                     Text(
-                      "$selectedItemsCount Items added",
+                      "$selectedItemsCount ${loc.item_added}",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1045,6 +1047,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
   }
 
   Widget _buildCategorySection(String category, int categoryIndex) {
+    final loc = AppLocalizations.of(context)!;
     final items = categoryItems[category] ?? [];
     final totalItemsInCategory = items.fold<int>(0, (sum, item) {
       return sum +
@@ -1088,7 +1091,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
                   ],
                 ),
                 child: Text(
-                  '$totalItemsInCategory items added',
+                  '$totalItemsInCategory ${loc.add_items}',
                   style: TextStyle(
                     fontSize: 10,
                     color: PortColor.black,
@@ -1116,7 +1119,7 @@ class _AddItemsScreenState extends State<AddItemsScreen> {
             ),
             child: Center(
               child: Text(
-                'No items available in this category',
+                loc.no_item_available_in,
                 style: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 14,

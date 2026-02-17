@@ -1,6 +1,7 @@
   import 'package:flutter/cupertino.dart';
   import 'package:flutter/material.dart';
   import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
   import 'package:yoyomiles/main.dart';
   import 'package:yoyomiles/res/app_fonts.dart';
   import 'package:yoyomiles/res/constant_color.dart';
@@ -96,6 +97,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
       discount > 0 ? fareAfterDiscount + gstAmount : baseFare + gstAmount;
 
       bool canPayViaWallet = walletBalance >= netFare;
+      final loc = AppLocalizations.of(context)!;
 
       return SafeArea(
         top: false,
@@ -119,7 +121,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                   ),
                   SizedBox(width: screenWidth * 0.02),
                   TextConst(
-                    title: "Review Booking",
+                    title: loc.review_booking,
                     color: PortColor.black,
                     size: 16,
                     fontWeight: FontWeight.w600,
@@ -184,7 +186,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                                   Navigator.pop(context);
                                 },
                                 child: TextConst(
-                                  title: "View Address detail",
+                                  title: loc.view_add_detail,
                                   color: PortColor.gold,
                                   fontFamily: AppFonts.poppinsReg,
                                 ),
@@ -217,19 +219,19 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                             Icon(Icons.alarm, size: screenHeight * 0.018),
                             SizedBox(width: screenWidth * 0.01),
                             TextConst(
-                              title: "Free",
+                              title: loc.free,
                               color: PortColor.black.withOpacity(0.6),
                               fontFamily: AppFonts.poppinsReg,
                               size: 12,
                             ),
                             TextConst(
-                              title: " ${vehicleLoadingVm.vehicleLoadingModel?.data?.loadingTimeMinute??"0"}mins ",
+                              title: " ${vehicleLoadingVm.vehicleLoadingModel?.data?.loadingTimeMinute??"0"}${loc.mins} ",
                               color: PortColor.black,
                               fontFamily: AppFonts.kanitReg,
                               size: 12,
                             ),
                             TextConst(
-                              title: "of loading and unloading time include.",
+                              title: loc.of_loading_unloading,
                               color: PortColor.black.withOpacity(0.6),
                               fontFamily: AppFonts.poppinsReg,
                               size: 12,
@@ -249,7 +251,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035),
                 child: TextConst(
-                  title: "Offers and Discounts",
+                  title: loc.offer_discount,
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                 ),
@@ -311,7 +313,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                         ),
                         const SizedBox(width: 6),
                         TextConst(
-                          title: "Coupon Applied",
+                          title: loc.coupon_applied,
                           fontFamily: AppFonts.kanitReg,
                           size: 14,
                           color: PortColor.black,
@@ -332,7 +334,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035),
                 child: TextConst(
-                  title: "Fare Summary",
+                  title: loc.fare_summary,
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                 ),
@@ -362,13 +364,13 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       Row(
                         children: [
                           TextConst(
-                            title: "Trip Fare",
+                            title: loc.trip_fare,
                             color: PortColor.black.withOpacity(0.8),
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
                           ),
                           TextConst(
-                            title: " (Incl.Toll)",
+                            title: loc.incl_toll,
                             color: PortColor.black.withOpacity(0.5),
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
@@ -390,7 +392,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                         Row(
                           children: [
                             TextConst(
-                              title: "Discount 🎉🎉",
+                              title: loc.discount,
                               color: PortColor.black.withOpacity(0.8),
                               fontFamily: AppFonts.poppinsReg,
                               size: 12,
@@ -415,7 +417,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                         Row(
                           children: [
                             TextConst(
-                              title: "Fare After Discount",
+                              title: loc.fare_after_discount,
                               color: PortColor.black.withOpacity(0.8),
                               fontFamily: AppFonts.poppinsReg,
                               size: 12,
@@ -439,7 +441,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       Row(
                         children: [
                           TextConst(
-                            title: "Booking Fees & Convenience Chagres",
+                            title: loc.booking_fees_conv_charge,
                             color: PortColor.black.withOpacity(0.8),
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
@@ -488,13 +490,13 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       Row(
                         children: [
                           TextConst(
-                            title: "Amount Payable",
+                            title: loc.amount_payable,
                             color: PortColor.black.withOpacity(0.8),
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
                           ),
                           TextConst(
-                            title: " (Exact)",
+                            title: loc.exact,
                             color: PortColor.black.withOpacity(0.5),
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
@@ -516,7 +518,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
               ),
               SizedBox(height: 20),
               GoodsTypeCard(
-                title: "Goods Type",
+                title: loc.good_type,
                 selectedType: selectedGoodsName ?? "Select Goods Type",
                 onChange: () async {
                   final result = await Navigator.push(
@@ -555,7 +557,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035),
                 child: TextConst(
-                  title: "Read before booking",
+                  title: loc.read_before_booking,
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                 ),
@@ -581,7 +583,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                     children: [
                       TextConst(
                         title:
-                            '• Fare doesn\'t include labour charges for loading & unloading',
+                            loc.labour_charges,
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
                         size: 12,
@@ -589,7 +591,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       const SizedBox(height: 8),
                       TextConst(
                         title:
-                            '• Fare includes ${vehicleLoadingVm.vehicleLoadingModel?.data?.loadingTimeMinute??"0"}mins free loading/unloading time.',
+                            '${loc.fare_include} ${vehicleLoadingVm.vehicleLoadingModel?.data?.loadingTimeMinute??"0"} ${loc.min_free_loading}',
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
                         size: 12,
@@ -611,21 +613,21 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       // ),
                       const SizedBox(height: 8),
                       TextConst(
-                        title: '• Parking charges to be paid by customer.',
+                        title: loc.parking_charge,
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
                         size: 12,
                       ),
                       const SizedBox(height: 8),
                       TextConst(
-                        title: '• Fare includes toll and permit charges, if any.',
+                        title: loc.fare_include_toll,
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
                         size: 12,
                       ),
                       const SizedBox(height: 8),
                       TextConst(
-                        title: '• We don\'t allow overloading.',
+                        title: loc.we_dont_allow,
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
                         size: 12,
@@ -638,7 +640,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.035),
                 child: TextConst(
-                  title: "Pay Mode",
+                  title: loc.pay_mode,
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                 ),
@@ -678,7 +680,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                             children: [
                               Expanded(
                                 child: TextConst(
-                                  title: "Pay Via Cash",
+                                  title: loc.pay_via_cash,
                                   color: PortColor.black,
                                   fontFamily: AppFonts.poppinsReg,
                                   size: 13,
@@ -708,7 +710,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                             children: [
                               Expanded(
                                 child: TextConst(
-                                  title: "Pay Via Online",
+                                  title: loc.pay_via_online,
                                   color: PortColor.black,
                                   fontFamily: AppFonts.poppinsReg,
                                   size: 13,
@@ -737,7 +739,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                               children: [
                                 Expanded(
                                   child: TextConst(
-                                    title: "Pay Via Wallet",
+                                    title: loc.pay_via_wallet,
                                     fontFamily: AppFonts.poppinsReg,
                                     size: 13,
                                   ),
@@ -771,7 +773,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       image: const AssetImage(Assets.assetsRupeetwo),
                       height: screenHeight * 0.04,
                     ),
-                    TextConst(title: " Payment", color: PortColor.black),
+                    TextConst(title: loc.payment, color: PortColor.black),
                     const Spacer(),
                     TextConst(
                       title: "₹${netFare.toStringAsFixed(2)}",
@@ -877,6 +879,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
     @override
     Widget build(BuildContext context) {
       double screenWidth = MediaQuery.of(context).size.width;
+      final loc = AppLocalizations.of(context)!;
 
       // ✅ Condition to check if a type is selected
       bool isTypeSelected = selectedType != "Select Goods Type";
@@ -932,7 +935,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                   GestureDetector(
                     onTap: onChange,
                     child: TextConst(
-                      title: isTypeSelected ? "Change" : "Select",
+                      title: isTypeSelected ? loc.change : loc.select,
                       color: PortColor.blue,
                       fontFamily: AppFonts.poppinsReg,
                       size: 14,

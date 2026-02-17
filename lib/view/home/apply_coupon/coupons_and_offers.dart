@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -42,6 +43,7 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
   @override
   Widget build(BuildContext context) {
     final applyCoupon = Provider.of<ApplyCouponViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: PortColor.bg,
       appBar: PreferredSize(
@@ -61,7 +63,7 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
               ),
               SizedBox(width: screenWidth * 0.02),
               TextConst(
-                title: "Coupons & Offers",
+                title: loc.coupon_offer,
                 color: PortColor.black,
                 size: 16,
                 fontWeight: FontWeight.w600,
@@ -102,8 +104,8 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
                       ),
                       child: TextField(
                         controller: _couponController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter code here',
+                        decoration:  InputDecoration(
+                          hintText: loc.enter_code_here,
                           border: InputBorder.none,
                           hintStyle: TextStyle(color: Colors.grey),
                         ),
@@ -135,7 +137,7 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
                           // Entered code apply logic
                         },
                         child: Text(
-                          'APPLY',
+                          loc.applyy,
                           style: TextStyle(
                             color: Colors.grey,
                             fontWeight: FontWeight.bold,
@@ -152,10 +154,10 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
           ),
 
           const SizedBox(height: 15),
-          const Padding(
+           Padding(
             padding: EdgeInsets.only(left: 15),
             child: Text(
-              "More Offers:",
+              loc.more_offers,
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
           ),
@@ -171,7 +173,7 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
                 if (couponList.couponListModel == null ||
                     couponList.couponListModel!.data == null ||
                     couponList.couponListModel!.data!.isEmpty) {
-                  return const Center(child: Text("No Coupons Available"));
+                  return  Center(child: Text(loc.no_coupon_available));
                 }
 
                 return ListView.builder(
@@ -289,7 +291,7 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
                                     ),
                                   ),
                                   child: Text(
-                                    applyCoupon.applyStatus == 2 ? "APPLIED" : "APPLY",
+                                    applyCoupon.applyStatus == 2 ? loc.applied : loc.applyy,
                                     style: TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
@@ -333,7 +335,7 @@ class _CouponsAndOffersState extends State<CouponsAndOffers> {
 
                           /// Valid Date
                           Text(
-                            "valid till: ${couponListOffer.validDate}",
+                            "${loc.valid_till} ${couponListOffer.validDate}",
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey,

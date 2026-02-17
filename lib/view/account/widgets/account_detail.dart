@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_constant.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -10,6 +11,7 @@ import 'package:yoyomiles/view/account/widgets/help_support.dart';
 import 'package:yoyomiles/view/account/widgets/save_address_detail.dart';
 import 'package:yoyomiles/view/account/widgets/terms_condition.dart';
 import 'package:yoyomiles/view/coins/coins.dart';
+import 'package:yoyomiles/view/home/change_language.dart';
 import 'package:yoyomiles/view/order/packer_mover_order_history.dart';
 import 'package:yoyomiles/view/splash_screen.dart';
 import 'package:yoyomiles/view_model/user_view_model.dart';
@@ -19,6 +21,7 @@ class AccountDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Expanded(
       child: ListView(
         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
@@ -33,11 +36,11 @@ class AccountDetail extends StatelessWidget {
                 context,
                 Icons.favorite_border,
                 color: PortColor.rapidBlue,
-                "Saved Address",
+                loc.saved_address,
                 page: const SaveAddressDetail(),
               )),
           SizedBox(height: screenHeight * 0.02),
-          TextConst(title: "Order History", color: PortColor.gray),
+          TextConst(title: loc.order_history, color: PortColor.gray),
           SizedBox(height: screenHeight * 0.02),
           Material(
               elevation: 3.0,
@@ -48,11 +51,11 @@ class AccountDetail extends StatelessWidget {
                 context,
                 Icons.history,
                 color: PortColor.gold,
-                "Packer Mover Order History",
+                loc.packer_mover_order,
                 page: const PackerMoverOrderHistory(),
               )),
           SizedBox(height: screenHeight * 0.02),
-          TextConst(title: "Benefits", color: PortColor.gray),
+          TextConst(title: loc.benefits, color: PortColor.gray),
           SizedBox(height: screenHeight * 0.02),
           Container(
             height: screenHeight * 0.19,
@@ -77,7 +80,7 @@ class AccountDetail extends StatelessWidget {
                   context,
                   color: PortColor.rapidPurple,
                   Icons.star_border_purple500_outlined,
-                  "Yoyomiles Rewards",
+                   loc.yoyomiles_rew,
                   trailing: Icon(
                     Icons.arrow_forward_ios_rounded,
                     color: PortColor.black,
@@ -87,15 +90,16 @@ class AccountDetail extends StatelessWidget {
                 buttonLayoutUi(
                   context,
                   Icons.share,
-                  "Refer your Friends!",   // label String
+                  loc.refer_friend,   // label String
                   color: PortColor.portKaro,
                   trailing: GestureDetector(
                     onTap: () {
                       Launcher.shareApk(AppConstant.apkUrl, context);
                     },
                     child: Container(
+                      padding: EdgeInsets.all(5),
                       height: screenHeight * 0.03,
-                      width: screenWidth * 0.16,
+                      // width: screenWidth * 0.16,
                       decoration: BoxDecoration(
                         color: PortColor.blue.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8.0),
@@ -111,7 +115,7 @@ class AccountDetail extends StatelessWidget {
                           ),
                           const SizedBox(width: 4.0),
                           TextConst(
-                            title: "Invite",
+                            title: loc.invite,
                             color: PortColor.blackList,
                             size: 12,
                           ),
@@ -124,7 +128,7 @@ class AccountDetail extends StatelessWidget {
             ),
           ),
           SizedBox(height: screenHeight * 0.02),
-          TextConst(title: "Support and Legal", color: PortColor.gray),
+          TextConst(title: loc.support_legal, color: PortColor.gray),
           SizedBox(height: screenHeight * 0.02),
           Container(
             height: screenHeight * 0.19,
@@ -144,15 +148,28 @@ class AccountDetail extends StatelessWidget {
             ),
             child: Column(
               children: [
-                buttonLayoutUi(context, Icons.help_outline,color: PortColor.rapidGreen ,"Help & Support",
+                buttonLayoutUi(context, Icons.help_outline,color: PortColor.rapidGreen ,loc.help_support,
                     page: const HelpSupport()),
-                buttonLayoutUi(context, Icons.copy_all, color: PortColor.darkBlue,"Terms and Condition",
+                buttonLayoutUi(context, Icons.copy_all, color: PortColor.darkBlue,loc.terms_condition,
                     page: const TermsCondition())
               ],
             ),
           ),
           SizedBox(height: screenHeight * 0.02),
-          TextConst(title: "Settings", color: PortColor.gray),
+          TextConst(title: loc.setting, color: PortColor.gray),
+          SizedBox(height: screenHeight * 0.02),
+          Material(
+              elevation: 3.0,
+              borderRadius: BorderRadius.circular(10.0),
+              shadowColor: PortColor.grey.withOpacity(0.5),
+              color: PortColor.white,
+              child: buttonLayoutUi(
+                context,
+                Icons.language,
+                color: PortColor.yellowCoin,
+                "Change Language",
+                page: ChangeLanguage(),
+              )),
           SizedBox(height: screenHeight * 0.02),
           Material(
             elevation: 3.0,
@@ -177,7 +194,7 @@ class AccountDetail extends StatelessWidget {
                   size: screenHeight * 0.025,
                 ),
               ),
-              title: TextConst(title: "Log Out", color: PortColor.black),
+              title: TextConst(title: loc.log_out, color: PortColor.black),
               trailing: Icon(
                 Icons.arrow_forward_ios_rounded,
                 color: PortColor.black,
@@ -201,7 +218,7 @@ class AccountDetail extends StatelessWidget {
           SizedBox(height: screenHeight * 0.04),
           Center(
             child: TextConst(
-                title: "App version ${AppConstant.appVersion}",
+                title: "${loc.app_version} ${AppConstant.appVersion}",
                 color: PortColor.gray),
           ),
           SizedBox(height: screenHeight * 0.04),
@@ -211,6 +228,7 @@ class AccountDetail extends StatelessWidget {
   }
 
   Widget logoutBottomSheet(context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       bottom: true,
       child: Padding(
@@ -220,7 +238,7 @@ class AccountDetail extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextConst(
-                title: "Are you sure you want to log out?",
+                title: loc.are_you_want_to_log,
                 color: PortColor.black),
             SizedBox(height: screenHeight * 0.03),
             Row(
@@ -243,7 +261,7 @@ class AccountDetail extends StatelessWidget {
                       child: TextConst(
                           fontWeight: FontWeight.w600,
                           fontFamily: AppFonts.kanitReg,
-                          title: "No", color: PortColor.blue),
+                          title: loc.no, color: PortColor.blue),
                     ),
                   ),
                 ),
@@ -270,7 +288,7 @@ class AccountDetail extends StatelessWidget {
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                     ),
                     child: Center(
-                      child: TextConst(title: "Yes", color: PortColor.white,fontFamily:AppFonts.kanitReg,fontWeight: FontWeight.w400,),
+                      child: TextConst(title: loc.yes, color: PortColor.white,fontFamily:AppFonts.kanitReg,fontWeight: FontWeight.w400,),
                     ),
                   ),
                 ),

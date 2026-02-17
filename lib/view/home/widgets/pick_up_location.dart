@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -22,6 +23,7 @@ class _PickUpLocationState extends State<PickUpLocation> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -83,7 +85,7 @@ class _PickUpLocationState extends State<PickUpLocation> {
                             constraints: BoxConstraints(
                               maxHeight: screenHeight * 0.055,
                             ),
-                            hintText: "Where is your pickup?",
+                            hintText: loc.where_is_pickup,
                             hintStyle: TextStyle(
                               color: PortColor.gray.withOpacity(0.5),
                               fontFamily: AppFonts.kanitReg,
@@ -191,118 +193,118 @@ class _PickUpLocationState extends State<PickUpLocation> {
                 )
 
               ),
-            const Spacer(),
-            Container(
-              height: screenHeight * 0.08,
-              color: PortColor.white,
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          transitionDuration: const Duration(milliseconds: 400),
-                          pageBuilder: (_, __, ___) => const UseCurrentLocation(),
-                          transitionsBuilder: (_, animation, __, child) {
-                            final offsetAnimation = Tween<Offset>(
-                              begin: const Offset(0, 1), // start from bottom
-                              end: Offset.zero,          // end at normal position
-                            ).animate(CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOutCubic,
-                            ));
-
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: child,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    child: SizedBox(
-                      height: 45,
-                      width: 160,
-                      child:  Row(
-                        children: [
-                          const Icon(
-                            Icons.my_location_outlined,
-                            color: PortColor.blue,
-                            size: 15,
-                          ),
-                          TextConst(
-                            title: " Use current location",
-                            color: PortColor.black,
-                            fontFamily: AppFonts.kanitReg,
-                            size: 14,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-
-                  // SizedBox(width: screenWidth * 0.04),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: screenHeight * 0.01,
-                    ),
-                    child: VerticalDivider(
-                      color: PortColor.gray.withOpacity(0.5),
-                      thickness: screenWidth * 0.002,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          transitionDuration: const Duration(milliseconds: 400),
-                          pageBuilder: (_, __, ___) => const UseCurrentLocation(),
-                          transitionsBuilder: (_, animation, __, child) {
-                            final offsetAnimation = Tween<Offset>(
-                              begin: const Offset(0, 1), // start from bottom
-                              end: Offset.zero,          // end at normal position
-                            ).animate(CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOutCubic,
-                            ));
-
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: child,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    child: SizedBox(
-                      height: 45,
-                      width: 160,
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on,
-                            color: PortColor.blue,
-                            size: 15,
-                          ),
-                          TextConst(
-                            title: " Locate on the map",
-                            color: PortColor.black,
-                            fontFamily: AppFonts.kanitReg,
-                            size: 14,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
+            // const Spacer(),
+            // Container(
+            //   height: screenHeight * 0.08,
+            //   color: PortColor.white,
+            //   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //     children: [
+            //       GestureDetector(
+            //         onTap: () {
+            //           Navigator.push(
+            //             context,
+            //             PageRouteBuilder(
+            //               transitionDuration: const Duration(milliseconds: 400),
+            //               pageBuilder: (_, __, ___) => const UseCurrentLocation(),
+            //               transitionsBuilder: (_, animation, __, child) {
+            //                 final offsetAnimation = Tween<Offset>(
+            //                   begin: const Offset(0, 1), // start from bottom
+            //                   end: Offset.zero,          // end at normal position
+            //                 ).animate(CurvedAnimation(
+            //                   parent: animation,
+            //                   curve: Curves.easeOutCubic,
+            //                 ));
+            //
+            //                 return SlideTransition(
+            //                   position: offsetAnimation,
+            //                   child: child,
+            //                 );
+            //               },
+            //             ),
+            //           );
+            //         },
+            //         child: SizedBox(
+            //           height: 45,
+            //           width: 160,
+            //           child:  Row(
+            //             children: [
+            //               const Icon(
+            //                 Icons.my_location_outlined,
+            //                 color: PortColor.blue,
+            //                 size: 15,
+            //               ),
+            //               TextConst(
+            //                 title: " Use current location",
+            //                 color: PortColor.black,
+            //                 fontFamily: AppFonts.kanitReg,
+            //                 size: 14,
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //
+            //
+            //       // SizedBox(width: screenWidth * 0.04),
+            //       Padding(
+            //         padding: EdgeInsets.symmetric(
+            //           vertical: screenHeight * 0.01,
+            //         ),
+            //         child: VerticalDivider(
+            //           color: PortColor.gray.withOpacity(0.5),
+            //           thickness: screenWidth * 0.002,
+            //         ),
+            //       ),
+            //       GestureDetector(
+            //         onTap: () {
+            //           Navigator.push(
+            //             context,
+            //             PageRouteBuilder(
+            //               transitionDuration: const Duration(milliseconds: 400),
+            //               pageBuilder: (_, __, ___) => const UseCurrentLocation(),
+            //               transitionsBuilder: (_, animation, __, child) {
+            //                 final offsetAnimation = Tween<Offset>(
+            //                   begin: const Offset(0, 1), // start from bottom
+            //                   end: Offset.zero,          // end at normal position
+            //                 ).animate(CurvedAnimation(
+            //                   parent: animation,
+            //                   curve: Curves.easeOutCubic,
+            //                 ));
+            //
+            //                 return SlideTransition(
+            //                   position: offsetAnimation,
+            //                   child: child,
+            //                 );
+            //               },
+            //             ),
+            //           );
+            //         },
+            //         child: SizedBox(
+            //           height: 45,
+            //           width: 160,
+            //           child: Row(
+            //             children: [
+            //               const Icon(
+            //                 Icons.location_on,
+            //                 color: PortColor.blue,
+            //                 size: 15,
+            //               ),
+            //               TextConst(
+            //                 title: " Locate on the map",
+            //                 color: PortColor.black,
+            //                 fontFamily: AppFonts.kanitReg,
+            //                 size: 14,
+            //               ),
+            //             ],
+            //           ),
+            //         ),
+            //       ),
+            //
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

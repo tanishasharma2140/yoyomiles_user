@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ class _HelpSupportState extends State<HelpSupport> {
   @override
   Widget build(BuildContext context) {
     final contactListVm = Provider.of<ContactListViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -67,7 +69,7 @@ class _HelpSupportState extends State<HelpSupport> {
                   ),
                   SizedBox(width: screenWidth * 0.25),
                   TextConst(
-                    title: "Contact Support",
+                    title: loc.contact_support,
                     color: PortColor.black,
                     size: 17,
                     fontWeight: FontWeight.w600,
@@ -83,7 +85,7 @@ class _HelpSupportState extends State<HelpSupport> {
                 vertical: screenHeight * 0.023,
               ),
               child: TextConst(
-                title: "Need help with your orders?",
+                title: loc.need_help,
                 color: PortColor.black.withOpacity(0.5),
               ),
             ),
@@ -115,9 +117,9 @@ class _HelpSupportState extends State<HelpSupport> {
                       contactListVm.contactListModel!.data!.isEmpty)
                       ? SizedBox(
                     height: screenHeight * 0.15,
-                    child: const Center(
+                    child:  Center(
                       child: Text(
-                        "No data found",
+                        loc.no_data_found,
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 16,
@@ -201,7 +203,7 @@ class _HelpSupportState extends State<HelpSupport> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: "Any Other question?\n",
+                                text: loc.any_other,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: PortColor.black,
@@ -210,7 +212,7 @@ class _HelpSupportState extends State<HelpSupport> {
                                 ),
                               ),
                               TextSpan(
-                                text: "Call or Mail us!",
+                                text: loc.call_or_mail,
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   fontFamily: AppFonts.kanitReg,
@@ -281,6 +283,7 @@ class _HelpSupportState extends State<HelpSupport> {
         contactListVm.contactListModel?.sosNumber ?? "6306513131";
     final String sosMessage =
         contactListVm.contactListModel?.sosMessage ?? "Hello";
+    final loc = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -301,7 +304,7 @@ class _HelpSupportState extends State<HelpSupport> {
           /// LEFT INFO
           Expanded(
             child: Row(
-              children: const [
+              children:  [
                 Icon(
                   Icons.warning_amber_rounded,
                   color: Colors.red,
@@ -309,7 +312,7 @@ class _HelpSupportState extends State<HelpSupport> {
                 ),
                 SizedBox(width: 6),
                 TextConst(
-                  title: "Emergency",
+                  title: loc.emergency,
                   size: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -332,8 +335,8 @@ class _HelpSupportState extends State<HelpSupport> {
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const TextConst(
-                title: "SOS",
+              child:  TextConst(
+                title: loc.sos,
                 color: Colors.white,
                 size: 13,
                 fontWeight: FontWeight.bold,
@@ -349,7 +352,7 @@ class _HelpSupportState extends State<HelpSupport> {
             onTap: () {
               _openWhatsApp(
                 phone: supportNumber,
-                message: "Hello Support, I need help with my ongoing ride.",
+                message: loc.hello_support,
               );
             },
             child: Container(

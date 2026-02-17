@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -57,6 +58,7 @@ class _CityToggleState extends State<CityToggle> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -83,7 +85,7 @@ class _CityToggleState extends State<CityToggle> {
                     ),
                     child: Center(
                       child: Text(
-                        "Within City",
+                        loc.within_city,
                         style: TextStyle(
                           color: isWithinCitySelected ? Colors.black : Colors.grey.shade700,
                           fontWeight: FontWeight.w600,
@@ -109,7 +111,7 @@ class _CityToggleState extends State<CityToggle> {
                     ),
                     child: Center(
                       child: Text(
-                        "Between Cities",
+                        loc.between_cities,
                         style: TextStyle(
                           color: !isWithinCitySelected ? Colors.black : Colors.grey.shade700,
                           fontWeight: FontWeight.w600,

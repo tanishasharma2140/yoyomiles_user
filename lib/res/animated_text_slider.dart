@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
@@ -12,49 +14,65 @@ class AnimatedTextSlider extends StatefulWidget {
 
 class _AnimatedTextSliderState extends State<AnimatedTextSlider> {
   final PageController _controller = PageController();
-  final List<String> _texts = [
-    "Introducing Yoyomiles Enterprise",
-    "Safety ki shart Lagi!",
-    "Introducing Loading unloading",
-  ];
   int _currentPage = 0;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // 🔹 Auto-slide every 2.5 seconds
-    Future.delayed(const Duration(milliseconds: 2500), _autoSlide);
+
+    // Auto slide every 3 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (!mounted) return;
+
+      setState(() {
+        _currentPage++;
+      });
+    });
   }
 
-  void _autoSlide() {
-    if (!mounted) return;
-
-    setState(() {
-      _currentPage = (_currentPage + 1) % _texts.length;
-    });
-
-
-    _controller.animateToPage(
-      _currentPage,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
-
-    // Repeat after 3 seconds
-    Future.delayed(const Duration(seconds: 3), _autoSlide);
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
+    final texts = [
+      loc.introduce_yoyo,
+      loc.safety_ki_shart,
+      loc.introduce_load_unload,
+    ];
+
+    // Reset page if overflow
+    if (_currentPage >= texts.length) {
+      _currentPage = 0;
+    }
+
+    // Animate to page
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_controller.hasClients) {
+        _controller.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 🔹 Text Slider
+        /// 🔹 Text Slider
         SizedBox(
           height: 25,
           child: PageView.builder(
             controller: _controller,
-            itemCount: _texts.length,
+            itemCount: texts.length,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
               return Center(
@@ -62,7 +80,7 @@ class _AnimatedTextSliderState extends State<AnimatedTextSlider> {
                   opacity: _currentPage == index ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 500),
                   child: TextConst(
-                    title: _texts[index],
+                    title: texts[index],
                     fontFamily: AppFonts.kanitReg,
                     color: PortColor.blackLight,
                     overflow: TextOverflow.ellipsis,
@@ -73,20 +91,23 @@ class _AnimatedTextSliderState extends State<AnimatedTextSlider> {
           ),
         ),
 
-        const SizedBox(height: 5),
+        const SizedBox(height: 6),
 
-        // 🔹 Dots Indicator
+        /// 🔹 Dots Indicator
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_texts.length, (index) {
+          children: List.generate(texts.length, (index) {
             bool isActive = _currentPage == index;
+
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: isActive ? 10 : 6,
+              width: isActive ? 12 : 6,
               height: 6,
               decoration: BoxDecoration(
-                color: isActive ? PortColor.blackLight : Colors.grey.shade400,
+                color: isActive
+                    ? PortColor.blackLight
+                    : Colors.grey.shade400,
                 borderRadius: BorderRadius.circular(10),
               ),
             );
@@ -94,11 +115,5 @@ class _AnimatedTextSliderState extends State<AnimatedTextSlider> {
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

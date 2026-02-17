@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -71,6 +72,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
     final paytmVm = Provider.of<PaymentViewModel>(context);
     // final addMoneyPaymentVm = Provider.of<AddMoneyPaymentViewModel>(context);
     final profileVm = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return PopScope(
       onPopInvokedWithResult: (val, res) {
@@ -103,7 +105,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: TextConst(
-                    title: "Payment",
+                    title: loc.payments,
                     color: PortColor.black,
                     fontFamily: AppFonts.kanitReg,
                     size: 17,
@@ -134,7 +136,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             );
                           },
                           child: TextConst(
-                            title: "Yoyomiles credits",
+                            title: loc.yoyomiles_credit,
                             color: PortColor.black,
                             fontFamily: AppFonts.poppinsReg,
                           ),
@@ -167,7 +169,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                             child: Align(
                               alignment: Alignment.center,
                               child: TextConst(
-                                title: 'Add Money',
+                                title: loc.add_money,
                                 color: PortColor.black,
                                 fontFamily: AppFonts.poppinsReg,
                                 size: 12,
@@ -178,7 +180,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                       ],
                     ),
                     TextConst(
-                      title: "Balance ₹${profileVm.profileModel?.data?.wallet??"e"}",
+                      title: "${loc.balance} ₹${profileVm.profileModel?.data?.wallet??"e"}",
                       color: PortColor.gray,
                       size: 13,
                     ),
@@ -219,7 +221,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(height: screenHeight * 0.015),
-                          TextConst(title: "Add Money", color: PortColor.black),
+                          TextConst(title: loc.add_money, color: PortColor.black),
                           SizedBox(height: screenHeight * 0.014),
                           Row(
                             children: [
@@ -233,7 +235,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                                     FilteringTextInputFormatter.digitsOnly,
                                   ],
                                   decoration: InputDecoration(
-                                    hintText: 'Enter Amount',
+                                    hintText: loc.enter_amount,
                                     hintStyle: const TextStyle(
                                       color: PortColor.gray,
                                     ),
@@ -292,7 +294,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                               } else {
                                 Utils.showErrorMessage(
                                   context,
-                                  "Enter Amount At-least ₹10",
+                                  loc.at_least,
                                 );
                               }
                             }
@@ -311,7 +313,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
                               child: Center(
                                 child: !paytmVm.loading
                                     ? TextConst(
-                                  title: "Proceed",
+                                  title: loc.proceed,
                                   fontFamily: AppFonts.kanitReg,
                                   color: isProceedEnabled
                                       ? PortColor.black

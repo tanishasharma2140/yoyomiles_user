@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -26,6 +27,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
   Widget build(BuildContext context) {
     final profileUpdateViewModel = Provider.of<ProfileUpdateViewModel>(context);
     final profileViewModel = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -75,7 +77,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
                           context,
                         );
                       },
-                      child: TextConst(title: "Save", color: PortColor.black),
+                      child: TextConst(title: loc.save, color: PortColor.black),
                     ),
                   ],
                 ),
@@ -86,7 +88,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
                   top: screenHeight * 0.02,
                 ),
                 child: TextConst(
-                  title: "Mobile Number",
+                  title: loc.mob_num,
                   color: PortColor.gray,
                   fontFamily: AppFonts.kanitReg,
                 ),
@@ -106,7 +108,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
                     ),
                     SizedBox(width: screenWidth * 0.02),
                     TextConst(
-                      title: "Cannot be changed",
+                      title: loc.can_not_change,
                       color: PortColor.gray,
                       fontFamily: AppFonts.poppinsReg,
                     ),
@@ -213,7 +215,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
                       ),
                       SizedBox(height: screenHeight * 0.04),
                       TextConst(
-                        title: "GST Details",
+                        title: loc.gst_detail,
                         fontWeight: FontWeight.w600,
                         size: 16,
                         color: PortColor.black.withOpacity(0.7),
@@ -278,7 +280,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
                                     .profileModel
                                     ?.data
                                     ?.gstNumber ??
-                                "GSTIN No",
+                                loc.gst_no,
                             hintStyle: TextStyle(
                               color: PortColor.black.withOpacity(0.5),
                               fontSize: 16,
@@ -307,7 +309,7 @@ class _AddGstDetailState extends State<AddGstDetail> {
                                     .profileModel
                                     ?.data
                                     ?.gstAddress ??
-                                "GST Registration Address ",
+                                loc.gst_address_no,
                             hintStyle: TextStyle(
                               color: PortColor.black.withOpacity(0.5),
                               fontSize: 16,

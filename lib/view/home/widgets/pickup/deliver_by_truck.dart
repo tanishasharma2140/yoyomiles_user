@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -128,6 +129,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
     // final orderType = orderViewModel.pickupData["order_type"] ?? "N/A";
     // final orderTime = orderViewModel.pickupData["order_time"] ?? "N/A";
+    final loc = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -337,7 +339,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
                                       maxHeight: screenHeight * 0.055),
-                                  hintText: "Where is your Drop?",
+                                  hintText: loc.where_is_drop,
                                   hintStyle: TextStyle(
                                     color: PortColor.gray.withOpacity(0.5),
                                     fontSize: 15,

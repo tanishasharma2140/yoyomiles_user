@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
@@ -27,6 +28,7 @@ class _GoodsTypeScreenState extends State<GoodsTypeScreen> {
   @override
   Widget build(BuildContext context) {
     final goodType = Provider.of<GoodsTypeViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +40,7 @@ class _GoodsTypeScreenState extends State<GoodsTypeScreen> {
         elevation: 0,
         backgroundColor: Colors.white,
         title: TextConst(
-          title: "Select your goods type",
+          title: loc.select_good_type,
           size: 16,
           color: PortColor.black,
           fontWeight: FontWeight.w600,
@@ -57,9 +59,9 @@ class _GoodsTypeScreenState extends State<GoodsTypeScreen> {
                     goodType.goodsTypeModel!.data == null ||
                     goodType.goodsTypeModel!.data!.isEmpty) {
                   // ✅ No data found
-                  return const Center(
+                  return  Center(
                     child: Text(
-                      "No Data Found",
+                        loc.no_data_found,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -123,7 +125,7 @@ class _GoodsTypeScreenState extends State<GoodsTypeScreen> {
                 });
               },
               child: Text(
-                "Update",
+                loc.update,
                 style: TextStyle(
                   color: selectedIndex == null ? Colors.black : Colors.black,
                   fontFamily: AppFonts.kanitReg,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -27,6 +28,7 @@ class _TermsAndConditionState extends State<TermsAndCondition> {
   @override
   Widget build(BuildContext context) {
     final termsPolicyVm = Provider.of<PolicyViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -53,7 +55,7 @@ class _TermsAndConditionState extends State<TermsAndCondition> {
                   SizedBox(width: screenWidth * 0.06),
                   SizedBox(width: screenWidth * 0.24),
                   TextConst(
-                    title: "Terms and Condition",
+                    title: loc.terms_condition,
                     color: PortColor.black,
                   ),
                   SizedBox(width: screenWidth * 0.16),

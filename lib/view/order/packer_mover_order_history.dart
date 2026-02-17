@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/model/packer_mover_order_history_model.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -27,6 +28,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
   }
 
   Widget _buildOrderCard(Orders order) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -53,9 +55,9 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                   size: 16,
                   color: PortColor.blackLight,
                 ),
-                const SizedBox(width: 6),
+                 SizedBox(width: 6),
                 TextConst(
-                  title: "Shifting Date: ${order.shiftingDate}",
+                  title: "${loc.shifting_date} ${order.shiftingDate}",
                   color: PortColor.gold,
                   size: 12,
                 ),
@@ -97,7 +99,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                           ),
                           const SizedBox(width: 6),
                           TextConst(
-                            title: "Pickup",
+                            title: loc.pickup,
                             color: PortColor.blackLight,
                             fontWeight: FontWeight.w600,
                             size: 12,
@@ -151,7 +153,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                           ),
                           const SizedBox(width: 6),
                           TextConst(
-                            title: "Drop",
+                            title: loc.drop,
                             color: PortColor.blackLight,
                             fontWeight: FontWeight.w600,
                             size: 12,
@@ -198,7 +200,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                           color: Color(0xFF3A78F2), // Dark blue
                         ),
                         TextConst(
-                          title: "Total Charges",
+                          title: loc.total_charges,
                           size: 10,
                           color: Color(0xFF3A78F2),
                         ),
@@ -230,7 +232,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                           color: PortColor.blue,
                         ),
                         TextConst(
-                          title: "Distance",
+                          title: loc.distance,
                           size: 10,
                           color: PortColor.blue,
                         ),
@@ -262,7 +264,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                           color: PortColor.gold,
                         ),
                         TextConst(
-                          title: "Items",
+                          title: loc.items,
                           size: 10,
                           color: PortColor.gold,
                         ),
@@ -293,7 +295,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                   ),
                   alignment: Alignment.center,
                   child: TextConst(
-                    title: "View Order Details",
+                    title: loc.view_order_de,
                     color: PortColor.white,
                     fontWeight: FontWeight.w600,
                   ),
@@ -307,6 +309,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
   }
 
   Widget buildAgentStatus(Orders order) {
+    final loc = AppLocalizations.of(context)!;
     final status = order.assignAgentStatus; // 0 or 1
     final agentName = order.agentName ?? "";
     final agentNumber = order.agentMobile ?? "";
@@ -316,7 +319,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Assigned Soon",
+            loc.assigned_soon,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -324,7 +327,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
             ),
           ),
           Text(
-            "Agent waiting...",
+            loc.agent_waiting,
             style: TextStyle(fontSize: 12, color: Colors.grey[700]),
           ),
         ],
@@ -336,7 +339,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Assigned",
+          loc.assigned,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -345,12 +348,12 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
         ),
         SizedBox(height: 4),
         Text(
-          "Agent Name: $agentName",
+          "${loc.agent_name} $agentName",
           style: TextStyle(fontSize: 12, color: Colors.black87),
         ),
         SizedBox(height: 6,),
         Text(
-          "Mobile: $agentNumber",
+          "${loc.mob}: $agentNumber",
           style: TextStyle(fontSize: 12, color: Colors.black87),
         ),
       ],
@@ -358,6 +361,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
   }
 
   void _showOrderDetails(BuildContext context, Orders order) {
+    final loc = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -394,7 +398,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextConst(
-                    title: "Order Details",
+                    title: loc.order_detail,
                     size: 17,
                     fontWeight: FontWeight.w700,
                     color: PortColor.blackLight,
@@ -414,16 +418,16 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Order Summary
-                    _buildDetailSection("Order Summary", Icons.receipt, [
-                      _buildDetailRow("Order ID", "#${order.id}"),
-                      _buildDetailRow("Total Items", "${order.totalQuantity}"),
+                    _buildDetailSection(loc.order_summary, Icons.receipt, [
+                      _buildDetailRow(loc.order_id, "#${order.id}"),
+                      _buildDetailRow(loc.total_items, "${order.totalQuantity}"),
                       _buildDetailRow(
-                        "Total Charges",
+                        loc.total_charges,
                         "₹${order.totalCharges}",
                       ),
-                      _buildDetailRow("Distance", "${order.distance} km"),
+                      _buildDetailRow(loc.distance, "${order.distance} km"),
                       _buildDetailRow(
-                        "Shifting Date",
+                        loc.shifting_date,
                         order.shiftingDate ?? "",
                       ),
                     ]),
@@ -431,14 +435,14 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                     const SizedBox(height: 20),
 
                     // Address Details
-                    _buildDetailSection("Address Details", Icons.location_on, [
+                    _buildDetailSection(loc.add_detail, Icons.location_on, [
                       _buildDetailRow(
-                        "Pickup",
+                        loc.pickup,
                         order.pickupAddress ?? "",
                         isMultiLine: true,
                       ),
                       _buildDetailRow(
-                        "Drop",
+                        loc.drop,
                         order.dropAddress ?? "",
                         isMultiLine: true,
                       ),
@@ -448,7 +452,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
 
                     // Items List
                     _buildDetailSection(
-                      "Items (${order.totalItem?.length ?? 0})",
+                      "${loc.items} (${order.totalItem?.length ?? 0})",
                       Icons.inventory_2,
                       [
                         if (order.totalItem != null)
@@ -505,32 +509,32 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
 
                     // Charges Breakdown
                     _buildDetailSection(
-                      "Charges Breakdown",
+                      loc.charges_break,
                       Icons.attach_money,
                       [
                         _buildDetailRow(
-                          "Single Layer",
+                          loc.single_layer,
                           "₹${order.singleLayerCharges}",
                         ),
                         _buildDetailRow(
-                          "Multi Layer",
+                          loc.multi_layer,
                           "₹${order.multiLayerCharges}",
                         ),
                         _buildDetailRow(
-                          "Unpacking",
+                          loc.unpackaging,
                           "₹${order.unpackingCharges}",
                         ),
                         _buildDetailRow(
-                          "Dismantle/Reassembly",
+                          loc.dismantle,
                           "₹${order.dismantleReassemblyCharges}",
                         ),
                         _buildDetailRow(
-                          "Lift Charges",
+                          loc.lift_charges,
                           "₹${order.liftCharges}",
                         ),
                         const Divider(),
                         _buildDetailRow(
-                          "Total Amount",
+                          loc.total_charges,
                           "₹${order.totalCharges}",
                           isBold: true,
                           valueColor: PortColor.rapidGreenLight,
@@ -624,11 +628,12 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
     final packerMoverHistoryVm = Provider.of<PackerMoverOrderHistoryViewModel>(
       context,
     );
+    final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: TextConst(
-          title: "Order History",
+          title: loc.order_his,
           size: 18,
           fontWeight: FontWeight.w600,
           color: PortColor.blackLight,
@@ -650,14 +655,14 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
               child: Column(
                 children: [
                   TextConst(
-                    title: "Your Moving Orders",
+                    title: loc.your_moving,
                     size: 16,
                     fontWeight: FontWeight.w600,
                     color: PortColor.blackLight,
                   ),
                   const SizedBox(height: 4),
                   TextConst(
-                    title: "See all your packer & mover orders",
+                    title: loc.see_all,
                     textAlign: TextAlign.center,
                     size: 12,
                     color: PortColor.gray,
@@ -691,7 +696,7 @@ class _PackerMoverOrderHistoryState extends State<PackerMoverOrderHistory> {
                           Icon(Icons.history, size: 64, color: PortColor.gray),
                           const SizedBox(height: 16),
                           TextConst(
-                            title: "No Orders Yet",
+                            title: loc.no_order_yet,
                             size: 18,
                             color: PortColor.gray,
                           ),

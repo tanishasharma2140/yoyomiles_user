@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
 import 'package:yoyomiles/view_model/payment_view_model.dart';
@@ -116,6 +117,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     if (_noDriverDialogShown) return;
     _noDriverDialogShown = true;
     _cancelSearchTimeoutTimer();
+    final loc = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -143,9 +145,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 const SizedBox(height: 12),
 
                 // TITLE
-                const TextConst(
+                 TextConst(
                   title:
-                  "We Couldn't Find a Driver",
+                  loc.we_couldnot_find,
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w700,
                   size: 14,
@@ -157,7 +159,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 // MESSAGE
                 TextConst(
                   title:
-                  "It seems there are no drivers available on this route right now. Please try again in a little while.",
+                  loc.it_seems_there_are_no_drivers,
                   textAlign: TextAlign.center,
                     size: 11, color: Colors.grey.shade600                ),
 
@@ -191,8 +193,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      "OK",
+                    child:  Text(
+                      loc.oK,
                       style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
                   ),
@@ -210,6 +212,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       context,
       listen: false,
     );
+    final loc = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -245,7 +248,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       ),
                     ),
                     TextConst(
-                      title: "Cancel Ride",
+                      title: loc.cancel_ride,
                       color: PortColor.black,
                       fontWeight: FontWeight.w600,
                       size: 18,
@@ -282,7 +285,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text("Go Back"),
+                            child:  Text(loc.go_back),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -308,7 +311,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                             ),
-                            child: const Text("Submit"),
+                            child:  Text(loc.submit),
                           ),
                         ),
                       ],
@@ -326,6 +329,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   void _showRideCompletedDialogMethod() {
     if (_showRideCompletedDialog) return;
     _showRideCompletedDialog = true;
+    final loc = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -345,7 +349,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 Icon(Icons.check_circle, color: Colors.green, size: 50),
                 const SizedBox(height: 15),
                 Text(
-                  "Ride Completed!🎉",
+                  loc.ride_completed,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -353,8 +357,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Your ride has been completed successfully. Thank you!",
+                 Text(
+                  loc.your_ride_has_been,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
                 ),
@@ -378,7 +382,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       (route) => false,
                     );
                   },
-                  child: const Text("OK",style: TextStyle(color: Colors.white),),
+                  child:  Text(loc.oK,style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),
@@ -391,6 +395,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   void _showRideCancelledDialogMethod(String orderId) {
     if (_showRideCancelledDialog) return;
     _showRideCancelledDialog = true;
+    final loc = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -408,17 +413,17 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               children: [
                 Icon(Icons.cancel, color: Colors.red, size: 50),
                 const SizedBox(height: 15),
-                const TextConst(
+                 TextConst(
                   title:
-                  "Ride Cancelled!",
+                  loc.ride_cancelled,
                   size: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.red,
                 ),
                 const SizedBox(height: 10),
-                const TextConst(
+                 TextConst(
                   title:
-                  "Your ride has been cancelled by driver",
+                  loc.your_ride_has_been,
                   textAlign: TextAlign.center,
                     color: Colors.grey
                 ),
@@ -446,7 +451,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                           (route) => false,
                     );
                   },
-                  child: const Text("Ok",style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
+                  child:  Text(loc.oK,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
                 ),
               ],
             ),
@@ -457,27 +462,29 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   String _getRideStatusText(int rideStatus) {
+    final loc = AppLocalizations.of(context)!;
     switch (rideStatus) {
+
       case 0:
-        return "Waiting for driver";
+        return loc.ride_status_waiting;
       case 1:
-        return "Accepted by driver";
+        return loc.ride_status_accepted;
       case 2:
-        return "On the way to pickup";
+        return loc.ride_status_on_the_way;
       case 3:
-        return "Arrived at Pickup Point";
+        return loc.ride_status_arrived;
       case 4:
-        return "OTP Verified - Ride Started";
+        return loc.ride_status_otp_verified;
       case 5:
-        return "Reached destination";
+        return loc.ride_status_reached;
       case 6:
-        return "Ride Completed Successfully";
+        return loc.ride_status_completed;
       case 7:
-        return "Cancelled by User";
+        return loc.ride_status_cancel_user;
       case 8:
-        return "Cancelled by Driver";
+        return loc.ride_status_cancel_driver;
       default:
-        return "Waiting for driver";
+        return loc.ride_status_waiting;
     }
   }
 
@@ -510,6 +517,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Future<bool> _onBackPressed() async {
+    final loc = AppLocalizations.of(context)!;
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => Dialog(
@@ -522,15 +530,15 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.red, size: 42),
               const SizedBox(height: 18),
-              const TextConst(
+               TextConst(
                 title:
-                "Exit Ride?",
+                 loc.exit_ride,
                   size: 20, fontWeight: FontWeight.w700
               ),
               const SizedBox(height: 10),
-              const TextConst(
+               TextConst(
                 title:
-                "Are you sure you want to exit this ride?",
+                loc.are_you_sure_you_want,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 26),
@@ -539,7 +547,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child: const Text("No",style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.black),),
+                      child:  Text(loc.no,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.black),),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -564,7 +572,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      child: const Text("Yes",style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
+                      child:  Text(loc.yes,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
                     ),
                   ),
                 ],
@@ -579,6 +587,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -592,8 +601,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               if (await _onBackPressed()) Navigator.pop(context);
             },
           ),
-          title: const Text(
-            "Trip Status",
+          title:  Text(
+            loc.trip_status,
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         ),
@@ -797,13 +806,14 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Widget _buildSearchingStatus() {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           TextConst(
-            title: "Searching for drivers nearby...",
+            title: loc.searching_for_driver,
             color: PortColor.gold,
           ),
           const SizedBox(height: 16),
@@ -875,6 +885,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Widget _buildOtpSection(String otp) {
+    final loc = AppLocalizations.of(context)!;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -891,7 +903,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               Icon(Icons.lock, color: Colors.blue),
               const SizedBox(width: 8),
               Text(
-                "Your Trip OTP",
+                loc.your_trip_otp,
                 style: TextStyle(
                   color: Colors.blue[800],
                   fontWeight: FontWeight.w600,
@@ -923,6 +935,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Widget _buildEmergencySection() {
+    final loc = AppLocalizations.of(context)!;
     final contactListVm =
     Provider.of<ContactListViewModel>(context, listen: false);
 
@@ -950,7 +963,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           /// LEFT INFO
           Expanded(
             child: Row(
-              children: const [
+              children:  [
                 Icon(
                   Icons.warning_amber_rounded,
                   color: Colors.red,
@@ -958,7 +971,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 ),
                 SizedBox(width: 6),
                 TextConst(
-                  title: "Emergency",
+                  title: loc.emergency,
                   size: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -981,8 +994,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const TextConst(
-                title: "SOS",
+              child:  TextConst(
+                title: loc.sos,
                 color: Colors.white,
                 size: 13,
                 fontWeight: FontWeight.bold,
@@ -998,7 +1011,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             onTap: () {
               _openWhatsApp(
                 phone: supportNumber,
-                message: "Hello Support, I need help with my ongoing ride.",
+                message: loc.hello_support,
               );
             },
             child: Container(
@@ -1023,11 +1036,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
 
   Widget _buildPaymentContainer(int payMode, Map<String, dynamic> orderData) {
+    final loc = AppLocalizations.of(context)!;
+
     final method = payMode == 2
-        ? "Online"
+        ? loc.online
         : payMode == 3
-        ? "Wallet"
-        : "Cash";
+        ? loc.wallet
+        : loc.cash;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(14),
@@ -1044,8 +1059,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(method, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const Text(
-                "Payment method",
+               Text(
+                loc.payment_method,
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
@@ -1061,6 +1076,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Widget _buildCancelButton() {
+    final loc = AppLocalizations.of(context)!;
+
     return GestureDetector(
       onTap: _showCancelBottomSheet,
       child: Container(
@@ -1071,14 +1088,16 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
-          child: TextConst(title: "Cancel Ride", color: Colors.red, size: 16),
+          child: TextConst(title: loc.cancel_ride, color: Colors.red, size: 16),
         ),
       ),
     );
   }
 
   Widget _buildCompletionMessage(int status, int payMode) {
-    String message = status == 4 ? "🚗 Ride Started!" : "🎉 Trip Completed!";
+    final loc = AppLocalizations.of(context)!;
+
+    String message = status == 4 ? loc.ride_started : loc.trip_comple;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -1103,6 +1122,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 class CollectPaymentScreen extends StatelessWidget {
   final String orderId;
 
+
+
   const CollectPaymentScreen({super.key, required this.orderId});
 
   /// 💰 Complete Cash Payment
@@ -1120,6 +1141,7 @@ class CollectPaymentScreen extends StatelessWidget {
 
   /// 💳 Complete Online Payment
   void _completeOnlinePayment(BuildContext context) {
+
     final paymentVm = Provider.of<PaymentViewModel>(context, listen: false);
     final driverRideVm = Provider.of<DriverRideViewModel>(
       context,
@@ -1144,6 +1166,7 @@ class CollectPaymentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Consumer<DriverRideViewModel>(
       builder: (context, driverRideVm, child) {
         final payMode = driverRideVm.payMode;
@@ -1170,7 +1193,7 @@ class CollectPaymentScreen extends StatelessWidget {
             ),
             body: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding:  EdgeInsets.all(24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -1193,7 +1216,7 @@ class CollectPaymentScreen extends StatelessWidget {
 
                     // 🔥 Title
                     Text(
-                      payMode == 1 ? "Cash Payment" : "Online Payment",
+                      payMode == 1 ? loc.cash_payment : loc.online_payment,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -1255,7 +1278,7 @@ class CollectPaymentScreen extends StatelessWidget {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                "Please pay cash to the driver",
+                                loc.please_pay_cash_to,
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.black87,
@@ -1292,8 +1315,8 @@ class CollectPaymentScreen extends StatelessWidget {
                       // ),
                     ] else ...[
                       // ✅ ONLINE PAYMENT UI
-                      const Text(
-                        "Complete your online payment below",
+                       Text(
+                        loc.complete_your_online_payment,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey, fontSize: 16),
                       ),
@@ -1317,7 +1340,7 @@ class CollectPaymentScreen extends StatelessWidget {
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children:  [
                               Icon(
                                 Icons.lock,
                                 color: Colors.white,
@@ -1326,7 +1349,7 @@ class CollectPaymentScreen extends StatelessWidget {
                               SizedBox(width: 8),
                               TextConst(
                                 title:
-                                "Pay Now",
+                                loc.pay_now,
                                 color: Colors.white,
                                 size: 16,
                                 fontWeight: FontWeight.bold,
@@ -1337,33 +1360,6 @@ class CollectPaymentScreen extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 10),
-
-                      // Payment Methods Info
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[50],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.security,
-                              color: Colors.grey[600],
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              "Secure payment powered by Razorpay",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ],
                 ),

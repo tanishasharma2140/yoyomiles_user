@@ -6,6 +6,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -50,6 +51,7 @@ class _OrderPageState extends State<OrderPage> {
   @override
   Widget build(BuildContext context) {
     final userHistoryViewModel = Provider.of<UserHistoryViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return Column(
       children: [
         Container(
@@ -70,7 +72,7 @@ class _OrderPageState extends State<OrderPage> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: TextConst(
-              title: "  Orders",
+              title: loc.orders,
               color: PortColor.black,
               fontFamily: AppFonts.kanitReg,
               size: 17,
@@ -92,6 +94,7 @@ class _OrderPageState extends State<OrderPage> {
 
   Widget orderListUi() {
     final userHistoryViewModel = Provider.of<UserHistoryViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -113,7 +116,7 @@ class _OrderPageState extends State<OrderPage> {
                   horizontal: screenWidth * 0.03,
                   vertical: screenHeight * 0.01,
                 ),
-                child: TextConst(title: "Past", color: PortColor.gray),
+                child: TextConst(title: loc.past, color: PortColor.gray),
               ),
               Container(
                 padding: EdgeInsets.symmetric(
@@ -338,15 +341,15 @@ class _OrderPageState extends State<OrderPage> {
                               child: Row(
                                 children: [
                                   TextConst(
-                                    title: "Payment Status: ",
+                                    title: loc.payment_status,
                                     color: PortColor.black,
                                     fontFamily: AppFonts.kanitReg,
                                     size: 12,
                                   ),
                                   TextConst(
                                     title: history.rideStatus == 6
-                                        ? "Success"
-                                        : "Failed",
+                                        ? loc.success
+                                        : loc.failed,
                                     color: history.rideStatus == 6
                                         ? Colors.green
                                         : Colors.red,
@@ -366,19 +369,19 @@ class _OrderPageState extends State<OrderPage> {
                               child: Row(
                                 children: [
                                   TextConst(
-                                    title: "Pay Mode: ",
+                                    title: loc.pay,
                                     color: PortColor.black,
                                     fontFamily: AppFonts.kanitReg,
                                     size: 12,
                                   ),
                                   TextConst(
                                     title: history.paymode == 1
-                                        ? "Cash on Delivery"
+                                        ? loc.cash_on_delivery
                                         : history.paymode == 2
-                                        ? "Online Payment"
+                                        ? loc.online_payment
                                         : history.paymode == 3
-                                        ? "By Wallet"
-                                        : "Nothing",
+                                        ? loc.by_wallet
+                                        : loc.nothing,
                                     color: PortColor.gray,
                                     fontFamily: AppFonts.poppinsReg,
                                     size: 12,
@@ -422,12 +425,12 @@ class _OrderPageState extends State<OrderPage> {
                               const SizedBox(width: 6),
                               TextConst(
                                 title: history.rideStatus == 6
-                                    ? "Completed"
+                                    ? loc.completed
                                     : history.rideStatus == 7
-                                    ? "Cancel by User"
+                                    ? loc.cancel_by_user
                                     : history.rideStatus == 8
-                                    ? "Cancel by Driver"
-                                    : "Nothing",
+                                    ? loc.cancel_by_driver
+                                    : loc.nothing,
                                 color: history.rideStatus == 6
                                     ? Colors.green
                                     : history.rideStatus == 7
@@ -503,7 +506,7 @@ class _OrderPageState extends State<OrderPage> {
                                         ),
                                         SizedBox(width: 6),
                                         TextConst(
-                                          title: 'Rate Ride',
+                                          title: loc.rate_ride,
                                           color: Colors.white,
                                           fontFamily: AppFonts.kanitReg,
                                           size: 14,
@@ -530,6 +533,7 @@ class _OrderPageState extends State<OrderPage> {
       context,
       listen: false,
     );
+    final loc = AppLocalizations.of(context)!;
 
     double _rating = 0.0;
 
@@ -551,7 +555,7 @@ class _OrderPageState extends State<OrderPage> {
                   children: [
                     // Title
                     Text(
-                      'Rate Your Ride',
+                      loc.rate_your_ride,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -585,8 +589,8 @@ class _OrderPageState extends State<OrderPage> {
                     // Rating Text
                     Text(
                       _rating == 0
-                          ? 'Tap to rate your experience'
-                          : '${_rating.toInt()}.0 Star Rating',
+                          ? loc.tap_to_rate_your
+                          : '${_rating.toInt()} ${loc.point_zero}',
                       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
 
@@ -610,7 +614,7 @@ class _OrderPageState extends State<OrderPage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  'Cancel',
+                                  loc.cancel,
                                   style: TextStyle(
                                     color: Colors.grey[700],
                                     fontSize: 16,
@@ -651,7 +655,7 @@ class _OrderPageState extends State<OrderPage> {
                                         ),
                                       )
                                     : Text(
-                                        'Submit',
+                                        loc.submit,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -675,6 +679,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget noOrderFoundUi() {
+    final loc = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: SizedBox(
@@ -695,20 +700,20 @@ class _OrderPageState extends State<OrderPage> {
             ),
             SizedBox(height: screenHeight * 0.03),
             TextConst(
-              title: "No Orders !",
+              title: loc.no_orders,
               color: PortColor.black,
               fontFamily: AppFonts.kanitReg,
               size: 14,
             ),
             SizedBox(height: screenHeight * 0.01),
             TextConst(
-              title: 'Order history limited to last 2 years',
+              title: loc.order_history,
               color: PortColor.gray,
               fontFamily: AppFonts.poppinsReg,
               size: 12,
             ),
             TextConst(
-              title: 'For older orders, contact our support team.',
+              title: loc.for_older,
               color: PortColor.gray,
               fontFamily: AppFonts.poppinsReg,
               size: 12,
@@ -727,7 +732,7 @@ class _OrderPageState extends State<OrderPage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: TextConst(
-                  title: 'Book Now',
+                  title: loc.book_now,
                   color: PortColor.black,
                   fontFamily: AppFonts.kanitReg,
                 ),

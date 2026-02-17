@@ -9,6 +9,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -400,6 +401,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
   Widget build(BuildContext context) {
     final selectVehicleVm = Provider.of<SelectVehiclesViewModel>(context);
     final vehicleList = selectVehicleVm.selectVehicleModel?.data ?? [];
+    final loc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -520,7 +522,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextConst(
-                                title: 'Choose a ride',
+                                title: loc.choose_a_ride,
                                 size: 18,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black,
@@ -537,7 +539,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'Distance: ${distance.toStringAsFixed(1)} km',
+                                '${loc.distance} ${distance.toStringAsFixed(1)} km',
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Colors.green[600],
@@ -586,6 +588,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
   }
 
   Widget _buildVehicleCard(Map<String, dynamic> vehicle) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -659,7 +662,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
               ),
             ),
             Text(
-              'Approx. fare',
+              loc.approx_fare,
               style: TextStyle(
                 fontSize: 10,
                 color: Colors.grey[500],
@@ -703,6 +706,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
     // Reset payment selection every time sheet opens
     selectedPayment = 1;
+    final loc = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -736,7 +740,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                     // Title
                     Text(
-                      "Confirm ${vehicle['vehicle_name'] ?? 'Ride'}",
+                      "${loc.confirm} ${vehicle['vehicle_name'] ?? '${loc.ride}'}",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -809,7 +813,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                     // Route Details
                     Text(
-                      "Route Details",
+                      loc.route_detail,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -868,7 +872,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                     const SizedBox(height: 16),
 
                     Text(
-                      "Distance: ${distance.toStringAsFixed(1)} km",
+                      "${loc.distance} ${distance.toStringAsFixed(1)} km",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -879,8 +883,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
                     // Booking Fee
                     Row(
                       children: [
-                        const TextConst(
-                          title: "Booking Fees & Convenience Charges",
+                         TextConst(
+                          title: loc.booking_fees_conv_charge,
                           size: 12,
                         ),
                         const Spacer(),
@@ -897,8 +901,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
 // Total Amount
                     Row(
                       children: [
-                        const TextConst(
-                          title: "Total Amount",
+                         TextConst(
+                          title: loc.total_amount,
                           size: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -917,7 +921,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                     // ⭐ PAYMENT MODE SECTION ⭐
                     Text(
-                      "Payment Mode",
+                      loc.pay_mode,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -927,50 +931,59 @@ class _RideMapScreenState extends State<RideMapScreen> {
                     const SizedBox(height: 10),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // ONLINE
-                        // ONLINE PAYMENT
-                        Row(
-                          children: [
-                            Radio<int>(
-                              value: 2, // ⭐ Online = 2
-                              groupValue: selectedPayment,
-                              onChanged: (value) {
-                                setStateBottom(() {
-                                  selectedPayment = value!;
-                                });
-                              },
-                              activeColor: PortColor.gold,
-                            ),
-                            Text(
-                              "Online Payment",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
+                        /// ONLINE PAYMENT
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Radio<int>(
+                                value: 2,
+                                groupValue: selectedPayment,
+                                onChanged: (value) {
+                                  setStateBottom(() {
+                                    selectedPayment = value!;
+                                  });
+                                },
+                                activeColor: PortColor.gold,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  loc.pay_via_online,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
 
-                        // CASH ON DELIVERY
-                        Row(
-                          children: [
-                            Radio<int>(
-                              value: 1, // ⭐ COD = 1
-                              groupValue: selectedPayment,
-                              onChanged: (value) {
-                                setStateBottom(() {
-                                  selectedPayment = value!;
-                                });
-                              },
-                              activeColor: PortColor.gold,
-                            ),
-                            Text(
-                              "Cash on Delivery",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ],
+                        /// CASH PAYMENT
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Radio<int>(
+                                value: 1,
+                                groupValue: selectedPayment,
+                                onChanged: (value) {
+                                  setStateBottom(() {
+                                    selectedPayment = value!;
+                                  });
+                                },
+                                activeColor: PortColor.gold,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  loc.pay_via_cash,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
+
                     SizedBox(height: screenHeight * 0.01),
                     Consumer<OrderViewModel>(
                       builder: (context, orderViewModel, child) {
@@ -1020,7 +1033,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                                     color: Colors.white,
                                   )
                                 : Text(
-                                    "Continue Ride",
+                                    loc.continue_ride,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,

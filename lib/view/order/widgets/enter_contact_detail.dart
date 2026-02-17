@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -379,6 +380,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
 
   Widget buildBottomSheet(BuildContext context) {
     final profileViewModel = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return Container(
       width: screenWidth,
       decoration: const BoxDecoration(
@@ -405,7 +407,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                   controller: nameController,
                   height: screenHeight * 0.055,
                   cursorHeight: screenHeight * 0.023,
-                  labelText: "Receiver's Name",
+                  labelText: loc.receiver_name,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(
                       RegExp(r'[a-zA-Z ]'),
@@ -421,7 +423,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                   controller: mobileController,
                   height: screenHeight * 0.055,
                   cursorHeight: screenHeight * 0.023,
-                  labelText: "Receiver's Mobile Number",
+                  labelText: loc.receiver_mob_no,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
@@ -482,7 +484,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                       Row(
                         children: [
                           TextConst(
-                            title: "Use My Mobile Number:",
+                            title: loc.use_my_num,
                             color: PortColor.black,
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,
@@ -503,7 +505,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
 
                 SizedBox(height: screenHeight * 0.03),
                 TextConst(
-                  title: "Save as (optional):",
+                  title: loc.save_as_opt,
                   color: PortColor.gray,
                   fontFamily: AppFonts.kanitReg,
                   size: 12,
@@ -512,9 +514,9 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    buildSaveOption("Home", Icons.home_filled, null, 0),
-                    buildSaveOption("Shop", null, Assets.assetsShop, 1),
-                    buildSaveOption("Other", Icons.favorite, null, 2),
+                    buildSaveOption(loc.home_ji, Icons.home_filled, null, 0),
+                    buildSaveOption(loc.shop, null, Assets.assetsShop, 1),
+                    buildSaveOption(loc.other, Icons.favorite, null, 2),
                   ],
                 ),
               ],
@@ -527,6 +529,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
   }
 
   Widget buildLocationDetailsSmall() {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       height: screenHeight * 0.2,
       width: screenWidth,
@@ -638,7 +641,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                     gradient: PortColor.subBtn,
                   ),
                   child: TextConst(
-                    title: "Confirm Drop Location",
+                    title: loc.confirm_drop_locatio,
                     color: Colors.black,
                     fontFamily: AppFonts.kanitReg,
                     size: 14,
@@ -653,6 +656,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
   }
 
   Widget buildLocationDetails() {
+    final loc = AppLocalizations.of(context)!;
     return Row(
       children: [
         Image(
@@ -725,7 +729,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
             ),
             child: Center(
               child: TextConst(
-                title: "Change",
+                title: loc.change,
                 color: PortColor.blue,
                 fontFamily: AppFonts.poppinsReg,
                 size: 11,
@@ -792,6 +796,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
 
   Widget buildProceedButton(BuildContext context) {
     final orderViewModel = Provider.of<OrderViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     bool isNameFilled = nameController.text.trim().isNotEmpty;
     bool isMobileValid =
@@ -886,8 +891,8 @@ class _EnterContactDetailState extends State<EnterContactDetail>
             child: TextConst(
               fontFamily: AppFonts.kanitReg,
               title: canProceed
-                  ? "Confirm and Proceed"
-                  : "Enter Contact Details",
+                  ? loc.confirm_proceed
+                  : loc.enter_contact_detail,
               color: canProceed ? Colors.black : PortColor.gray,
               size: 14,
             ),

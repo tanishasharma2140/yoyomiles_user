@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/model/daily_slot_model.dart';
 import 'package:yoyomiles/model/final_summary_model.dart';
@@ -62,6 +63,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _showPickupSlotModal() {
     final dailySlotVm = Provider.of<DailySlotViewModel>(context, listen: false);
     final summaryVm = Provider.of<FinalSummaryViewModel>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
+
 
     // Final summary se selected date le rahe hain
     final availableDates = summaryVm.finalSummaryModel?.dateBaseAddAmount ?? [];
@@ -147,7 +150,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                           SizedBox(width: screenWidth * 0.03),
                           TextConst(
-                            title: "Select Pickup Slot",
+                            title: loc.select_pickup_slot,
                             color: PortColor.black,
                             fontFamily: AppFonts.kanitReg,
                             fontWeight: FontWeight.w600,
@@ -170,7 +173,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               ),
                               SizedBox(height: screenHeight * 0.02),
                               TextConst(
-                                title: "Loading slots for ${formatDateForDisplay(currentSelectedDate)}...",
+                                title: "${loc.loading_slot_for} ${formatDateForDisplay(currentSelectedDate)}...",
                                 color: Colors.grey,
                                 fontFamily: AppFonts.kanitReg,
                               ),
@@ -222,7 +225,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                       ),
                                       SizedBox(height: screenHeight * 0.02),
                                       TextConst(
-                                        title: "Loading slots for selected date...",
+                                        title: loc.loading_slot_for,
                                         fontFamily: AppFonts.kanitReg,
                                         color: Colors.orange,
                                         textAlign: TextAlign.center,
@@ -299,7 +302,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 // Individual Time Slots based on selected session
                                 if (_selectedSession != null && _getSelectedSessionSlots() != null) ...[
                                   TextConst(
-                                    title: "Available Time Slots",
+                                    title: loc.available_time,
                                     fontFamily: AppFonts.kanitReg,
                                     fontWeight: FontWeight.w600,
                                     size: 16,
@@ -322,7 +325,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                         ),
                                         SizedBox(height: screenHeight * 0.02),
                                         TextConst(
-                                          title: "No slots available for $_selectedSession",
+                                          title: "${loc.no_slot_available} $_selectedSession",
                                           fontFamily: AppFonts.kanitReg,
                                           color: Colors.grey,
                                           textAlign: TextAlign.center,
@@ -354,7 +357,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 ),
                                 SizedBox(height: screenHeight * 0.02),
                                 TextConst(
-                                  title: "No slot data available for ${formatDateForDisplay(currentSelectedDate)}",
+                                  title: "${loc.no_slot_available} ${formatDateForDisplay(currentSelectedDate)}",
                                   color: Colors.grey,
                                   fontFamily: AppFonts.kanitReg,
                                 ),
@@ -373,7 +376,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: TextConst(
-                                      title: "Load Slots",
+                                      title: loc.load_slot,
                                       color: PortColor.black,
                                       fontFamily: AppFonts.kanitReg,
                                     ),
@@ -433,7 +436,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                           child: Center(
                             child: TextConst(
-                              title: "Confirm Slot",
+                              title: loc.confirm_slot,
                               fontFamily: AppFonts.kanitReg,
                               color: _selectedTimeSlot != null
                                   ? PortColor.black
@@ -501,6 +504,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final slotCount = sessionData.availableSlots?.length ?? 0;
 
     final effectiveIsSelected = isAvailable && isSelected;
+    final loc = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: isAvailable ? onTap : null,
@@ -564,7 +568,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
             // Time Range
             TextConst(
-              title: sessionData.amToPm ?? "$slotCount slots",
+              title: sessionData.amToPm ?? "$slotCount ${loc.slots}",
               fontFamily: AppFonts.poppinsReg,
               color: effectiveIsSelected
                   ? PortColor.black
@@ -577,7 +581,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             if (!isAvailable) ...[
               SizedBox(height: screenHeight * 0.005),
               TextConst(
-                title: "Not Available",
+                title: loc.not_available,
                 fontFamily: AppFonts.poppinsReg,
                 color: Colors.red,
                 size: 10,
@@ -591,11 +595,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 // Build available slots list from API data
   Widget _buildAvailableSlotsList(StateSetter setModalState) {
     final sessionSlots = _getSelectedSessionSlots();
+    final loc = AppLocalizations.of(context)!;
 
     if (sessionSlots == null || sessionSlots.availableSlots == null) {
       return Center(
         child: TextConst(
-          title: "No slots available",
+          title: loc.no_slot_available,
           color: Colors.grey,
           fontFamily: AppFonts.kanitReg,
         ),
@@ -731,6 +736,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final profileVm = Provider.of<ProfileViewModel>(context, listen: false);
     final proceedOrderVm = Provider.of<ProceedOrderViewModel>(context, listen: false);
     final summaryVm = Provider.of<FinalSummaryViewModel>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
 
     // ✅ Get total amount dynamically from FinalSummaryModel
     final totalAmount = summaryVm.finalSummaryModel?.totalAmount ?? 0;
@@ -849,7 +855,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   ),
                   SizedBox(width: screenWidth * 0.03),
                   TextConst(
-                    title: "Payment Summary",
+                    title: loc.payment_summary,
                     color: PortColor.black,
                     fontFamily: AppFonts.kanitReg,
                     fontWeight: FontWeight.w600,
@@ -897,7 +903,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextConst(
-                                  title: "Shifting on:",
+                                  title: loc.shifting_on,
                                   fontFamily: AppFonts.kanitReg,
                                   color: Colors.grey.shade600,
                                   size: 12,
@@ -941,7 +947,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextConst(
-                                  title: "Total amount",
+                                  title: loc.total_amount,
                                   fontFamily: AppFonts.kanitReg,
                                   color: Colors.grey.shade600,
                                   size: 12,
@@ -976,7 +982,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 TextConst(
-                                  title: "Payment summary",
+                                  title: loc.payment_summary,
                                   fontFamily: AppFonts.kanitReg,
                                   fontWeight: FontWeight.w600,
                                   size: 14,
@@ -984,7 +990,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                 ),
                                 SizedBox(height: screenHeight * 0.01),
                                 TextConst(
-                                  title: "Pay booking amount ₹${totalAmount.toStringAsFixed(0)}",
+                                  title: "${loc.pay_booking_amount} ₹${totalAmount.toStringAsFixed(0)}",
                                   fontFamily: AppFonts.kanitReg,
                                   color: Colors.grey.shade600,
                                   size: 12,
@@ -1002,7 +1008,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: "Please make sure to read our ",
+                            text: loc.please_make_sure,
                             style: TextStyle(
                               fontFamily: AppFonts.kanitReg,
                               fontSize: 12,
@@ -1010,7 +1016,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ),
                           TextSpan(
-                            text: "Terms & Conditions",
+                            text: loc.terms_condition,
                             style: TextStyle(
                               fontFamily: AppFonts.kanitReg,
                               fontSize: 12,
@@ -1130,7 +1136,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           : Center(
                         child: TextConst(
                           title:
-                          "Pay booking amount ₹${totalAmount.toStringAsFixed(0)}",
+                          "${loc.pay_booking_amount} ₹${totalAmount.toStringAsFixed(0)}",
                           fontFamily: AppFonts.kanitReg,
                           color: PortColor.black,
                           fontWeight: FontWeight.w600,
@@ -1310,6 +1316,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
 
     final summary = Provider.of<FinalSummaryViewModel>(context);
     final charges = summary.finalSummaryModel?.charges;
@@ -1365,7 +1372,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           ),
                           SizedBox(width: screenWidth * 0.03),
                           TextConst(
-                            title: "Packer and Mover",
+                            title: loc.packer_move,
                             color: PortColor.black,
                             fontWeight: FontWeight.w600,
                             size: 16,
@@ -1378,21 +1385,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         children: [
                           StepWidget(
                             icon: Icons.check,
-                            text: 'Moving details',
+                            text: loc.moving_detail,
                             isActive: true,
                             isCompleted: true,
                           ),
                           DottedLine(),
                           StepWidget(
                             icon: Icons.inventory,
-                            text: 'Add items',
+                            text: loc.add_items,
                             isActive: true,
                             isCompleted: true,
                           ),
                           DottedLine(),
                           StepWidget(
                             icon: Icons.receipt,
-                            text: 'Schedule',
+                            text: loc.schedule,
                             isActive: true,
                             isCompleted: false,
                           ),
@@ -1409,7 +1416,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextConst(
-                          title: "Select shifting date",
+                          title: loc.select_shifting_date,
                           fontFamily: AppFonts.kanitReg,
                           size: 15,
                           fontWeight: FontWeight.w400,
@@ -1460,7 +1467,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         const SizedBox(height: 24),
 
                         TextConst(
-                          title: 'Recommended add-ons',
+                          title: loc.recommended_add_ons,
                           fontFamily: AppFonts.kanitReg,
                           size: 15,
                         ),
@@ -1628,6 +1635,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildSelectSlotBottomSheet() {
     final summary = Provider.of<FinalSummaryViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     print(
       "Total Amount:${summary.finalSummaryModel!.totalAmount.toString()}",
     );
@@ -1656,8 +1664,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const TextConst(
-                    title: "Total Amount",
+                   TextConst(
+                    title: loc.total_amount,
                     fontFamily: AppFonts.kanitReg,
                   ),
                   SizedBox(height: screenHeight * 0.005),
@@ -1693,7 +1701,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     ],
                   ),
                   child: TextConst(
-                    title: "Select Pickup Slot",
+                    title: loc.select_pickup_slot,
                     fontFamily: AppFonts.kanitReg,
                     color: PortColor.black,
                     size: 12,
@@ -1709,6 +1717,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   Widget _buildPaymentBottomSheet() {
     final summary = Provider.of<FinalSummaryViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1736,7 +1745,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextConst(
-                      title: "Total Amount",
+                      title: loc.total_amount,
                       fontFamily: AppFonts.kanitReg,
                       size: 12,
                       color: Colors.grey.shade600,
@@ -1777,7 +1786,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     ],
                   ),
                   child: TextConst(
-                    title: "Pay Booking Amount",
+                    title: loc.pay_booking_amount,
                     fontFamily: AppFonts.kanitReg,
                     color: PortColor.black,
                     size: 12,

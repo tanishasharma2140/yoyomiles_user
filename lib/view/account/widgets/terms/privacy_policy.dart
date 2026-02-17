@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -28,6 +29,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
   @override
   Widget build(BuildContext context) {
     final privacyPolicy = Provider.of<PolicyViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -59,7 +61,7 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
                     width: screenWidth * 0.24,
                   ),
                   TextConst(
-                    title: "Privacy and Policy",
+                    title: loc.privacy_policy,
                     color: PortColor.black,
                   ),
                   SizedBox(

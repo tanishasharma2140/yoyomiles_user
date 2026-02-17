@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/animated_text_slider.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
@@ -199,6 +200,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final banner = Provider.of<PortBannerViewModel>(context);
     final profile = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -323,7 +325,7 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   TextConst(
-                                    title: 'Picked up from',
+                                    title: loc.picked_up_from,
                                     color: PortColor.black,
                                     fontFamily: AppFonts.poppinsReg,
                                   ),
@@ -404,12 +406,12 @@ class _HomePageState extends State<HomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   TextConst(
-                                    title: 'Explore Yoyomiles Reward',
+                                    title: loc.yoyomiles_reward,
                                     color: PortColor.black,
                                     fontFamily: AppFonts.kanitReg,
                                   ),
                                   TextConst(
-                                    title: 'Get ₹${profile.profileModel?.data?.referralAmount??"0"} coins for each referral!',
+                                    title: '${loc.get} ₹${profile.profileModel?.data?.referralAmount??"0"} ${loc.coins_for_referral}',
                                     color: PortColor.grayLight,
                                     fontFamily: AppFonts.poppinsReg,
                                     size: 12,
@@ -434,7 +436,7 @@ class _HomePageState extends State<HomePage> {
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: TextConst(
-                            title: "Announcements",
+                            title: loc.announce,
                             color: PortColor.gray,
                           ),
                         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scratcher/widgets.dart';
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -34,6 +35,7 @@ class _CoinsPageState extends State<CoinsPage> {
     bool revealed = false;
 
     final claimVm = Provider.of<ClaimRewardViewModel>(context, listen: false);
+    final loc = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -78,8 +80,8 @@ class _CoinsPageState extends State<CoinsPage> {
                             ),
                             alignment: Alignment.center,
                             child: !revealed
-                                ? const Text(
-                              "Scratch to reveal",
+                                ?  Text(
+                              loc.scratch,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -150,6 +152,8 @@ class _CoinsPageState extends State<CoinsPage> {
   Widget build(BuildContext context) {
     final reward = Provider.of<RewardViewModel>(context);
     final scratchList = reward.scratchList;
+    final loc = AppLocalizations.of(context)!;
+
 
     return Scaffold(
       backgroundColor: PortColor.white,
@@ -166,8 +170,8 @@ class _CoinsPageState extends State<CoinsPage> {
               child: Icon(Icons.arrow_back, color: PortColor.black, size: 22),
             ),
           ),
-          title: const Text(
-            "Yoyomiles Reward",
+          title:  Text(
+            loc.yoyomiles_rew,
             style: TextStyle(
               color: Colors.black,
               fontFamily: AppFonts.kanitReg,
@@ -181,7 +185,7 @@ class _CoinsPageState extends State<CoinsPage> {
       body: reward.loading
           ? const Center(child: CircularProgressIndicator())
           : reward.rewardModel == null
-          ? const Center(child: Text("No referral rewards yet"))
+          ?  Center(child: Text(loc.no_referal_yet))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -228,7 +232,7 @@ class _CoinsPageState extends State<CoinsPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   TextConst(
-                                    title: "Total Reward",
+                                    title: loc.total_re,
                                     color: PortColor.gray,
                                   ),
                                   TextConst(
@@ -252,11 +256,11 @@ class _CoinsPageState extends State<CoinsPage> {
                     ],
                   ),
                 ),
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16,vertical: 5),
                   child: TextConst(
                     title:
-                    "Your Referral Reward",
+                    loc.you_re_reward,
                     size: 16, fontWeight: FontWeight.w600,
                     fontFamily: AppFonts.kanitReg,
                   ),
@@ -274,10 +278,10 @@ class _CoinsPageState extends State<CoinsPage> {
                     }
 
                     if (referralList.isEmpty) {
-                      return const Padding(
+                      return  Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         child: Text(
-                          "No referral rewards yet",
+                          loc.no_referal_yet,
                           style: TextStyle(color: Colors.grey),
                         ),
                       );
@@ -352,11 +356,11 @@ class _CoinsPageState extends State<CoinsPage> {
                 ),
 
 
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16,vertical: 5),
                   child: TextConst(
                     title:
-                    "Your rewards",
+                    loc.you_rewards,
                       size: 16, fontWeight: FontWeight.w600,
                     fontFamily: AppFonts.kanitReg,
                   ),
@@ -424,8 +428,8 @@ class _CoinsPageState extends State<CoinsPage> {
                                     color: Colors.green,
                                     borderRadius: BorderRadius.circular(6),
                                   ),
-                                  child: const Text(
-                                    "CLAIMED",
+                                  child:  Text(
+                                   loc.claimed,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -435,8 +439,8 @@ class _CoinsPageState extends State<CoinsPage> {
                                 ),
                               ],
                             )
-                                : const Text(
-                              "Tap to open",
+                                :  Text(
+                              loc.tap_to_open,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

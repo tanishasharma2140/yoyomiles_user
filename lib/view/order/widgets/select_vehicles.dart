@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:yoyomiles/generated/assets.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -131,10 +132,11 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     final orderViewModel = Provider.of<OrderViewModel>(context);
     final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(context);
     final usedDistance = distance ?? 0.0;
-
+    final loc = AppLocalizations.of(context)!;
 
 
     print("Distance: $distance km");
+
 
     return SafeArea(
       top: false,
@@ -167,8 +169,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     },
                   ),
                   SizedBox(width: screenWidth * 0.02),
-                  const TextConst(
-                    title: "Select Vehicles",
+                   TextConst(
+                    title: loc.select_vehicle,
                     color: PortColor.black,
                     size: 16,
                     fontWeight: FontWeight.w600,
@@ -300,13 +302,13 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                     size: screenHeight * 0.025,
                                   ),
                                   SizedBox(width: screenWidth * 0.01),
-                                  const TextConst(
-                                    title: "EDIT LOCATION",
+                                   TextConst(
+                                    title: loc.edit_location,
                                     color: PortColor.black,
                                     fontFamily: AppFonts.poppinsReg,
                                   ),
                                   Spacer(),
-                                  TextConst(title: "Distance: $distance",size: 12,)
+                                  TextConst(title: "${loc.distance} $distance",size: 12,)
                                 ],
                               ),
                             ),
@@ -318,8 +320,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 ),
               ),
             ),
-            const TextConst(
-              title: "Choose the vehicle for your delivery",
+             TextConst(
+              title: loc.choose_the_vehicle,
               fontWeight: FontWeight.w400,
               size: 15,
             ),
@@ -350,9 +352,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     final vehicles = selectVehiclesViewModel.selectVehicleModel?.data;
 
                     if (vehicles == null) {
-                      return const Center(
+                      return  Center(
                         child: Text(
-                          "Something went wrong. Please try again later.",
+                          loc.something_went_wrong,
                           style: TextStyle(
                             color: Colors.redAccent,
                             fontFamily: AppFonts.kanitReg,
@@ -363,9 +365,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     }
 
                     if (vehicles.isEmpty) {
-                      return const Center(
+                      return  Center(
                         child: Text(
-                          "No vehicles available.",
+                          loc.no_vehicle,
                           style: TextStyle(
                             color: Colors.grey,
                             fontFamily: AppFonts.kanitReg,
@@ -427,8 +429,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                       if (selectVehiclesViewModel.selectVehicleModel?.data == null ||
                           selectedIndex! >= selectVehiclesViewModel.selectVehicleModel!.data!.length) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Invalid vehicle selection'),
+                           SnackBar(
+                            content: Text(loc.invalid_vehicle_selection),
                             backgroundColor: Colors.red,
                           ),
                         );
@@ -509,8 +511,8 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                       ),
                       child: TextConst(
                         title: selectedIndex != null
-                            ? "Proceed with ${selectVehiclesViewModel.selectVehicleModel?.data?[selectedIndex!].vehicleName ?? 'Vehicle'}"
-                            : "Select a Vehicle",
+                            ? "${loc.proceed_with} ${selectVehiclesViewModel.selectVehicleModel?.data?[selectedIndex!].vehicleName ?? 'Vehicle'}"
+                            : loc.select_vehicle,
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
                       ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
@@ -22,6 +23,7 @@ class _SavePickUpAddressState extends State<SavePickUpAddress> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -81,7 +83,7 @@ class _SavePickUpAddressState extends State<SavePickUpAddress> {
                           },
                           decoration: InputDecoration(
                             constraints: BoxConstraints(maxHeight: screenHeight * 0.055),
-                            hintText: "Where is your pickup?",
+                            hintText: loc.where_is_pickup,
                             hintStyle: TextStyle(
                               color: PortColor.gray.withOpacity(0.5),
                               fontFamily: AppFonts.kanitReg,
@@ -112,7 +114,7 @@ class _SavePickUpAddressState extends State<SavePickUpAddress> {
             ),
             if (searchResults.isNotEmpty)
               SizedBox(
-                height: screenHeight * 0.3,
+                height: screenHeight * 0.4,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -231,50 +233,50 @@ class _SavePickUpAddressState extends State<SavePickUpAddress> {
             //       ],
             //     ),
             //   ),
-            const Spacer(),
-            Container(
-              height: screenHeight * 0.08,
-              color: PortColor.white,
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  const Icon(Icons.my_location_outlined, color: PortColor.gold,size: 16,),
-                  InkWell(
-                      onTap: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UseCurrentLocation(),
-                          ),
-                        );
-                      },
-                      child: TextConst(title: " Use current location", color: PortColor.black, fontFamily: AppFonts.poppinsReg,size: 13,),),
-                  // SizedBox(width: screenWidth * 0.04),
-
-                  Padding(
-                    padding:  EdgeInsets.symmetric(vertical: screenHeight*0.02),
-                    child: VerticalDivider(
-                      color: PortColor.gray.withOpacity(0.5),
-                      thickness: screenWidth*0.002,
-                    ),
-                  ),
-
-                  const Icon(Icons.location_on, color: PortColor.gold,size: 16,),
-                  InkWell(
-                      onTap: (){
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UseCurrentLocation(),
-                          ),
-                        );
-                      },
-                      child: TextConst(title: " Locate on the map", color: PortColor.black, fontFamily: AppFonts.poppinsReg,size: 13,)),
-                ],
-              ),
-            )
+            // const Spacer(),
+            // Container(
+            //   height: screenHeight * 0.08,
+            //   color: PortColor.white,
+            //   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+            //     children: [
+            //       const Icon(Icons.my_location_outlined, color: PortColor.gold,size: 16,),
+            //       InkWell(
+            //           onTap: (){
+            //             Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (context) => UseCurrentLocation(),
+            //               ),
+            //             );
+            //           },
+            //           child: TextConst(title: " Use current location", color: PortColor.black, fontFamily: AppFonts.poppinsReg,size: 13,),),
+            //       // SizedBox(width: screenWidth * 0.04),
+            //
+            //       Padding(
+            //         padding:  EdgeInsets.symmetric(vertical: screenHeight*0.02),
+            //         child: VerticalDivider(
+            //           color: PortColor.gray.withOpacity(0.5),
+            //           thickness: screenWidth*0.002,
+            //         ),
+            //       ),
+            //
+            //       const Icon(Icons.location_on, color: PortColor.gold,size: 16,),
+            //       InkWell(
+            //           onTap: (){
+            //
+            //             Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (context) => UseCurrentLocation(),
+            //               ),
+            //             );
+            //           },
+            //           child: TextConst(title: " Locate on the map", color: PortColor.black, fontFamily: AppFonts.poppinsReg,size: 13,)),
+            //     ],
+            //   ),
+            // )
           ])),
     );
   }

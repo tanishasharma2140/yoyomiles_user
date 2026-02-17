@@ -14,7 +14,6 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   @override
   Widget build(BuildContext context) {
-    final profileViewModel = Provider.of<ProfileViewModel>(context, listen: true);
     return Scaffold(
       backgroundColor: PortColor.bg,
       body: const Column(
