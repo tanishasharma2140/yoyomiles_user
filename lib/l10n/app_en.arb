@@ -341,7 +341,12 @@
 "cancel_by_user" : "Cancel by User",
 "cancel_by_driver" : "Cancel by Driver",
 "tap_to_rate_your" : "Tap to rate your experience",
-"point_zero" : ".0 Star Rating"
+"point_zero" : ".0 Star Rating",
+"change_language" : "Change Language",
+"select_language" : "Select Language",
+"english" : "English",
+"eng_united_king" : "English (United Kingdom)",
+"hindi" : "Hindi (भारत)"
 
 
 

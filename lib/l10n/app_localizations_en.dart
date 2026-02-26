@@ -1006,4 +1006,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get point_zero => '.0 Star Rating';
+
+  @override
+  String get change_language => 'Change Language';
+
+  @override
+  String get select_language => 'Select Language';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get eng_united_king => 'English (United Kingdom)';
+
+  @override
+  String get hindi => 'Hindi (भारत)';
 }

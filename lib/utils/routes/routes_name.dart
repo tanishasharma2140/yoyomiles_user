@@ -6,6 +6,7 @@ import 'package:yoyomiles/view/auth/register_page.dart';
 import 'package:yoyomiles/view/bottom_nav_bar.dart';
 import 'package:yoyomiles/view/driver_searching/driver_searching_screen.dart';
 import 'package:yoyomiles/view/home/rating_feedback_screen.dart';
+import 'package:yoyomiles/view/home/widgets/pickup/deliver_by_truck.dart';
 import 'package:yoyomiles/view/order/widgets/goods_type_screen.dart';
 import 'package:yoyomiles/view/splash_screen.dart';
 class Routers {
@@ -25,6 +26,8 @@ class Routers {
             return (context) => const RatingsFeedbackScreen();
          case RoutesName.driverSearching:
             return (context) => const DriverSearchingScreen();
+        case RoutesName.deliveryByTruck:
+          return (context) => const DeliverByTruck();
          default:
             return (context) => const Scaffold(
                body: Center(

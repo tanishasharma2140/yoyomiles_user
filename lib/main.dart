@@ -1,3 +1,4 @@
+import 'package:app_links/app_links.dart';
 import 'package:facebook_app_events/facebook_app_events.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -60,6 +61,7 @@ import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 import 'package:yoyomiles/view_model/wallet_history_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'dart:async';
 
 
 
@@ -67,6 +69,7 @@ final FacebookAppEvents facebookAppEvents = FacebookAppEvents();
 String? fcmToken;
 String? globalReferralCode;
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+Map<String, dynamic>? pendingDeepLinkData;
 
 
 
@@ -84,6 +87,8 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  facebookAppEvents.setAdvertiserTracking(enabled: true);
+  // return;
   runApp( MyApp(
     locale: languageCode,
   ));
@@ -108,37 +113,125 @@ class _MyAppState extends State<MyApp> {
   final notificationService = NotificationService(navigatorKey: navigatorKey);
   final InternetCheckerService _internetCheckerService =
   InternetCheckerService();
-  // final deepLinkHandler = DeepLinkHandler();
+
+  void checkPendingNavigation(context) {
+    if (pendingDeepLinkData != null) {
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+
+        navigatorKey.currentState?.pushNamed(
+          RoutesName.deliveryByTruck,
+          arguments: pendingDeepLinkData,
+        );
+
+        pendingDeepLinkData = null;
+
+      });
+    }
+  }
+
+  StreamSubscription? _sub;
 
   @override
   void initState() {
     super.initState();
+
     notificationService.requestedNotificationPermission();
     initFCM();
     notificationService.firebaseInit(context);
     notificationService.setupInteractMassage(context);
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   deepLinkHandler.initialize();
-    // });
+
+    initDeepLinks(); // 🔥 Deep link init
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _internetCheckerService.startMonitoring(navigatorKey.currentContext!);
+      _internetCheckerService
+          .startMonitoring(navigatorKey.currentContext!);
     });
   }
 
   void initFCM() async {
-    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+    NotificationSettings settings =
+    await FirebaseMessaging.instance.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    if (settings.authorizationStatus ==
+        AuthorizationStatus.authorized) {
       String? token = await FirebaseMessaging.instance.getToken();
       if (kDebugMode) print("FCM TOKEN = $token");
-    } else {
-      if (kDebugMode) print("Permission denied: no FCM token");
     }
   }
+
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _linkSubscription;
+
+  // ===============================
+  // 🔥 DEEP LINK LOGIC START
+  // ===============================
+
+  Future<void> initDeepLinks() async {
+    try {
+      final Uri? initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        // Cold start pe thoda zyada wait karo
+        await Future.delayed(const Duration(milliseconds: 300));
+        handleUri(initialUri);
+      }
+    } catch (e) {
+      print("Initial link error: $e");
+    }
+
+    _linkSubscription = _appLinks.uriLinkStream.listen((Uri uri) {
+      handleUri(uri);
+    }, onError: (err) {
+      print("Stream link error: $err");
+    });
+  }
+
+  void handleUri(Uri uri) async {
+    print("Received URI: $uri");
+
+    double? lat;
+    double? lng;
+
+    if (uri.scheme == "geo") {
+      final coords = uri.path.split(",");
+      if (coords.length >= 2) {
+        lat = double.tryParse(coords[0]);
+        lng = double.tryParse(coords[1]);
+      }
+    }
+
+    if (uri.queryParameters.containsKey("q")) {
+      final q = uri.queryParameters["q"];
+      if (q != null && q.contains(",")) {
+        final parts = q.split(",");
+        lat = double.tryParse(parts[0]);
+        lng = double.tryParse(parts[1]);
+      }
+    }
+
+    if (lat != null && lng != null) {
+      pendingDeepLinkData = {
+        "latitude": lat,
+        "longitude": lng,
+      };
+    }
+  }
+
+
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  // ===============================
+  // 🔥 DEEP LINK LOGIC END
+  // ===============================
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +239,7 @@ class _MyAppState extends State<MyApp> {
     screenWidth = MediaQuery.of(context).size.width;
     topPadding = MediaQuery.of(context).padding.top;
     bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -213,33 +307,40 @@ class _MyAppState extends State<MyApp> {
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               initialRoute: RoutesName.splash,
-              onGenerateRoute: (settings){
-                if (settings.name !=null){
-                  return MaterialPageRoute(builder: Routers.generateRoute(settings.name!),
-                  settings: settings,
+              onGenerateRoute: (settings) {
+                if (settings.name != null) {
+                  return MaterialPageRoute(
+                    builder: Routers.generateRoute(settings.name!),
+                    settings: settings,
                   );
                 }
                 return null;
               },
+
+              builder: (context, child) {
+                checkPendingNavigation(context);
+                return child!;
+              },
               title: AppConstant.appName,
               locale: provider.appLocale,
-              localizationsDelegates: [
+              localizationsDelegates: const [
                 AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate
               ],
-              supportedLocales: [
+              supportedLocales: const [
                 Locale('en'),
                 Locale('hi'),
               ],
               theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                colorScheme:
+                ColorScheme.fromSeed(seedColor: Colors.deepPurple),
                 useMaterial3: true,
               ),
-             // home: const SplashScreen(),
+
             );
-          }
+          },
         ),
       ),
     );

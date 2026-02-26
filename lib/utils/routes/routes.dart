@@ -7,4 +7,5 @@ class RoutesName{
   static const goodsType = "/goodsType";
   static const ratingFeedback = "/ratingFeedback";
   static const driverSearching = "/driverSearching";
+  static const deliveryByTruck = "/deliveryByTruck";
 }

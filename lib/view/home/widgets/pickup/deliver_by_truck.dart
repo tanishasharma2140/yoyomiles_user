@@ -85,6 +85,8 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
   Future<void> _fetchAddress(double latitude, double longitude) async {
     final profileViewModel = Provider.of<ProfileViewModel>(context, listen: false);
     final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+    print("Pickup Lat: $latitude");
+    print("Pickup Lng: $longitude");
 
     const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
     final url =
@@ -111,6 +113,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
           print('Location Data: $locationData');
           orderViewModel.setLocationType(0);
           orderViewModel.setLocationData(locationData);
+          print("Stored Pickup Data: ${orderViewModel.pickupData}");
           print('Updated Address: $_currentAddress');
         } else {
           print('No results found for the given coordinates.');
@@ -127,9 +130,13 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
   Widget build(BuildContext context) {
     final orderViewModel = Provider.of<OrderViewModel>(context);
     final profileViewModel = Provider.of<ProfileViewModel>(context);
-    // final orderType = orderViewModel.pickupData["order_type"] ?? "N/A";
-    // final orderTime = orderViewModel.pickupData["order_time"] ?? "N/A";
     final loc = AppLocalizations.of(context)!;
+    final args = ModalRoute.of(context)?.settings.arguments as Map?;
+    double? lat = args?['latitude'];
+    double? lng = args?['longitude'];
+     print("🧁🧁");
+    print(lat);
+    print(lng);
 
     return SafeArea(
       top: false,
@@ -139,7 +146,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
           children: [
             Container(
               padding: EdgeInsets.only(top: 25),
-              height: screenHeight * 0.33,
+              // height: screenHeight * 0.33,
               width: screenWidth,
               decoration: BoxDecoration(
                 color: PortColor.white,
@@ -336,25 +343,30 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
                                 onChanged: (value) {
                                   placeSearchApi(value);
                                 },
+
+                                minLines: 1,              // start with 1 line
+                                maxLines: null,           // unlimited lines
+                                keyboardType: TextInputType.multiline,
+
                                 decoration: InputDecoration(
-                                  constraints: BoxConstraints(
-                                      maxHeight: screenHeight * 0.055),
                                   hintText: loc.where_is_drop,
                                   hintStyle: TextStyle(
                                     color: PortColor.gray.withOpacity(0.5),
                                     fontSize: 15,
                                   ),
-                                  // suffixIcon: const Icon(Icons.mic,
-                                  //     color: PortColor.blue),
+
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 12,
+                                  ),
+
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    borderSide:
-                                        const BorderSide(color: PortColor.gray),
+                                    borderSide: const BorderSide(color: PortColor.gray),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    borderSide:
-                                        const BorderSide(color: Colors.black),
+                                    borderSide: const BorderSide(color: Colors.black),
                                   ),
                                   filled: true,
                                   fillColor: PortColor.white,
@@ -475,44 +487,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
 
           ],
         ),
-        // bottomSheet: GestureDetector(
-        //   onTap: (){
-        //     Navigator.push(
-        //       context,
-        //       PageRouteBuilder(
-        //         transitionDuration: const Duration(milliseconds: 400),
-        //         pageBuilder: (_, __, ___) =>  UseCurrentLocation(),
-        //         transitionsBuilder: (_, animation, __, child) {
-        //           final offsetAnimation = Tween<Offset>(
-        //             begin: const Offset(0, 1), // start from bottom
-        //             end: Offset.zero,          // end at normal position
-        //           ).animate(CurvedAnimation(
-        //             parent: animation,
-        //             curve: Curves.easeOutCubic,
-        //           ));
-        //
-        //           return SlideTransition(
-        //             position: offsetAnimation,
-        //             child: child,
-        //           );
-        //         },
-        //       ),
-        //     );
-        //   },
-        //   child: Container(
-        //     height: screenHeight * 0.08,
-        //     color: PortColor.white,
-        //     padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         const Icon(Icons.location_on, color: PortColor.blue),
-        //         TextConst(
-        //             title: " Locate on the map", color: PortColor.black),
-        //       ],
-        //     ),
-        //   ),
-        // ),
+
       ),
     );
   }

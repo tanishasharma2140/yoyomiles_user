@@ -167,7 +167,7 @@ class AccountDetail extends StatelessWidget {
                 context,
                 Icons.language,
                 color: PortColor.yellowCoin,
-                "Change Language",
+                loc.change_language,
                 page: ChangeLanguage(),
               )),
           SizedBox(height: screenHeight * 0.02),

@@ -3,7 +3,7 @@ description: "A new Flutter project."
 
 publish_to: 'none'
 
-version: 1.0.14+15
+version: 1.0.16+17
 
 environment:
   sdk: ^3.8.1
@@ -46,6 +46,7 @@ dependencies:
   scratcher: ^2.5.0
   facebook_app_events: ^0.24.0
   in_app_update: ^4.2.5
+  app_links:
   flutter_localizations:
     sdk: flutter
 

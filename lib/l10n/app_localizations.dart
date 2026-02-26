@@ -2053,6 +2053,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'.0 Star Rating'**
   String get point_zero;
+
+  /// No description provided for @change_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Language'**
+  String get change_language;
+
+  /// No description provided for @select_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Language'**
+  String get select_language;
+
+  /// No description provided for @english.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @eng_united_king.
+  ///
+  /// In en, this message translates to:
+  /// **'English (United Kingdom)'**
+  String get eng_united_king;
+
+  /// No description provided for @hindi.
+  ///
+  /// In en, this message translates to:
+  /// **'Hindi (भारत)'**
+  String get hindi;
 }
 
 class _AppLocalizationsDelegate

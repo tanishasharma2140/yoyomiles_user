@@ -123,11 +123,6 @@ class PaymentViewModel with ChangeNotifier {
         enableAssist,
       );
 
-      //     .then((paymentRes){
-      //   debugPrint("the payment response $paymentRes");
-      // }).catchError((err){
-      //   debugPrint("Error occour during transaction:$err");
-      // });
 
       debugPrint("PAYTM RESPONSE => $response");
 

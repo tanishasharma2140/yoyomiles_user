@@ -331,7 +331,12 @@
   "cancel_by_user" : "उपयोगकर्ता द्वारा रद्द",
   "cancel_by_driver" : "ड्राइवर द्वारा रद्द",
   "tap_to_rate_your": "अपने अनुभव को रेट करने के लिए टैप करें",
-  "point_zero": ".0 स्टार रेटिंग"
+  "point_zero": ".0 स्टार रेटिंग",
+  "change_language" : "भाषा बदलें",
+  "select_language" : "भाषा चुनें",
+  "english" : "अंग्रेज़ी",
+  "eng_united_king" : "अंग्रेज़ी (यूनाइटेड किंगडम)",
+  "hindi" : "हिंदी (भारत)"
 
 
 }

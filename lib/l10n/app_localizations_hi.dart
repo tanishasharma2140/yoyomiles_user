@@ -1008,4 +1008,19 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get point_zero => '.0 स्टार रेटिंग';
+
+  @override
+  String get change_language => 'भाषा बदलें';
+
+  @override
+  String get select_language => 'भाषा चुनें';
+
+  @override
+  String get english => 'अंग्रेज़ी';
+
+  @override
+  String get eng_united_king => 'अंग्रेज़ी (यूनाइटेड किंगडम)';
+
+  @override
+  String get hindi => 'हिंदी (भारत)';
 }

@@ -34,7 +34,7 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
               },
               child: Icon(Icons.arrow_back,color: Colors.black,)),
           title: Text(
-            "Select Language",
+            loc.select_language,
             style:  TextStyle(
               fontSize: 16,
               fontFamily: AppFonts.kanitReg,
@@ -51,13 +51,12 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
             builder: (context, languageProvider, child) {
               return Column(
                 children: [
-
                   const SizedBox(height: 20),
 
                   /// ENGLISH OPTION
                   _buildLanguageCard(
-                    title: "English",
-                    subTitle: "English (United Kingdom)",
+                    title: loc.english,
+                    subTitle: loc.eng_united_king,
                     value: "en",
                     groupValue: languageProvider.currentLanguageCode,
                     onTap: () {
@@ -72,7 +71,7 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
                   /// HINDI OPTION
                   _buildLanguageCard(
                     title: "हिंदी",
-                    subTitle: "Hindi (भारत)",
+                    subTitle: loc.hindi,
                     value: "hi",
                     groupValue: languageProvider.currentLanguageCode,
                     onTap: () {
