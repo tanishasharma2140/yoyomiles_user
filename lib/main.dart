@@ -130,6 +130,26 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  bool _deepLinkNavigated = false;
+  void navigateIfDeepLinkAvailable() {
+    if (pendingDeepLinkData != null && !_deepLinkNavigated) {
+      _deepLinkNavigated = true;
+      // ✅ 3 second wait — profile + home screen load hone do
+      Future.delayed(const Duration(milliseconds: 3000), () {
+        if (navigatorKey.currentState == null) {
+          _deepLinkNavigated = false;
+          return;
+        }
+        print("🚀 Navigating with: $pendingDeepLinkData");
+        navigatorKey.currentState?.pushNamed(
+          RoutesName.deliveryByTruck,
+          arguments: pendingDeepLinkData,
+        );
+        pendingDeepLinkData = null;
+        _deepLinkNavigated = false;
+      });
+    }
+  }
   StreamSubscription? _sub;
 
   @override
@@ -218,6 +238,8 @@ class _MyAppState extends State<MyApp> {
         "latitude": lat,
         "longitude": lng,
       };
+
+      navigateIfDeepLinkAvailable();   // 🔥 ADD THIS
     }
   }
 
@@ -317,10 +339,10 @@ class _MyAppState extends State<MyApp> {
                 return null;
               },
 
-              builder: (context, child) {
-                checkPendingNavigation(context);
-                return child!;
-              },
+              // builder: (context, child) {
+              //   checkPendingNavigation(context);
+              //   return child!;
+              // },
               title: AppConstant.appName,
               locale: provider.appLocale,
               localizationsDelegates: const [

@@ -436,24 +436,15 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                     setState(() {
                       isContactDetailsSelected = !isContactDetailsSelected;
                       if (isContactDetailsSelected) {
-                        // Fill mobile number
-                        mobileController.text = profileViewModel
-                            .profileModel!
-                            .data!
-                            .phone
-                            .toString();
-
-                        // Fill full name (first + last)
-                        final firstName =
-                            profileViewModel.profileModel!.data!.firstName ??
-                                '';
-                        final lastName =
-                            profileViewModel.profileModel!.data!.lastName ?? '';
-                        nameController.text = "$firstName $lastName"
-                            .trim(); // Concatenate with a space
+                        // ✅ Fix 2
+                        mobileController.text = profileViewModel.profileModel?.data?.phone?.toString() ?? '';
+                        // ✅ Fix 3
+                        final firstName = profileViewModel.profileModel?.data?.firstName ?? '';
+                        final lastName = profileViewModel.profileModel?.data?.lastName ?? '';
+                        nameController.text = "$firstName $lastName".trim();
                       } else {
                         mobileController.clear();
-                        nameController.clear(); // Clear name when unchecked
+                        nameController.clear();
                       }
                     });
                   },
@@ -491,8 +482,7 @@ class _EnterContactDetailState extends State<EnterContactDetail>
                           ),
                           SizedBox(width: screenWidth * 0.01),
                           TextConst(
-                            title: profileViewModel.profileModel!.data!.phone
-                                .toString(),
+                            title: profileViewModel.profileModel?.data?.phone?.toString() ?? '',
                             color: PortColor.blue,
                             fontFamily: AppFonts.poppinsReg,
                             size: 12,

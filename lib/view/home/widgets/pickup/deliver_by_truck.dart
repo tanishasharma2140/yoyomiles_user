@@ -25,11 +25,15 @@ class DeliverByTruck extends StatefulWidget {
 
 class _DeliverByTruckState extends State<DeliverByTruck> {
 
+  double? _argLat;
+  double? _argLng;
+
+  bool _isDeepLink = false;
+
   @override
   void initState() {
     super.initState();
 
-    // Local resets (safe)
     hasData = false;
     searchResults = [];
     placeDetailsCache = {};
@@ -38,13 +42,119 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
-
       orderViewModel.clearPickup();
       orderViewModel.clearDrop();
-      orderViewModel.setLocationType(0); // default pickup
+      orderViewModel.setLocationType(0);
 
-      _getCurrentLocation();
+      final args = ModalRoute.of(context)?.settings.arguments as Map?;
+      _argLat = args?['latitude'];
+      _argLng = args?['longitude'];
+
+      print("📦 Args lat: $_argLat, lng: $_argLng");
+
+      if (_argLat != null && _argLng != null) {
+        _isDeepLink = true; // ✅ flag set karo
+        _fetchAddressAndNavigate(_argLat!, _argLng!);
+      } else {
+        _getCurrentLocation();
+      }
     });
+  }
+
+
+  Future<void> _fetchAddressAndNavigate(double dropLat, double dropLng) async {
+    const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
+
+    try {
+      final profileViewModel = Provider.of<ProfileViewModel>(context, listen: false);
+
+      if (profileViewModel.profileModel?.data == null) {
+        print("📡 Fetching profile manually...");
+        await profileViewModel.profileApi(context);
+        print("👤 Profile after fetch: ${profileViewModel.profileModel?.data?.firstName}");
+      }
+
+      print("👤 Profile loaded: ${profileViewModel.profileModel?.data?.firstName}");
+
+      Position position = await Geolocator.getCurrentPosition();
+
+      final pickupUrl = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$apiKey';
+      final pickupResponse = await http.get(Uri.parse(pickupUrl));
+      String pickupAddress = "";
+      if (pickupResponse.statusCode == 200) {
+        final pickupData = json.decode(pickupResponse.body);
+        if (pickupData['results'] != null && pickupData['results'].isNotEmpty) {
+          pickupAddress = pickupData['results'][0]['formatted_address'];
+        }
+      }
+
+      final dropUrl = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$dropLat,$dropLng&key=$apiKey';
+      final dropResponse = await http.get(Uri.parse(dropUrl));
+      String dropAddress = "";
+      if (dropResponse.statusCode == 200) {
+        final dropData = json.decode(dropResponse.body);
+        if (dropData['results'] != null && dropData['results'].isNotEmpty) {
+          dropAddress = dropData['results'][0]['formatted_address'];
+        }
+      }
+
+      print("📍 Pickup: $pickupAddress");
+      print("📍 Drop: $dropAddress");
+
+      if (!mounted) return;
+
+      final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+
+      // ✅ Pickup set karo profile data ke saath
+      orderViewModel.setLocationType(0);
+      orderViewModel.setLocationData({
+        "address": pickupAddress,
+        "name": profileViewModel.profileModel?.data?.firstName ?? "",
+        "phone": profileViewModel.profileModel?.data?.phone?.toString() ?? "",
+        "latitude": position.latitude,
+        "longitude": position.longitude,
+        "order_type": 1,
+      });
+
+      // ✅ Drop set karo
+      orderViewModel.setLocationType(1);
+      orderViewModel.setLocationData({
+        "address": dropAddress,
+        "name": profileViewModel.profileModel?.data?.firstName ?? "",
+        "phone": profileViewModel.profileModel?.data?.phone?.toString() ?? "",
+        "latitude": dropLat,
+        "longitude": dropLng,
+        "order_type": 1,
+      });
+
+      print("✅ Pickup: ${orderViewModel.pickupData}");
+      print("✅ Drop: ${orderViewModel.dropData}");
+
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 400),
+          pageBuilder: (_, __, ___) => EnterContactDetail(
+            selectedLocation: dropAddress,
+            selectedLatLng: LatLng(dropLat, dropLng),
+          ),
+          transitionsBuilder: (_, animation, __, child) {
+            final offsetAnimation = Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            ));
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+        ),
+      );
+    } catch (e) {
+      print('Error in _fetchAddressAndNavigate: $e');
+    }
   }
 
 
@@ -54,6 +164,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
   String? selectedLocation;
   String? _currentAddress;
   Future<void> _getCurrentLocation() async {
+    if (_isDeepLink) return;
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -75,6 +186,7 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
     }
 
     Position position = await Geolocator.getCurrentPosition();
+    if (!mounted) return;
 
     setState(() {});
 
@@ -131,12 +243,12 @@ class _DeliverByTruckState extends State<DeliverByTruck> {
     final orderViewModel = Provider.of<OrderViewModel>(context);
     final profileViewModel = Provider.of<ProfileViewModel>(context);
     final loc = AppLocalizations.of(context)!;
-    final args = ModalRoute.of(context)?.settings.arguments as Map?;
-    double? lat = args?['latitude'];
-    double? lng = args?['longitude'];
-     print("🧁🧁");
-    print(lat);
-    print(lng);
+    // final args = ModalRoute.of(context)?.settings.arguments as Map?;
+    // double? lat = args?['latitude'];
+    // double? lng = args?['longitude'];
+    //  print("🧁🧁");
+    // print(lat);
+    // print(lng);
 
     return SafeArea(
       top: false,

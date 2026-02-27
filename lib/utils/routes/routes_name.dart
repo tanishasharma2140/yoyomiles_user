@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/view/auth/login_page.dart';
 import 'package:yoyomiles/view/auth/otp_page.dart';
@@ -28,18 +29,30 @@ class Routers {
             return (context) => const DriverSearchingScreen();
         case RoutesName.deliveryByTruck:
           return (context) => const DeliverByTruck();
-         default:
-            return (context) => const Scaffold(
-               body: Center(
-                  child: Text(
-                     'No Route Found!',
-                     style: TextStyle(
-                         fontSize: 18,
-                         fontWeight: FontWeight.w600,
-                         color: Colors.black),
+        default:
+          return (context) => const Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: PortColor.gold,
                   ),
-               ),
-            );
+                  SizedBox(height: 20),
+                  Text(
+                    "Loading...",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
       }
    }
 }

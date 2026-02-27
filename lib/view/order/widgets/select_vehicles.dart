@@ -82,9 +82,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
 
 
       selectVehiclesViewModel.selectVehicleApi(
-        serviceTypeViewModel.selectedVehicleId!,
+        serviceTypeViewModel.selectedVehicleId??"1",
         formattedDistance,
-        serviceTypeViewModel.selectedVehicleType!,
+        serviceTypeViewModel.selectedVehicleType??"1",
         pickupLat,
         pickupLng,
         dropLat,

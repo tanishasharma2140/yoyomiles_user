@@ -39,19 +39,19 @@ class _HomePageState extends State<HomePage> {
   String currentAddress = "Fetching location...";
   bool _isLoadingLocation = true;
 
-  Future<void> _logHomeEvent() async {
-    try {
-      await facebookAppEvents.logEvent(
-        name: "home_screen_opened",
-        parameters: {
-          "fb_test_event_code": "PASTE_CODE_HERE"
-        },
-      );
-      print("Test event triggered");
-    } catch (e) {
-      debugPrint("Facebook event error: $e");
-    }
-  }
+  // Future<void> _logHomeEvent() async {
+  //   try {
+  //     await facebookAppEvents.logEvent(
+  //       name: "home_screen_opened",
+  //       parameters: {
+  //         "fb_test_event_code": "PASTE_CODE_HERE"
+  //       },
+  //     );
+  //     print("Test event triggered");
+  //   } catch (e) {
+  //     debugPrint("Facebook event error: $e");
+  //   }
+  // }
 
   @override
   void initState() {
