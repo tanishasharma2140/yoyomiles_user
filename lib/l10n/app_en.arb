@@ -346,7 +346,8 @@
 "select_language" : "Select Language",
 "english" : "English",
 "eng_united_king" : "English (United Kingdom)",
-"hindi" : "Hindi (भारत)"
+"hindi" : "Hindi (भारत)",
+"are_you_sure_you_want_cancel" : "Are you sure you want to cancel the ride?"
 
 
 

@@ -15,6 +15,8 @@ import 'package:yoyomiles/res/app_btn.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/view/home/apply_coupon/coupons_and_offers.dart';
+import 'package:yoyomiles/view_model/apply_coupon_view_model.dart';
 import 'package:yoyomiles/view_model/gst_percentage_view_model.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
@@ -720,7 +722,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
           builder: (context, setStateBottom) {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              height: screenHeight * 0.64,
+              // height: screenHeight * 0.64,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -871,6 +873,91 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                     const SizedBox(height: 16),
 
+                    TextConst(
+                      title: loc.offer_discount,
+                      color: PortColor.black,
+                      fontFamily: AppFonts.kanitReg,
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
+                    GestureDetector(
+                      onTap: () {
+                        final applyCouponVm =
+                        Provider.of<ApplyCouponViewModel>(context, listen: false);
+
+                        applyCouponVm.setVehicleId(
+                            // widget.vehicleIds
+                          "1"
+                        );
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                            transitionDuration: const Duration(milliseconds: 400),
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                CouponsAndOffers(price:
+                                // widget.price,
+                                "989",
+                                  vehicleId:
+                                    "1",
+                                  // widget.vehicleIds,
+                                ),
+                            transitionsBuilder:
+                                (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(0.0, 1.0); // bottom se start
+                              const end = Offset.zero; // normal position
+                              const curve = Curves.easeInOut;
+
+                              var tween = Tween(
+                                begin: begin,
+                                end: end,
+                              ).chain(CurveTween(curve: curve));
+
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 0.5,
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              Assets.assetsApplyCoupon,
+                              height: 30,
+                              width: 30,
+                              fit: BoxFit.contain,
+                            ),
+                            const SizedBox(width: 6),
+                            TextConst(
+                              title: loc.coupon_applied,
+                              fontFamily: AppFonts.kanitReg,
+                              size: 14,
+                              color: PortColor.black,
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 15,
+                              color: PortColor.black,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.02),
                     Text(
                       "${loc.distance} ${distance.toStringAsFixed(1)} km",
                       style: TextStyle(
@@ -898,7 +985,6 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                     const SizedBox(height: 6),
 
-// Total Amount
                     Row(
                       children: [
                          TextConst(
@@ -1045,6 +1131,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
                         );
                       },
                     ),
+                    SizedBox(height: screenHeight*0.02,)
+                    // SizedBox(height: bottomPadding,)
                   ],
                 ),
               ),

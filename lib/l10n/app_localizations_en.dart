@@ -1021,4 +1021,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hindi => 'Hindi (भारत)';
+
+  @override
+  String get are_you_sure_you_want_cancel =>
+      'Are you sure you want to cancel the ride?';
 }
