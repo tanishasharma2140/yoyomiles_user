@@ -297,7 +297,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> ActiveRideViewModel()),
           ChangeNotifierProvider(create: (context)=> UpdateRideStatusViewModel()),
           ChangeNotifierProvider(create: (context)=> PaymentViewModel()),
-          ChangeNotifierProvider(create: (context)=> CallBackViewModel()),
+          // ChangeNotifierProvider(create: (context)=> CallBackViewModel()),
           ChangeNotifierProvider(create: (context)=> DriverRatingViewModel()),
           ChangeNotifierProvider(create: (context)=> SaveSelectedItemViewModel()),
           ChangeNotifierProvider(create: (context)=> ReasonCancelRideViewModel()),

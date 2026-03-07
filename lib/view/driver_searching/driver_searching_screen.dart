@@ -56,20 +56,30 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   void _startListening() {
     final orderId =
         widget.orderData?['document_id']?.toString() ??
-        widget.orderData?['id']?.toString();
+            widget.orderData?['id']?.toString();
+
+    // ✅ userId lo orderData se (order_view_model ne inject kiya tha)
+    final userId = widget.orderData?['userid']?.toString();
 
     if (orderId == null) {
       print("❌ No order ID found");
       return;
     }
 
-    print("🎧 Starting DriverRideViewModel listener for: $orderId");
+    if (userId == null) {
+      print("❌ No user ID found");
+      return;
+    }
+
+    print("🎧 Starting listener — orderId: $orderId | userId: $userId");
 
     final driverRideVm = Provider.of<DriverRideViewModel>(
       context,
       listen: false,
     );
-    driverRideVm.startListening(orderId);
+
+    // ✅ userId pass karo, orderId sirf filter ke liye
+    driverRideVm.startListening(orderId, userId);
   }
 
   @override
@@ -490,6 +500,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
   Widget _buildMapContainer(Map<String, dynamic>? orderData) {
     return SizedBox(
+      height: screenHeight* 0.4,
       child: ConstWithPolylineMap(
         data: orderData != null
             ? [
@@ -650,7 +661,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             } else {
               _cancelSearchTimeoutTimer();
             }
-
             return _buildMainLayout(
               orderData: orderData,
               driverData: driverRideVm.driverData,
@@ -1412,7 +1422,7 @@ class AddressCard extends StatelessWidget {
                   name: orderData?['sender_name'] ?? "",
                   phone: orderData?['sender_phone']?.toString() ?? "",
                   address: orderData?['pickup_address'] ?? "",
-                  orderType: orderData?['order_type'] ?? 1,
+                  orderType: int.tryParse(orderData?['order_type']?.toString() ?? '1') ?? 1, // ✅
                 ),
 
                 const SizedBox(height: 12),
@@ -1422,7 +1432,7 @@ class AddressCard extends StatelessWidget {
                   name: orderData?['reciver_name'] ?? "",
                   phone: orderData?['reciver_phone']?.toString() ?? "",
                   address: orderData?['drop_address'] ?? "",
-                  orderType: orderData?['order_type'] ?? 1,
+                  orderType: int.tryParse(orderData?['order_type']?.toString() ?? '1') ?? 1,
                 ),
               ],
             ),
