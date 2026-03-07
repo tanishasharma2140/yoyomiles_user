@@ -681,30 +681,16 @@ class _RideMapScreenState extends State<RideMapScreen> {
   }
 
   void _showVehicleConfirmation(Map<String, dynamic> vehicle) {
-    final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+    String vehicleId = vehicle['vehicle_id'].toString();
+    String price = vehicle['amount'].toString();
+
+    print("Vehicle ID: $vehicleId");
+    print("Price: $price");
+
     final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(
       context,
       listen: false,
     );
-
-    final gstVm =
-    Provider.of<GstPercentageViewModel>(context, listen: false);
-
-// Vehicle base amount
-    double vehicleAmount =
-        double.tryParse(vehicle['amount'].toString()) ?? 0.0;
-
-// GST / Booking fee DIRECT AMOUNT (₹)
-    double bookingFee =
-        double.tryParse(
-          gstVm.gstPercentageModel?.data?.gstPercentage ?? "0",
-        ) ??
-            0.0;
-
-// Total amount
-    double totalAmount = vehicleAmount + bookingFee;
-
-
 
     // Reset payment selection every time sheet opens
     selectedPayment = 1;
@@ -720,9 +706,40 @@ class _RideMapScreenState extends State<RideMapScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setStateBottom) {
+            // ✅ Yahan calculate karo — Consumer ke saath live update hoga
+            final gstVm =
+            Provider.of<GstPercentageViewModel>(context, listen: true);
+            final applyCouponVm =
+            Provider.of<ApplyCouponViewModel>(context, listen: true);
+
+            // Vehicle base amount
+            double vehicleAmount =
+                double.tryParse(vehicle['amount'].toString()) ?? 0.0;
+
+            // GST / Booking fee
+            double bookingFee =
+                double.tryParse(
+                  gstVm.gstPercentageModel?.data?.gstPercentage ?? "0",
+                ) ??
+                    0.0;
+
+            // Discount from coupon — live read every rebuild
+            double discount =
+            (applyCouponVm.discount != null &&
+                applyCouponVm.discount != "0")
+                ? double.tryParse(applyCouponVm.discount.toString()) ?? 0.0
+                : 0.0;
+
+            // Fare after discount
+            double fareAfterDiscount = vehicleAmount - discount;
+
+            // Final amount
+            double totalAmount = discount > 0
+                ? fareAfterDiscount + bookingFee
+                : vehicleAmount + bookingFee;
+
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              // height: screenHeight * 0.64,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,16 +780,16 @@ class _RideMapScreenState extends State<RideMapScreen> {
                           ),
                           child: vehicle['vehicle_image'] != null
                               ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    vehicle['vehicle_image'],
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              vehicle['vehicle_image'],
+                              fit: BoxFit.cover,
+                            ),
+                          )
                               : Icon(
-                                  Icons.directions_car,
-                                  color: Colors.blue[600],
-                                ),
+                            Icons.directions_car,
+                            color: Colors.blue[600],
+                          ),
                         ),
                         const SizedBox(width: 12),
 
@@ -879,36 +896,35 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       fontFamily: AppFonts.kanitReg,
                     ),
                     SizedBox(height: screenHeight * 0.02),
-                    GestureDetector(
-                      onTap: () {
-                        final applyCouponVm =
-                        Provider.of<ApplyCouponViewModel>(context, listen: false);
 
-                        applyCouponVm.setVehicleId(
-                            // widget.vehicleIds
-                          "1"
-                        );
-                        Navigator.of(context).push(
+                    // ✅ Coupon Apply Button
+                    GestureDetector(
+                      onTap: () async {
+                        final applyCouponVm = Provider.of<ApplyCouponViewModel>(
+                            context,
+                            listen: false);
+
+                        applyCouponVm
+                            .setVehicleId(vehicle['vehicle_id'].toString());
+
+                        await Navigator.of(context).push(
                           PageRouteBuilder(
-                            transitionDuration: const Duration(milliseconds: 400),
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                CouponsAndOffers(price:
-                                // widget.price,
-                                "989",
-                                  vehicleId:
-                                    "1",
-                                  // widget.vehicleIds,
+                            transitionDuration:
+                            const Duration(milliseconds: 400),
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                CouponsAndOffers(
+                                  price: vehicle['amount'].toString(),
+                                  vehicleId: vehicle['vehicle_id'].toString(),
                                 ),
-                            transitionsBuilder:
-                                (context, animation, secondaryAnimation, child) {
-                              const begin = Offset(0.0, 1.0); // bottom se start
-                              const end = Offset.zero; // normal position
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              const begin = Offset(0.0, 1.0);
+                              const end = Offset.zero;
                               const curve = Curves.easeInOut;
 
-                              var tween = Tween(
-                                begin: begin,
-                                end: end,
-                              ).chain(CurveTween(curve: curve));
+                              var tween = Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: curve));
 
                               return SlideTransition(
                                 position: animation.drive(tween),
@@ -917,6 +933,10 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             },
                           ),
                         );
+
+                        // ✅ CouponsAndOffers se wapas aane ke baad
+                        // StatefulBuilder rebuild trigger karo
+                        setStateBottom(() {});
                       },
                       child: Container(
                         padding: const EdgeInsets.all(16),
@@ -941,11 +961,16 @@ class _RideMapScreenState extends State<RideMapScreen> {
                               fit: BoxFit.contain,
                             ),
                             const SizedBox(width: 6),
+                            // ✅ Coupon applied hai to naam dikhao, warna default text
                             TextConst(
-                              title: loc.coupon_applied,
+                              title: discount > 0
+                                  ? "${loc.coupon_applied} (-₹${discount.toStringAsFixed(0)})"
+                                  : loc.coupon_applied,
                               fontFamily: AppFonts.kanitReg,
                               size: 14,
-                              color: PortColor.black,
+                              color: discount > 0
+                                  ? Colors.green
+                                  : PortColor.black,
                             ),
                             const Spacer(),
                             Icon(
@@ -957,7 +982,9 @@ class _RideMapScreenState extends State<RideMapScreen> {
                         ),
                       ),
                     ),
+
                     SizedBox(height: screenHeight * 0.02),
+
                     Text(
                       "${loc.distance} ${distance.toStringAsFixed(1)} km",
                       style: TextStyle(
@@ -967,13 +994,39 @@ class _RideMapScreenState extends State<RideMapScreen> {
                         fontFamily: AppFonts.kanitReg,
                       ),
                     ),
+
+                    // ✅ Discount row — sirf tab dikhega jab discount ho
+                    if (discount > 0)
+                      Row(
+                        children: [
+                          TextConst(title: loc.discount, size: 12),
+                          const Spacer(),
+                          TextConst(
+                            title: "-₹${discount.toStringAsFixed(2)}",
+                            size: 12,
+                            color: Colors.green,
+                          ),
+                        ],
+                      ),
+
+                    // ✅ Fare after discount
+                    if (discount > 0)
+                      Row(
+                        children: [
+                          TextConst(title: loc.fare_after_discount, size: 12),
+                          const Spacer(),
+                          TextConst(
+                            title: "₹${fareAfterDiscount.toStringAsFixed(2)}",
+                            size: 12,
+                          ),
+                        ],
+                      ),
+
                     // Booking Fee
                     Row(
                       children: [
-                         TextConst(
-                          title: loc.booking_fees_conv_charge,
-                          size: 12,
-                        ),
+                        TextConst(
+                            title: loc.booking_fees_conv_charge, size: 12),
                         const Spacer(),
                         TextConst(
                           title: "₹${bookingFee.toStringAsFixed(2)}",
@@ -985,9 +1038,10 @@ class _RideMapScreenState extends State<RideMapScreen> {
 
                     const SizedBox(height: 6),
 
+                    // ✅ Total Amount — live update
                     Row(
                       children: [
-                         TextConst(
+                        TextConst(
                           title: loc.total_amount,
                           size: 14,
                           fontWeight: FontWeight.w600,
@@ -1002,10 +1056,9 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       ],
                     ),
 
-
                     const SizedBox(height: 20),
 
-                    // ⭐ PAYMENT MODE SECTION ⭐
+                    // Payment Mode
                     Text(
                       loc.pay_mode,
                       style: TextStyle(
@@ -1071,6 +1124,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                     ),
 
                     SizedBox(height: screenHeight * 0.01),
+
                     Consumer<OrderViewModel>(
                       builder: (context, orderViewModel, child) {
                         return GestureDetector(
@@ -1091,7 +1145,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                                 "",
                                 "",
                                 "",
-                                  totalAmount.toStringAsFixed(2),
+                                totalAmount.toStringAsFixed(2),
                                 distance.toStringAsFixed(1),
                                 selectedPayment,
                                 [],
@@ -1114,25 +1168,25 @@ class _RideMapScreenState extends State<RideMapScreen> {
                             ),
                             alignment: Alignment.center,
                             child: orderViewModel.loading
-                                ? CupertinoActivityIndicator(
-                                    radius: 12,
-                                    color: Colors.white,
-                                  )
+                                ? const CupertinoActivityIndicator(
+                              radius: 12,
+                              color: Colors.white,
+                            )
                                 : Text(
-                                    loc.continue_ride,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontFamily: AppFonts.kanitReg,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                              loc.continue_ride,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontFamily: AppFonts.kanitReg,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         );
                       },
                     ),
-                    SizedBox(height: screenHeight*0.02,)
-                    // SizedBox(height: bottomPadding,)
+
+                    SizedBox(height: screenHeight * 0.02),
                   ],
                 ),
               ),
@@ -1142,5 +1196,4 @@ class _RideMapScreenState extends State<RideMapScreen> {
       },
     );
   }
-
 }
