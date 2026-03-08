@@ -20,6 +20,8 @@ class UpdateRideStatusViewModel with ChangeNotifier {
     setLoading(true);
 
     Map data = {"id": id, "ride_status": rideStatus};
+    print("hybyby");
+    print(data);
 
     _updateRideStatusRepo.updateRideApi(data).then((value) async {
       setLoading(false);
