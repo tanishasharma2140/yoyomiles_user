@@ -1225,13 +1225,12 @@ class CollectPaymentScreen extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     // 🔥 Title
-                    Text(
+                    TextConst(
+                      title:
                       payMode == 1 ? loc.cash_payment : loc.online_payment,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: payMode == 1 ? Colors.green : Colors.orange,
-                      ),
+                      size: 24,
+                      fontWeight: FontWeight.bold,
+                      color: payMode == 1 ? Colors.green : Colors.orange,
                     ),
                     const SizedBox(height: 16),
 
@@ -1325,14 +1324,13 @@ class CollectPaymentScreen extends StatelessWidget {
                       // ),
                     ] else ...[
                       // ✅ ONLINE PAYMENT UI
-                       Text(
+                       TextConst(
+                         title:
                         loc.complete_your_online_payment,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                           color: Colors.grey, size: 16
                       ),
                       const SizedBox(height: 20),
-
-                      // PAYMENT GATEWAY SECTION
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
