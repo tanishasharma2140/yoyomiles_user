@@ -163,6 +163,7 @@
 // }
 
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
@@ -180,7 +181,6 @@ class DriverRideViewModel extends ChangeNotifier {
   String? _currentOrderId;
   bool _isListening = false;
 
-  // ─── Getters ───────────────────────────────────────────────
   Map<String, dynamic>? get currentRideData => _currentRideData;
   Map<String, dynamic>? get driverData => _driverData;
   int get rideStatus => _rideStatus;
@@ -188,10 +188,9 @@ class DriverRideViewModel extends ChangeNotifier {
   String get otp => _otp;
   bool get isSearching => _isSearching;
 
-  // ─── Constants ─────────────────────────────────────────────
   static const String _baseUrl = "https://yoyo.codescarts.com/";
 
-  // ─── Start Listening ───────────────────────────────────────
+
   void startListening(String orderId, String userId) {
     if (_isListening && _currentOrderId == orderId) {
       print("⚠️ Already listening for order: $orderId");
@@ -272,67 +271,11 @@ class DriverRideViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ─── Connect Socket ────────────────────────────────────────
-  // void _connectSocket(String orderId) {
-  //   // Disconnect old socket if any
-  //   _socket?.disconnect();
-  //   _socket?.dispose();
-  //
-  //   _socket = IO.io(
-  //     _baseUrl,
-  //     IO.OptionBuilder()
-  //         .setTransports(['websocket', 'polling'])
-  //         .enableReconnection()
-  //         .setReconnectionAttempts(10)
-  //         .setTimeout(20000)
-  //         .build(),
-  //   );
-  //
-  //   // ── on connect → join user room using orderId or userId
-  //   _socket!.onConnect((_) {
-  //     print("✅ Socket connected: ${_socket!.id}");
-  //
-  //     // JOIN_USER emit — socket HTML test mein userId se join tha
-  //     // Yahan orderId ke andar userId available hona chahiye
-  //     // Agar alag field hai toh wahan se lena
-  //     _socket!.emit("JOIN_USER", orderId);
-  //     print("📤 Emitted JOIN_USER: $orderId");
-  //   });
-  //
-  //   // ── JOIN_CONFIRMED
-  //   _socket!.on('JOIN_CONFIRMED', (data) {
-  //     print("✅ Join Confirmed: $data");
-  //   });
-  //
-  //   // ── ORDER_UPDATE — yahi Firebase ka replacement hai
-  //   _socket!.on('ORDER_UPDATE', (data) {
-  //     print("📦 ORDER_UPDATE received");
-  //     _handleOrderUpdate(data);
-  //   });
-  //
-  //   // ── DRIVER_LOCATION_UPDATE
-  //   _socket!.on('DRIVER_LOCATION_UPDATE', (loc) {
-  //     print("🚖 Driver Location: $loc");
-  //     // Location update chahiye toh separate ViewModel ya callback se handle karo
-  //   });
-  //
-  //   // ── Disconnect
-  //   _socket!.onDisconnect((_) {
-  //     print("❌ Socket disconnected");
-  //   });
-  //
-  //   // ── Error
-  //   _socket!.onConnectError((err) {
-  //     print("❌ Socket connect error: $err");
-  //   });
-  //
-  //   _socket!.connect();
-  // }
-
   // ─── Handle ORDER_UPDATE (same logic jo Firebase mein thi) ─
   void _handleOrderUpdate(dynamic data) {
     try {
-      print("📦 RAW ORDER_UPDATE DATA: $data");
+      print("📦 SOCKET FULL DATA ↓↓↓");
+      print(const JsonEncoder.withIndent('  ').convert(data));
       final Map<String, dynamic> orderMap = Map<String, dynamic>.from(data);
 
       // ── ride_status parse
@@ -364,7 +307,7 @@ class DriverRideViewModel extends ChangeNotifier {
           'phone': orderMap['driver_phone']?.toString() ?? '',
           'vehicle_no': orderMap['vehicle_no'] ?? '',
           'vehicle_type_name': orderMap['driver_vehicle_type'] ?? '',
-          'owner_selfie': orderMap['driver_selfie'] ?? '',
+          'owner_selfie': orderMap['owner_selfie'] ?? '',
         };
       }
 
@@ -387,7 +330,6 @@ class DriverRideViewModel extends ChangeNotifier {
     }
   }
 
-  // ─── Stop Listening ────────────────────────────────────────
   void stopListening() {
     print("🛑 Stopping socket listener");
     _isListening = false;
@@ -413,3 +355,4 @@ class DriverRideViewModel extends ChangeNotifier {
     super.dispose();
   }
 }
+

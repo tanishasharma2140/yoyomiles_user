@@ -271,14 +271,11 @@ class AccountDetail extends StatelessWidget {
                 InkWell(
                   onTap: () {
                     UserViewModel().remove();
-                    // Navigator.pushReplacementNamed(context, RoutesName.splash);
-                    // Navigator.pushNamedAndRemoveUntil(context, RoutesName.splash, (context)=>true);
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                             builder: (context) => const SplashScreen()),
                             (context) => false);
-                    //  Navigator.pushAndRemoveUntil(context, RoutesName.splash, (context)=>false);
                   },
                   child: Container(
                     height: screenHeight * 0.058,

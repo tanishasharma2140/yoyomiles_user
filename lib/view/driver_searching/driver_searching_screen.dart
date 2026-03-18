@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
@@ -837,6 +838,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Widget _buildDriverInfo(Map<String, dynamic> driverData) {
+    print("driver Data:${driverData}");
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -851,9 +853,10 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundImage: NetworkImage(
-              driverData['owner_selfie'] ?? 'https://via.placeholder.com/150',
-            ),
+            backgroundImage: (driverData['owner_selfie'] != null &&
+                driverData['owner_selfie'].toString().isNotEmpty)
+                ? NetworkImage(driverData['owner_selfie'])
+                : AssetImage(Assets.assetsProfileyoyo),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -862,7 +865,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               children: [
                 TextConst(
                   title:
-                      "${driverData['vehicle_type_name']} - ${driverData['vehicle_no']}",
+                      "${driverData['vehicle_no']}",
                   fontWeight: FontWeight.bold,
                 ),
                 TextConst(
