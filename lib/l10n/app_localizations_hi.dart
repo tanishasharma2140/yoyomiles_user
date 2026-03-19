@@ -986,7 +986,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get pay => 'भुगतान का तरीका: ';
 
   @override
-  String get cash_on_delivery => 'डिलीवरी पर नकद';
+  String get cash_on_delivery => 'नकद';
 
   @override
   String get by_wallet => 'वॉलेट द्वारा';

@@ -323,7 +323,7 @@
   "success" : "सफल",
   "failed" : "असफल",
   "pay" : "भुगतान का तरीका: ",
-  "cash_on_delivery" : "डिलीवरी पर नकद",
+  "cash_on_delivery" : "नकद",
   "online_payment" : "ऑनलाइन भुगतान",
   "by_wallet" : "वॉलेट द्वारा",
   "nothing" : "कुछ नहीं",

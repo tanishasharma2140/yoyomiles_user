@@ -2009,7 +2009,7 @@ abstract class AppLocalizations {
   /// No description provided for @cash_on_delivery.
   ///
   /// In en, this message translates to:
-  /// **'Cash on Delivery'**
+  /// **'Cash'**
   String get cash_on_delivery;
 
   /// No description provided for @by_wallet.

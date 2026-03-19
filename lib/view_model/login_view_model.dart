@@ -188,7 +188,7 @@ class AuthViewModel with ChangeNotifier {
           ),
         );
         Utils.showSuccessMessage(context, value['msg'] ?? 'OTP sent successfully');
-        Provider.of<OtpCountViewModel>(context,listen: false).otpCountApi(context);
+        // Provider.of<OtpCountViewModel>(context,listen: false).otpCountApi(context);
       } else {
         Utils.showErrorMessage(context, value['msg']);
       }
@@ -208,7 +208,7 @@ class AuthViewModel with ChangeNotifier {
       setLoading(false);
       if (value['error'].toString() == "200") {
         Utils.showSuccessMessage(context, value['msg'] ?? 'OTP resent successfully');
-        Provider.of<OtpCountViewModel>(context,listen: false).otpCountApi(context);
+        // Provider.of<OtpCountViewModel>(context,listen: false).otpCountApi(context);
       }  else {
         Utils.showErrorMessage(value['msg'], 'Failed to resend OTP');
       }

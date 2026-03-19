@@ -333,7 +333,7 @@
 "success" : "Success",
 "failed" : "Failed",
 "pay" : "Pay Mode: ",
-"cash_on_delivery" : "Cash on Delivery",
+"cash_on_delivery" : "Cash",
 "online_payment" : "Online Payment",
 "by_wallet" : "By Wallet",
 "nothing" : "Nothing",

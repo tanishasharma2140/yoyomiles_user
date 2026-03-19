@@ -984,7 +984,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pay => 'Pay Mode: ';
 
   @override
-  String get cash_on_delivery => 'Cash on Delivery';
+  String get cash_on_delivery => 'Cash';
 
   @override
   String get by_wallet => 'By Wallet';

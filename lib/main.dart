@@ -313,7 +313,7 @@ class _MyAppState extends State<MyApp> {
           // ChangeNotifierProvider(create: (context)=> AddMoneyPaymentViewModel()),
           ChangeNotifierProvider(create: (context)=> AddMoneyCallbackViewModel()),
           ChangeNotifierProvider(create: (context)=> UserTransactionViewModel()),
-          ChangeNotifierProvider(create: (context)=> OtpCountViewModel()),
+          // ChangeNotifierProvider(create: (context)=> OtpCountViewModel()),
           // ChangeNotifierProvider(create: (context)=> ChangePayModeViewModel()),
           ChangeNotifierProvider(create: (context)=> VehicleLoadingViewModel()),
           ChangeNotifierProvider(create: (context)=> RewardViewModel()),
