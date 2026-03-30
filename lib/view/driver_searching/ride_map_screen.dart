@@ -22,6 +22,7 @@ import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
 import 'package:yoyomiles/view_model/service_type_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:yoyomiles/view_model/settings_view_model.dart';
 
 class RideMapScreen extends StatefulWidget {
   final String pickupLocation;
@@ -65,6 +66,8 @@ class _RideMapScreenState extends State<RideMapScreen> {
       final gstPercentageVm =
       context.read<GstPercentageViewModel>();
       gstPercentageVm.gstPercentageApi();
+      final settingsVm = Provider.of<SettingsViewModel>(context, listen: false);
+      settingsVm.settingApi(context, "1");
     });
   }
 
@@ -88,6 +91,237 @@ class _RideMapScreenState extends State<RideMapScreen> {
     final Uint8List resizedBytes = byteData!.buffer.asUint8List();
 
     return BitmapDescriptor.fromBytes(resizedBytes);
+  }
+
+  void processOrder(double amount, Map<String, dynamic> vehicle, int paymentMode) {
+    final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(
+      context,
+      listen: false,
+    );
+    final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+
+    facebookAppEvents.logEvent(name: 'booking_for_passengers');
+
+    orderViewModel.orderApi(
+      vehicle["vehicle_id"],
+      widget.pickupLocation,
+      widget.dropLocation,
+      widget.dropLat,
+      widget.dropLng,
+      widget.pickupLat,
+      widget.pickupLng,
+      "",
+      "",
+      "",
+      "",
+      amount.toStringAsFixed(2),
+      distance.toStringAsFixed(1),
+      paymentMode,
+      [],
+      serviceTypeViewModel.selectedVehicleType,
+      "",
+      "",
+      "",
+      vehicle['vehicle_body_details_id'],
+      vehicle["vehicle_body_types_id"],
+      context,
+    );
+  }
+
+  void showPriceBottomSheet(BuildContext context, double basePrice, Map<String, dynamic> vehicle, int paymentMode) {
+    double currentPrice = basePrice;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                top: 20,
+                left: 20,
+                right: 20,
+              ),
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Handle bar
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Title
+                      TextConst(
+                        title:
+                        "Now you can set a price\nthat works for you",
+                        textAlign: TextAlign.center,
+                        fontFamily: AppFonts.kanitReg,
+                        size: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          "₹${currentPrice.toStringAsFixed(0)}",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: AppFonts.kanitReg,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Tip text
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.lightbulb_outline,
+                              size: 16, color: Colors.grey),
+                          SizedBox(width: 6),
+                          TextConst(
+                            title:
+                            "Higher the price, higher the chance\nof getting a ride",
+                            textAlign: TextAlign.center,
+                            color: Colors.grey, size: 13,
+                            fontFamily: AppFonts.kanitReg,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Slider labels
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: ["-10", "+10", "+20", "+30", "+40"]
+                            .map(
+                              (e) => Text(
+                            e,
+                            style: TextStyle(
+                              color: e == "-10"
+                                  ? Colors.black
+                                  : Colors.green,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                          ),
+                        )
+                            .toList(),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // Slider
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: Colors.green,
+                          inactiveTrackColor: Colors.grey.shade300,
+                          thumbColor: Colors.white,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 14,
+                            elevation: 4,
+                          ),
+                          overlayColor:
+                          Colors.green.withOpacity(0.2),
+                          trackHeight: 6,
+                        ),
+                        child: Slider(
+                          value: currentPrice,
+                          min: basePrice - 10,
+                          max: basePrice + 40,
+                          divisions: 5,
+                          onChanged: (val) {
+                            setModalState(() {
+                              currentPrice = val;
+                            });
+                          },
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Book Button
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          processOrder(currentPrice, vehicle, paymentMode);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 54,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: const Color(0xFFFFC107),
+                          ),
+                          child: Text(
+                            "Book ${vehicle['vehicle_name']} for ₹${currentPrice.toStringAsFixed(0)}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // ❌ Cross Icon (Top Right)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   // Fetch vehicles from API
@@ -711,6 +945,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
             Provider.of<GstPercentageViewModel>(context, listen: true);
             final applyCouponVm =
             Provider.of<ApplyCouponViewModel>(context, listen: true);
+            final settingsVm = Provider.of<SettingsViewModel>(context, listen: true);
 
             // Vehicle base amount
             double vehicleAmount =
@@ -1129,34 +1364,17 @@ class _RideMapScreenState extends State<RideMapScreen> {
                       builder: (context, orderViewModel, child) {
                         return GestureDetector(
                           onTap: () {
-                            facebookAppEvents.logEvent(
-                              name: 'booking_for_passengers',
-                            );
-                            if (!orderViewModel.loading) {
-                              orderViewModel.orderApi(
-                                vehicle["vehicle_id"],
-                                widget.pickupLocation,
-                                widget.dropLocation,
-                                widget.dropLat,
-                                widget.dropLng,
-                                widget.pickupLat,
-                                widget.pickupLng,
-                                "",
-                                "",
-                                "",
-                                "",
-                                totalAmount.toStringAsFixed(2),
-                                distance.toStringAsFixed(1),
-                                selectedPayment,
-                                [],
-                                serviceTypeViewModel.selectedVehicleType,
-                                "",
-                                "",
-                                "",
-                                vehicle['vehicle_body_details_id'],
-                                vehicle["vehicle_body_types_id"],
-                                context,
-                              );
+                            double minBidLimit = double.tryParse(
+                                    settingsVm.settingsModel?.data?.minBidLimit
+                                            ?.toString() ??
+                                        "0") ??
+                                0.0;
+
+                            if (minBidLimit < totalAmount) {
+                              showPriceBottomSheet(
+                                  context, totalAmount, vehicle, selectedPayment);
+                            } else {
+                              processOrder(totalAmount, vehicle, selectedPayment);
                             }
                           },
                           child: Container(
@@ -1175,7 +1393,7 @@ class _RideMapScreenState extends State<RideMapScreen> {
                                 : Text(
                               loc.continue_ride,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                                 fontSize: 14,
                                 fontFamily: AppFonts.kanitReg,
                                 fontWeight: FontWeight.w600,

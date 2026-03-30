@@ -54,6 +54,7 @@ import 'package:yoyomiles/view_model/reward_view_model.dart';
 import 'package:yoyomiles/view_model/save_selected_item_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
 import 'package:yoyomiles/view_model/service_type_view_model.dart';
+import 'package:yoyomiles/view_model/settings_view_model.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
 import 'package:yoyomiles/view_model/user_history_view_model.dart';
 import 'package:yoyomiles/view_model/user_transaction_view_model.dart';
@@ -321,6 +322,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> DriverRideViewModel()),
           ChangeNotifierProvider(create: (context)=> GstPercentageViewModel()),
           ChangeNotifierProvider(create: (context)=> LanguageController()),
+          ChangeNotifierProvider(create: (context)=> SettingsViewModel()),
 
         ],
         child: Consumer<LanguageController>(

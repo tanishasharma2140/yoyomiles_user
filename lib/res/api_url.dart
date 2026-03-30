@@ -1,7 +1,8 @@
 class ApiUrl{
 
   // static const String baseUrl ="https://yoyo.codescarts.com/api/";
-  static const String baseUrl ="https://admin.yoyomiles.com/api/";
+  static const String baseUrl ="https://dev.yoyomiles.com/api/";
+  // static const String baseUrl ="https://admin.yoyomiles.com/api/";
   static const String registerUrl="${baseUrl}register";
   static const String profileUrl="${baseUrl}user_profile/";
   static const String loginUrl="${baseUrl}login";
@@ -43,8 +44,9 @@ class ApiUrl{
   static const String referralRewardHistoryUrl ="${baseUrl}referral-reward-history";
   static const String claimedRewardUrl ="${baseUrl}claim-reward";
   static const String gstPercentageUrl ="${baseUrl}gst-percentage";
+  static const String settingsUrl ="${baseUrl}settings/";
 
-  static const String sendOtpUrl ="https://admin.yoyomiles.com/api/send_otp?mode=live&digit=4&mobile=";
+  static const String sendOtpUrl ="https://admin.yoyomiles.com/api/send_otp?mode=test&digit=4&mobile=";
   static const String verifyOtpUrl ="https://admin.yoyomiles.com/api/verifyotp?mobile=";
   // static const String countOtpUrl ="${baseUrl}count_otp";
 

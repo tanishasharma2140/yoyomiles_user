@@ -8,6 +8,7 @@ import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
 import 'package:yoyomiles/view/bottom_nav_bar.dart';
+import 'package:yoyomiles/view/order/widgets/add_stops_page.dart';
 import 'package:yoyomiles/view/order/widgets/review_booking.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
@@ -281,38 +282,74 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             size: 12,
                           ),
                           SizedBox(height: screenHeight * 0.017),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const BottomNavigationPage(),
+                          Row(
+                            children: [
+                              // ── Edit Location ──
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const BottomNavigationPage(),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.edit,
+                                      color: PortColor.blue,
+                                      size: screenHeight * 0.022,
+                                    ),
+                                    SizedBox(width: screenWidth * 0.01),
+                                    TextConst(
+                                      title: loc.edit_location,
+                                      color: PortColor.black,
+                                      fontFamily: AppFonts.poppinsReg,
+                                      size: 13,
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                            child: Container(
-                              height: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit,
-                                    color: PortColor.blue,
-                                    size: screenHeight * 0.025,
-                                  ),
-                                  SizedBox(width: screenWidth * 0.01),
-                                   TextConst(
-                                    title: loc.edit_location,
-                                    color: PortColor.black,
-                                    fontFamily: AppFonts.poppinsReg,
-                                  ),
-                                  Spacer(),
-                                  TextConst(title: "${loc.distance} $distance",size: 12,)
-                                ],
+
+                              SizedBox(width: screenWidth * 0.1),
+
+                              // ── Add Stops ──
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>  AddStopsPage(),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.add_location_alt_outlined,
+                                      color: PortColor.blue,
+                                      size: screenHeight * 0.022,
+                                    ),
+                                    SizedBox(width: screenWidth * 0.01),
+                                    TextConst(
+                                      title: "ADD STOPS",          // or loc.add_stops if you add the key
+                                      color: PortColor.black,
+                                      fontFamily: AppFonts.poppinsReg,
+                                      size: 13,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
+
+                              // const Spacer(),
+                              //
+                              // // ── Distance chip (kept as-is) ──
+                              // TextConst(
+                              //   title: "${loc.distance} $distance",
+                              //   size: 12,
+                              // ),
+                            ],
                           ),
                         ],
                       ),

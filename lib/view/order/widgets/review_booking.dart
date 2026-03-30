@@ -15,6 +15,7 @@ import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
   import 'package:yoyomiles/view_model/select_vehicles_view_model.dart';
   import 'package:provider/provider.dart';
+import 'package:yoyomiles/view_model/settings_view_model.dart';
   import 'package:yoyomiles/view_model/vehicle_loading_view_model.dart';
 
   class ReviewBooking extends StatefulWidget {
@@ -48,12 +49,15 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
         vehicleLoadingVm.vehicleLoadingApi(widget.vehicleIds);
         final gstPercentageVm = Provider.of<GstPercentageViewModel>(context,listen: false);
         gstPercentageVm.gstPercentageApi();
+        final settingsVm = Provider.of<SettingsViewModel>(context, listen: false);
+        settingsVm.settingApi(context, "2");
       });
     }
 
     String PaymentMethod = "";
     String? selectedGoodsName;
     Map<String, dynamic>? selectedGoodsType;
+    double selectedPrice = 0.0;
 
     @override
     Widget build(BuildContext context) {
@@ -69,6 +73,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
 
       final gstAmountVm = Provider.of<GstPercentageViewModel>(context);
       final profileVm = Provider.of<ProfileViewModel>(context);
+      final settingsVm = Provider.of<SettingsViewModel>(context);
 
 // 🔥 Convert wallet to double safely
       double walletBalance = double.tryParse(
@@ -89,16 +94,242 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
           ? double.tryParse(applyCouponVm.discount.toString()) ?? 0.0
           : 0.0;
 
-// Fare after discount
       double fareAfterDiscount = baseFare - discount;
 
-// ✅ FINAL NET FARE (UI + API ke liye)
       double netFare =
       discount > 0 ? fareAfterDiscount + gstAmount : baseFare + gstAmount;
 
       bool canPayViaWallet = walletBalance >= netFare;
       final loc = AppLocalizations.of(context)!;
 
+      void processOrder(double amount) {
+        facebookAppEvents.logEvent(name: 'booking_for_logistics');
+
+        orderViewModel.orderApi(
+          vehicle.vehicleId.toString(),
+          orderViewModel.pickupData["address"],
+          orderViewModel.dropData["address"],
+          orderViewModel.dropData["latitude"],
+          orderViewModel.dropData["longitude"],
+          orderViewModel.pickupData["latitude"],
+          orderViewModel.pickupData["longitude"],
+          orderViewModel.pickupData["name"],
+          orderViewModel.pickupData["phone"],
+          orderViewModel.dropData["name"],
+          orderViewModel.dropData["phone"],
+          amount.toStringAsFixed(0),
+          widget.distance,
+          PaymentMethod,
+          [selectedGoodsType!],
+          orderViewModel.pickupData["order_type"] ?? 1,
+          orderViewModel.pickupData["pickup_date"],
+          orderViewModel.pickupData["save_as"],
+          orderViewModel.dropData["save_as"],
+          widget.vehicleBodyDetailId,
+          widget.vehicleBodyTypeId,
+          context,
+        );
+      }
+
+      void showPriceBottomSheet(BuildContext context, double basePrice) {
+        double currentPrice = basePrice;
+
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.white,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (context) {
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                  ),
+                  child: Stack(
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Handle bar
+                          Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Title
+                           TextConst(
+                             title:
+                            "Now you can set a price\nthat works for you",
+                            textAlign: TextAlign.center,
+                             fontFamily: AppFonts.kanitReg,
+                             size: 20,
+                             fontWeight: FontWeight.bold,
+                             color: Colors.black,
+                          ),
+                          const SizedBox(height: 24),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "₹${currentPrice.toStringAsFixed(0)}",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: AppFonts.kanitReg,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Tip text
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.lightbulb_outline,
+                                  size: 16, color: Colors.grey),
+                              SizedBox(width: 6),
+                              TextConst(
+                                title:
+                                "Higher the price, higher the chance\nof getting a ride",
+                                textAlign: TextAlign.center,
+                                  color: Colors.grey, size: 13,
+                                fontFamily: AppFonts.kanitReg,
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Slider labels
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: ["-10", "+10", "+20", "+30", "+40"]
+                                .map(
+                                  (e) => Text(
+                                e,
+                                style: TextStyle(
+                                  color: e == "-10"
+                                      ? Colors.black
+                                      : Colors.green,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            )
+                                .toList(),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          // Slider
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: Colors.green,
+                              inactiveTrackColor: Colors.grey.shade300,
+                              thumbColor: Colors.white,
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 14,
+                                elevation: 4,
+                              ),
+                              overlayColor:
+                              Colors.green.withOpacity(0.2),
+                              trackHeight: 6,
+                            ),
+                            child: Slider(
+                              value: currentPrice,
+                              min: basePrice - 10,
+                              max: basePrice + 40,
+                              divisions: 5,
+                              onChanged: (val) {
+                                setModalState(() {
+                                  currentPrice = val;
+                                });
+                              },
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Book Button
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedPrice = currentPrice;
+                              });
+
+                              Navigator.pop(context);
+                              processOrder(currentPrice);
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: 54,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: const Color(0xFFFFC107),
+                              ),
+                              child: Text(
+                                "Book ${widget.vehicleName} for ₹${currentPrice.toStringAsFixed(0)}",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // ❌ Cross Icon (Top Right)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      }
       return SafeArea(
         top: false,
         bottom: true,
@@ -782,7 +1013,7 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                   ],
                 ),
                 SizedBox(height: screenHeight * 0.014),
-                InkWell(
+                GestureDetector(
                   onTap: () {
                     print("Booking button tapped ✅");
 
@@ -796,36 +1027,17 @@ import 'package:yoyomiles/view_model/profile_view_model.dart';
                       return;
                     }
 
-                    double finalAmount = netFare;
-                    print("✅ Final Amount to send in API: ₹${finalAmount.toStringAsFixed(0)}");
-                    facebookAppEvents.logEvent(
-                      name: 'booking_for_logistics',
-                    );
-                    // ✅ Step 2: Call order API with computed amount
-                    orderViewModel.orderApi(
-                      vehicle.vehicleId.toString(),
-                      orderViewModel.pickupData["address"],
-                      orderViewModel.dropData["address"],
-                      orderViewModel.dropData["latitude"],
-                      orderViewModel.dropData["longitude"],
-                      orderViewModel.pickupData["latitude"],
-                      orderViewModel.pickupData["longitude"],
-                      orderViewModel.pickupData["name"],
-                      orderViewModel.pickupData["phone"],
-                      orderViewModel.dropData["name"],
-                      orderViewModel.dropData["phone"],
-                      finalAmount.toStringAsFixed(0), // ✅ send calculated amount
-                      widget.distance,
-                      PaymentMethod,
-                      [selectedGoodsType!],
-                      orderViewModel.pickupData["order_type"]?? 1,
-                      orderViewModel.pickupData["pickup_date"],
-                      orderViewModel.pickupData["save_as"],
-                      orderViewModel.dropData["save_as"],
-                      widget.vehicleBodyDetailId,
-                      widget.vehicleBodyTypeId,
-                      context,
-                    );
+                    double minBidLimit = double.tryParse(
+                            settingsVm.settingsModel?.data?.minBidLimit
+                                    ?.toString() ??
+                                "0") ??
+                        0.0;
+
+                    if (minBidLimit < netFare) {
+                      showPriceBottomSheet(context, netFare);
+                    } else {
+                      processOrder(netFare);
+                    }
                   },
 
 
