@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/l10n/app_localizations.dart';
@@ -28,104 +29,106 @@ class _SelectVehiclesState extends State<SelectVehicles> {
   double? distance;
   bool isDistanceLoading = true;
 
-
-
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
-      final selectVehiclesViewModel =
-      Provider.of<SelectVehiclesViewModel>(context, listen: false);
-      final serviceTypeViewModel =
-      Provider.of<ServiceTypeViewModel>(context, listen: false);
-
-      double pickupLat = double.tryParse(
-        orderViewModel.pickupData!["latitude"].toString(),
-      ) ?? 0.0;
-
-      double pickupLng = double.tryParse(
-        orderViewModel.pickupData!["longitude"].toString(),
-      ) ?? 0.0;
-
-      double dropLat = double.tryParse(
-        orderViewModel.dropData!["latitude"].toString(),
-      ) ?? 0.0;
-
-      double dropLng = double.tryParse(
-        orderViewModel.dropData!["longitude"].toString(),
-      ) ?? 0.0;
-
-
-      final roadDistance = await GoogleDistanceService.getRoadDistance(
-        pickupLat: pickupLat,
-        pickupLng: pickupLng,
-        dropLat: dropLat,
-        dropLng: dropLng,
-      );
-
-      if (roadDistance == null) {
-        debugPrint(" Google distance fetch failed");
-        return;
-      }
-
-      final double formattedDistance =
-      double.parse(roadDistance.toStringAsFixed(1));
-
-      debugPrint("✅ Google Road Distance: $formattedDistance km");
-
-      setState(() {
-        distance = formattedDistance;
-        isDistanceLoading = false;
-      });
-
-
-
-      selectVehiclesViewModel.selectVehicleApi(
-        serviceTypeViewModel.selectedVehicleId??"1",
-        formattedDistance,
-        serviceTypeViewModel.selectedVehicleType??"1",
-        pickupLat,
-        pickupLng,
-        dropLat,
-        dropLng,
-        context,
-      );
+      _fetchDistanceAndVehicles();
     });
+  }
+
+  Future<void> _fetchDistanceAndVehicles() async {
+    setState(() {
+      isDistanceLoading = true;
+    });
+
+    final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+    final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(context, listen: false);
+    final serviceTypeViewModel = Provider.of<ServiceTypeViewModel>(context, listen: false);
+
+    double pickupLat = double.tryParse(orderViewModel.pickupData!["latitude"].toString()) ?? 0.0;
+    double pickupLng = double.tryParse(orderViewModel.pickupData!["longitude"].toString()) ?? 0.0;
+    double dropLat = double.tryParse(orderViewModel.dropData!["latitude"].toString()) ?? 0.0;
+    double dropLng = double.tryParse(orderViewModel.dropData!["longitude"].toString()) ?? 0.0;
+
+    List<LatLng> points = [];
+    points.add(LatLng(pickupLat, pickupLng));
+
+    // Add stops in between
+    for (var stop in orderViewModel.stops) {
+      double? sLat = double.tryParse(stop['latitude'].toString());
+      double? sLng = double.tryParse(stop['longitude'].toString());
+      if (sLat != null && sLng != null) {
+        points.add(LatLng(sLat, sLng));
+      }
+    }
+
+    points.add(LatLng(dropLat, dropLng));
+
+    double totalDistance = 0.0;
+    print("📍 --- Distance Calculation Start ---");
+    for (int i = 0; i < points.length - 1; i++) {
+      final roadDistance = await GoogleDistanceService.getRoadDistance(
+        pickupLat: points[i].latitude,
+        pickupLng: points[i].longitude,
+        dropLat: points[i + 1].latitude,
+        dropLng: points[i + 1].longitude,
+      );
+
+      if (roadDistance != null) {
+        totalDistance += roadDistance;
+        print("Segment $i to ${i + 1}: $roadDistance km");
+      } else {
+        print("Segment $i to ${i + 1}: FAILED");
+      }
+    }
+    print("🏁 Total Distance: $totalDistance km");
+    print("📍 --- Distance Calculation End ---");
+
+    final double formattedDistance = double.parse(totalDistance.toStringAsFixed(1));
+
+    setState(() {
+      distance = formattedDistance;
+      isDistanceLoading = false;
+    });
+
+    selectVehiclesViewModel.selectVehicleApi(
+      serviceTypeViewModel.selectedVehicleId ?? "1",
+      formattedDistance,
+      serviceTypeViewModel.selectedVehicleType ?? "1",
+      pickupLat,
+      pickupLng,
+      dropLat,
+      dropLng,
+      context,
+      stopsList: orderViewModel.stops,
+    );
   }
 
   String getVehicleName(int vehicleId) {
     switch (vehicleId) {
-      case 1:
-        return "Tata Ace";
-      case 2:
-        return "3 Wheeler";
-      case 3:
-        return "2 Wheeler";
-      case 4:
-        return "Taxi";
-      default:
-        return "Vehicle $vehicleId";
+      case 1: return "Tata Ace";
+      case 2: return "3 Wheeler";
+      case 3: return "2 Wheeler";
+      case 4: return "Taxi";
+      default: return "Vehicle $vehicleId";
     }
   }
 
-
   List<dynamic> getOtherVehicles(SelectVehiclesViewModel viewModel) {
     return viewModel.selectVehicleModel?.data
-        ?.where((vehicle) => vehicle.selectedStatus != 1)
-        .toList() ??
+            ?.where((vehicle) => vehicle.selectedStatus != 1)
+            .toList() ??
         [];
   }
 
   @override
   Widget build(BuildContext context) {
-
     if (isDistanceLoading) {
       return const Scaffold(
         backgroundColor: PortColor.white,
         body: Center(
-          child: CircularProgressIndicator(color: PortColor.gold,),
+          child: CircularProgressIndicator(color: PortColor.gold),
         ),
       );
     }
@@ -134,11 +137,6 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     final selectVehiclesViewModel = Provider.of<SelectVehiclesViewModel>(context);
     final usedDistance = distance ?? 0.0;
     final loc = AppLocalizations.of(context)!;
-
-
-    print("Distance: $distance km");
-
-
 
     return SafeArea(
       top: false,
@@ -171,7 +169,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                     },
                   ),
                   SizedBox(width: screenWidth * 0.02),
-                   TextConst(
+                  TextConst(
                     title: loc.select_vehicle,
                     color: PortColor.black,
                     size: 16,
@@ -253,6 +251,27 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             overflow: TextOverflow.ellipsis,
                             size: 12,
                           ),
+                          if (orderViewModel.stops.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            ...orderViewModel.stops.map((stop) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.circle, size: 6, color: PortColor.gold),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextConst(
+                                      title: stop["address"] ?? "Stop",
+                                      color: PortColor.gray,
+                                      size: 11,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                          ],
                           SizedBox(height: screenHeight * 0.01),
                           Row(
                             children: [
@@ -284,7 +303,6 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                           SizedBox(height: screenHeight * 0.017),
                           Row(
                             children: [
-                              // ── Edit Location ──
                               GestureDetector(
                                 onTap: () {
                                   Navigator.pushReplacement(
@@ -311,18 +329,16 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                   ],
                                 ),
                               ),
-
                               SizedBox(width: screenWidth * 0.1),
-
-                              // ── Add Stops ──
                               GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
+                                onTap: () async {
+                                  await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>  AddStopsPage(),
+                                      builder: (context) => const AddStopsPage(),
                                     ),
                                   );
+                                  _fetchDistanceAndVehicles();
                                 },
                                 child: Row(
                                   children: [
@@ -333,7 +349,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                     ),
                                     SizedBox(width: screenWidth * 0.01),
                                     TextConst(
-                                      title: "ADD STOPS",          // or loc.add_stops if you add the key
+                                      title: orderViewModel.stops.isEmpty ? "ADD STOPS" : "EDIT STOPS",
                                       color: PortColor.black,
                                       fontFamily: AppFonts.poppinsReg,
                                       size: 13,
@@ -341,14 +357,6 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                   ],
                                 ),
                               ),
-
-                              // const Spacer(),
-                              //
-                              // // ── Distance chip (kept as-is) ──
-                              // TextConst(
-                              //   title: "${loc.distance} $distance",
-                              //   size: 12,
-                              // ),
                             ],
                           ),
                         ],
@@ -358,7 +366,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 ),
               ),
             ),
-             TextConst(
+            TextConst(
               title: loc.choose_the_vehicle,
               fontWeight: FontWeight.w400,
               size: 15,
@@ -383,65 +391,59 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
                 child: selectVehiclesViewModel.loading
                     ? const Center(
-                  child: CircularProgressIndicator(color: PortColor.blue),
-                )
+                        child: CircularProgressIndicator(color: PortColor.blue),
+                      )
                     : Builder(
-                  builder: (context) {
-                    final vehicles = selectVehiclesViewModel.selectVehicleModel?.data;
-
-                    if (vehicles == null) {
-                      return  Center(
-                        child: Text(
-                          loc.something_went_wrong,
-                          style: TextStyle(
-                            color: Colors.redAccent,
-                            fontFamily: AppFonts.kanitReg,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    }
-
-                    if (vehicles.isEmpty) {
-                      return  Center(
-                        child: Text(
-                          loc.no_vehicle,
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontFamily: AppFonts.kanitReg,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    }
-
-                    return SingleChildScrollView(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: vehicles.length,
-                        itemBuilder: (context, index) {
-                          final vehicle = vehicles[index];
-                          final isSelected = selectedIndex == index;
-
-                          print("Vehicle index $index => ${vehicle.vehicleBodyDetailsId}");
-
-                          return _buildVehicleItem(
-                            vehicle: vehicle,
-                            isSelected: isSelected,
-                            index: index,
-                            distance: usedDistance,
-                            onTap: () {
-                              setState(() {
-                                selectedIndex = index;
-                              });
-                            },
+                        builder: (context) {
+                          final vehicles = selectVehiclesViewModel.selectVehicleModel?.data;
+                          if (vehicles == null) {
+                            return Center(
+                              child: Text(
+                                loc.something_went_wrong,
+                                style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontFamily: AppFonts.kanitReg,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          if (vehicles.isEmpty) {
+                            return Center(
+                              child: Text(
+                                loc.no_vehicle,
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontFamily: AppFonts.kanitReg,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          return SingleChildScrollView(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: vehicles.length,
+                              itemBuilder: (context, index) {
+                                final vehicle = vehicles[index];
+                                final isSelected = selectedIndex == index;
+                                return _buildVehicleItem(
+                                  vehicle: vehicle,
+                                  isSelected: isSelected,
+                                  index: index,
+                                  distance: usedDistance,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedIndex = index;
+                                    });
+                                  },
+                                );
+                              },
+                            ),
                           );
                         },
                       ),
-                    );
-                  },
-                ),
               ),
               Container(
                 height: screenHeight * 0.09,
@@ -463,72 +465,55 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                   child: InkWell(
                     onTap: selectedIndex != null
                         ? () {
-                      // ✅ Null safety check
-                      if (selectVehiclesViewModel.selectVehicleModel?.data == null ||
-                          selectedIndex! >= selectVehiclesViewModel.selectVehicleModel!.data!.length) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(
-                            content: Text(loc.invalid_vehicle_selection),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return;
-                      }
+                            if (selectVehiclesViewModel.selectVehicleModel?.data == null ||
+                                selectedIndex! >= selectVehiclesViewModel.selectVehicleModel!.data!.length) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(loc.invalid_vehicle_selection),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
 
-                      final selectedVehicle = selectVehiclesViewModel
-                          .selectVehicleModel!.data![selectedIndex!];
+                            final selectedVehicle = selectVehiclesViewModel.selectVehicleModel!.data![selectedIndex!];
+                            final vehicleName = selectedVehicle.vehicleName ?? "Unknown Vehicle";
+                            final vehicleId = selectedVehicle.vehicleId ?? 0;
+                            final vehicleBodyDetailId = selectedVehicle.vehicleBodyDetailsId?.toString() ?? "0";
+                            final vehicleBodyTypeId = selectedVehicle.vehicleBodyTypesId?.toString() ?? "0";
+                            final double amount = double.tryParse(selectedVehicle.amount.toString()) ?? 0.0;
 
-                      final vehicleName = selectedVehicle.vehicleName ?? "Unknown Vehicle";
-                      final vehicleId = selectedVehicle.vehicleId ?? 0;
-                      final vehicleBodyDetailId =
-                          selectedVehicle.vehicleBodyDetailsId?.toString() ?? "0";
-                      final vehicleBodyTypeId =
-                          selectedVehicle.vehicleBodyTypesId?.toString() ?? "0";
-                      final double amount =
-                          double.tryParse(selectedVehicle.amount.toString()) ?? 0.0;
+                            facebookAppEvents.logEvent(name: 'select_vehicle_for_logistic');
 
-
-                      print("======== Vehicle Selection Details ========");
-                      print("Vehicle Name: $vehicleName");
-                      print("Vehicle ID: $vehicleId");
-                      print("Vehicle Body Detail ID: $vehicleBodyDetailId");
-                      print("Vehicle Body Type ID: $vehicleBodyTypeId");
-                      print("Distance: $usedDistance");
-                      print("Price: $amount");
-                      print("==========================================");
-                      facebookAppEvents.logEvent(
-                        name: 'select_vehicle_for_logistic',
-                      );
-
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          transitionDuration: const Duration(milliseconds: 400),
-                          pageBuilder: (_, __, ___) => ReviewBooking(
-                            vehicleName: vehicleName,
-                            index: selectedIndex,
-                            price: amount.toString(),
-                            distance: usedDistance.toString(),
-                            vehicleBodyDetailId: vehicleBodyDetailId,
-                            vehicleBodyTypeId: vehicleBodyTypeId,
-                            vehicleIds : vehicleId.toString(),
-                          ),
-                          transitionsBuilder: (_, animation, __, child) {
-                            final offsetAnimation = Tween<Offset>(
-                              begin: const Offset(0, 1),
-                              end: Offset.zero,
-                            ).animate(CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOutCubic,
-                            ));
-                            return SlideTransition(
-                              position: offsetAnimation,
-                              child: child,
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                transitionDuration: const Duration(milliseconds: 400),
+                                pageBuilder: (_, __, ___) => ReviewBooking(
+                                  vehicleName: vehicleName,
+                                  index: selectedIndex,
+                                  price: amount.toString(),
+                                  distance: usedDistance.toString(),
+                                  vehicleBodyDetailId: vehicleBodyDetailId,
+                                  vehicleBodyTypeId: vehicleBodyTypeId,
+                                  vehicleIds: vehicleId.toString(),
+                                ),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  final offsetAnimation = Tween<Offset>(
+                                    begin: const Offset(0, 1),
+                                    end: Offset.zero,
+                                  ).animate(CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeOutCubic,
+                                  ));
+                                  return SlideTransition(
+                                    position: offsetAnimation,
+                                    child: child,
+                                  );
+                                },
+                              ),
                             );
-                          },
-                        ),
-                      );
-                    }
+                          }
                         : null,
                     child: Container(
                       alignment: Alignment.center,
@@ -539,13 +524,10 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                         gradient: selectedIndex != null
                             ? PortColor.subBtn
                             : const LinearGradient(
-                          colors: [
-                            PortColor.darkPurple,
-                            PortColor.darkPurple,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                                colors: [PortColor.darkPurple, PortColor.darkPurple],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                       ),
                       child: TextConst(
                         title: selectedIndex != null
@@ -572,7 +554,6 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     required double distance,
     required VoidCallback onTap,
   }) {
-    // ✅ Safe null handling
     final vehicleName = vehicle.vehicleName?.toString() ?? "Unknown Vehicle";
     final bodyDetails = vehicle.bodyDetail?.toString() ?? "No details";
     final amount = vehicle.amount ?? 0;
@@ -604,111 +585,95 @@ class _SelectVehiclesState extends State<SelectVehicles> {
         ),
         child: isSelected
             ? Column(
-          children: [
-            Center(
-              child: measurementImage.isNotEmpty
-                  ? Image.network(
-                measurementImage,
-                height: screenHeight * 0.1,
-                errorBuilder: (context, error, stackTrace) {
-                  return Image.asset(
-                    Assets.assetsBike,
-                    height: screenHeight * 0.09,
-                  );
-                },
-              )
-                  : Image.asset(
-                Assets.assetsBike,
-                height: screenHeight * 0.09,
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.015),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
+                children: [
+                  Center(
+                    child: measurementImage.isNotEmpty
+                        ? Image.network(
+                            measurementImage,
+                            height: screenHeight * 0.1,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset(Assets.assetsBike, height: screenHeight * 0.09),
+                          )
+                        : Image.asset(Assets.assetsBike, height: screenHeight * 0.09),
+                  ),
+                  SizedBox(height: screenHeight * 0.015),
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextConst(
+                              title: vehicleName,
+                              color: PortColor.black,
+                              fontFamily: AppFonts.kanitReg,
+                              size: 14,
+                            ),
+                            SizedBox(height: screenHeight * 0.004),
+                            TextConst(
+                              title: bodyDetails,
+                              color: PortColor.gray,
+                              fontFamily: AppFonts.poppinsReg,
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ),
                       TextConst(
-                        title: vehicleName,
+                        title: "₹$amount",
                         color: PortColor.black,
                         fontFamily: AppFonts.kanitReg,
-                        size: 14,
-                      ),
-                      SizedBox(height: screenHeight * 0.004),
-                      TextConst(
-                        title: bodyDetails,
-                        color: PortColor.gray,
-                        fontFamily: AppFonts.poppinsReg,
-                        size: 12,
+                        size: 16,
                       ),
                     ],
                   ),
-                ),
-                TextConst(
-                  title: "₹$amount",
-                  color: PortColor.black,
-                  fontFamily: AppFonts.kanitReg,
-                  size: 16,
-                ),
-              ],
-            ),
-          ],
-        )
+                ],
+              )
             : Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            vehicleImage.isNotEmpty
-                ? Image.network(
-              vehicleImage,
-              height: screenHeight * 0.09,
-              errorBuilder: (context, error, stackTrace) {
-                return Image.asset(
-                  Assets.assetsBike,
-                  height: screenHeight * 0.09,
-                );
-              },
-            )
-                : Image.asset(
-              Assets.assetsBike,
-              height: screenHeight * 0.09,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  vehicleImage.isNotEmpty
+                      ? Image.network(
+                          vehicleImage,
+                          height: screenHeight * 0.09,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset(Assets.assetsBike, height: screenHeight * 0.09),
+                        )
+                      : Image.asset(Assets.assetsBike, height: screenHeight * 0.09),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextConst(
+                          title: vehicleName,
+                          color: PortColor.black,
+                          fontFamily: AppFonts.kanitReg,
+                          size: 14,
+                        ),
+                        SizedBox(height: screenHeight * 0.004),
+                        TextConst(
+                          title: bodyDetails,
+                          color: PortColor.gray,
+                          fontFamily: AppFonts.poppinsReg,
+                          size: 12,
+                        ),
+                      ],
+                    ),
+                  ),
                   TextConst(
-                    title: vehicleName,
+                    title: "₹$amount",
                     color: PortColor.black,
                     fontFamily: AppFonts.kanitReg,
-                    size: 14,
-                  ),
-                  SizedBox(height: screenHeight * 0.004),
-                  TextConst(
-                    title: bodyDetails,
-                    color: PortColor.gray,
-                    fontFamily: AppFonts.poppinsReg,
-                    size: 12,
+                    size: 16,
                   ),
                 ],
               ),
-            ),
-            TextConst(
-              title: "₹$amount",
-              color: PortColor.black,
-              fontFamily: AppFonts.kanitReg,
-              size: 16,
-            ),
-          ],
-        ),
       ),
     );
   }
 }
-
-
 
 class GoogleDistanceService {
   static const String apiKey = "AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM";
@@ -719,26 +684,24 @@ class GoogleDistanceService {
     required double dropLat,
     required double dropLng,
   }) async {
-    final url =
-        'https://maps.googleapis.com/maps/api/distancematrix/json'
+    final url = 'https://maps.googleapis.com/maps/api/distancematrix/json'
         '?origins=$pickupLat,$pickupLng'
         '&destinations=$dropLat,$dropLng'
         '&mode=driving'
         '&units=metric'
         '&key=$apiKey';
 
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-
-      if (data['rows'][0]['elements'][0]['status'] == "OK") {
-        final distanceInMeters =
-        data['rows'][0]['elements'][0]['distance']['value'];
-
-        // KM me convert
-        return distanceInMeters / 1000;
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['rows'][0]['elements'][0]['status'] == "OK") {
+          final distanceInMeters = data['rows'][0]['elements'][0]['distance']['value'];
+          return distanceInMeters / 1000.0;
+        }
       }
+    } catch (e) {
+      debugPrint("DistanceMatrix error: $e");
     }
     return null;
   }

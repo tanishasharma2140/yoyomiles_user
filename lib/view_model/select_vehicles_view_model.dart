@@ -35,15 +35,16 @@ class SelectVehiclesViewModel with ChangeNotifier {
   }
 
   Future<void> selectVehicleApi(
-      dynamic vehicleId,
-      dynamic range,
-      dynamic type,
-      dynamic pickupLatitude,
-      dynamic pickupLongitude,
-      dynamic dropLatitude,
-      dynamic dropLongitude,
+    dynamic vehicleId,
+    dynamic range,
+    dynamic type,
+    dynamic pickupLatitude,
+    dynamic pickupLongitude,
+    dynamic dropLatitude,
+    dynamic dropLongitude,
       BuildContext context,
-      ) async {
+      {List<Map<String, dynamic>>? stopsList}
+  ) async {
     Map<String, dynamic> data = {
       "vehicle_id": vehicleId,
       "range": range,
@@ -52,6 +53,7 @@ class SelectVehiclesViewModel with ChangeNotifier {
       "pickup_longitude": pickupLongitude,
       "drop_latitude": dropLatitude,
       "drop_longitude": dropLongitude,
+      "stops": stopsList ?? [],
     };
 
     if (kDebugMode) {
@@ -60,88 +62,93 @@ class SelectVehiclesViewModel with ChangeNotifier {
 
     setLoading(true);
 
-    _selectVehicleRepo.selectVehicleApi(data).then((value) {
-      setLoading(false);
-
-      if (kDebugMode) {
-        print("✅ API status: ${value.status}, message: ${value.message}, sub_message: ${value.subMessage}");
-      }
-
-      if (value.status == 200) {
-        // ✅ Success case
-        setVehicleData(value);
-      } else {
-        clearVehicleData();
-        // ❌ Non-200 but success callback (agar repo aise return kare)
-        final String title = value.message?.toString() ?? "";
-        final String subMessage = value.subMessage?.toString() ?? "";
-
-        _showNotServiceableBottomSheet(
-          context,
-          title: title,
-          message: subMessage,
-        );
-      }
-    }).onError((error, stackTrace) {
-      setLoading(false);
-
-      clearVehicleData();
-
-
-      if (kDebugMode) {
-        print("❌ onError raw: $error");
-      }
-
-      String title = "";
-      String subMessage = "";
-
-      try {
-        final raw = error.toString(); // ensure String
-
-        // "{...}" ka part nikaal lo
-        final startIndex = raw.indexOf('{');
-        if (startIndex != -1) {
-          final jsonStr = raw.substring(startIndex); // {"status":400,...}
-          final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
-
-          title = decoded['message']?.toString() ?? "";
-          subMessage = decoded['sub_message']?.toString() ?? "";
+    _selectVehicleRepo
+        .selectVehicleApi(data)
+        .then((value) {
+          setLoading(false);
 
           if (kDebugMode) {
-            print("📩 Parsed from error → title: $title");
-            print("📩 Parsed from error → sub_message: $subMessage");
+            print(
+              "✅ API status: ${value.status}, message: ${value.message}, sub_message: ${value.subMessage}",
+            );
           }
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print("JSON parse error in selectVehicleApi: $e");
-        }
-      }
 
-      // Agar still kuch na mila, toast dikha ke return
-      if (title.isEmpty && subMessage.isEmpty) {
-        Utils.showErrorMessage(
-          context,
-          "Something went wrong. Please try again.",
-        );
-        return;
-      }
+          if (value.status == 200) {
+            // ✅ Success case
+            setVehicleData(value);
+          } else {
+            clearVehicleData();
+            // ❌ Non-200 but success callback (agar repo aise return kare)
+            final String title = value.message?.toString() ?? "";
+            final String subMessage = value.subMessage?.toString() ?? "";
 
-      _showNotServiceableBottomSheet(
-        context,
-        title: title,        // "Pickup location is not serviceable"
-        message: subMessage, // "Sorry, this pickup location is not serviceable currently"
-      );
-    });
+            _showNotServiceableBottomSheet(
+              context,
+              title: title,
+              message: subMessage,
+            );
+          }
+        })
+        .onError((error, stackTrace) {
+          setLoading(false);
+
+          clearVehicleData();
+
+          if (kDebugMode) {
+            print("❌ onError raw: $error");
+          }
+
+          String title = "";
+          String subMessage = "";
+
+          try {
+            final raw = error.toString(); // ensure String
+
+            // "{...}" ka part nikaal lo
+            final startIndex = raw.indexOf('{');
+            if (startIndex != -1) {
+              final jsonStr = raw.substring(startIndex); // {"status":400,...}
+              final decoded = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+              title = decoded['message']?.toString() ?? "";
+              subMessage = decoded['sub_message']?.toString() ?? "";
+
+              if (kDebugMode) {
+                print("📩 Parsed from error → title: $title");
+                print("📩 Parsed from error → sub_message: $subMessage");
+              }
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print("JSON parse error in selectVehicleApi: $e");
+            }
+          }
+
+          // Agar still kuch na mila, toast dikha ke return
+          if (title.isEmpty && subMessage.isEmpty) {
+            Utils.showErrorMessage(
+              context,
+              "Something went wrong. Please try again.",
+            );
+            return;
+          }
+
+          _showNotServiceableBottomSheet(
+            context,
+            title: title, // "Pickup location is not serviceable"
+            message:
+                subMessage, // "Sorry, this pickup location is not serviceable currently"
+          );
+        });
   }
 
   // ----------------- UI Bottom Sheet -----------------
 
   void _showNotServiceableBottomSheet(
-      BuildContext context, {
-        required String title,
-        required String message,
-      }) {
+    BuildContext context, {
+    required String title,
+    required String message,
+  }) {
     if (kDebugMode) {
       print("📢 Showing bottom sheet → $title | $message");
     }
@@ -158,15 +165,15 @@ class SelectVehiclesViewModel with ChangeNotifier {
           child: Container(
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SafeArea(
               top: false,
               child: Padding(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -194,7 +201,6 @@ class SelectVehiclesViewModel with ChangeNotifier {
 
                     const SizedBox(height: 8),
 
-                    // Sub message → API ka "sub_message"
                     Text(
                       message,
                       textAlign: TextAlign.center,
@@ -204,9 +210,7 @@ class SelectVehiclesViewModel with ChangeNotifier {
                         height: 1.4,
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     AppBtn(
                       title: "Change Address",
                       onTap: () {
@@ -215,7 +219,7 @@ class SelectVehiclesViewModel with ChangeNotifier {
                           MaterialPageRoute(
                             builder: (_) => const BottomNavigationPage(),
                           ),
-                              (route) => false,
+                          (route) => false,
                         );
                       },
                     ),

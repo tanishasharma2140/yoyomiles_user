@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/l10n/app_localizations.dart';
@@ -59,7 +60,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         widget.orderData?['document_id']?.toString() ??
             widget.orderData?['id']?.toString();
 
-    // ✅ userId lo orderData se (order_view_model ne inject kiya tha)
     final userId = widget.orderData?['userid']?.toString();
 
     if (orderId == null) {
@@ -79,21 +79,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       listen: false,
     );
 
-    // ✅ userId pass karo, orderId sirf filter ke liye
     driverRideVm.startListening(orderId, userId);
   }
 
   @override
   void dispose() {
-    // _cancelSearchTimeoutTimer();
-    //
-    // // Stop listener when leaving screen
-    // final driverRideVm = Provider.of<DriverRideViewModel>(
-    //   context,
-    //   listen: false,
-    // );
-    // driverRideVm.stopListening();
-
     super.dispose();
   }
 
@@ -183,7 +173,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     onPressed: () {
                       _cancelSearchTimeoutTimer();
 
-                      // Stop listener when leaving screen
                       final driverRideVm = Provider.of<DriverRideViewModel>(
                         context,
                         listen: false,
@@ -311,7 +300,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                                       "7",
                                     );
                                     _cancelSearchTimeoutTimer();
-                                    // Stop listener when leaving screen
                                     final driverRideVm =
                                         Provider.of<DriverRideViewModel>(
                                           context,
@@ -447,7 +435,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   onPressed: () {
                     _cancelSearchTimeoutTimer();
 
-                    // Stop listener when leaving screen
                     final driverRideVm = Provider.of<DriverRideViewModel>(
                       context,
                       listen: false,
@@ -499,7 +486,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     }
   }
 
-  Widget _buildMapContainer(Map<String, dynamic>? orderData) {
+  Widget _buildMapContainer(Map<String, dynamic>? orderData, LatLng? driverLocation, int rideStatus) {
     return SizedBox(
       height: screenHeight* 0.4,
       child: ConstWithPolylineMap(
@@ -513,12 +500,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   'drop_address': orderData['drop_address'],
                   'drop_latitute': orderData['drop_latitute'],
                   'drop_logitute': orderData['drop_logitute'],
-                  'ride_status': orderData['rideStatus'] ?? 0,
+                  'ride_status': rideStatus,
                 },
               ]
             : null,
-        rideStatus: orderData?['rideStatus'] ?? 0,
+        rideStatus: rideStatus,
         backIconAllowed: false,
+        driverLocation: driverLocation,
         onAddressFetched: (address) {
           if (_currentAddress != address && mounted) {
             setState(() => _currentAddress = address);
@@ -636,13 +624,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             final payMode = driverRideVm.payMode;
             final orderId = orderData['document_id']?.toString() ?? '';
 
-            // Status 5 = Reached destination → Show payment screen
             if (rideStatus == 5) {
               print("📍 Status 5 detected - Preparing to navigate to Payment");
               return CollectPaymentScreen(orderId: orderId);
             }
 
-            // Status 6 = Payment completed → Show success dialog
             if (rideStatus == 6 && (payMode == 1 || payMode == 3) && !_showRideCompletedDialog) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 print("✅ Cash Payment - Showing Ride Completed Dialog NOW");
@@ -656,7 +642,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               });
             }
 
-            // Searching state
             if (driverRideVm.isSearching) {
               _startSearchTimeoutTimer();
             } else {
@@ -668,6 +653,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               rideStatus: rideStatus,
               payMode: payMode,
               otp: driverRideVm.otp,
+              driverLocation: driverRideVm.driverLocation,
             );
           },
         ),
@@ -681,15 +667,15 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     required int rideStatus,
     required int payMode,
     required String otp,
+    LatLng? driverLocation,
   }) {
-    // 🔥 Show searching only when status 0 AND no driver
     final isSearching = driverData == null && rideStatus == 0;
     final showOtpAndCancel = rideStatus >= 1 && rideStatus <= 3;
     final showOtp = showOtpAndCancel && otp != "N/A" && otp.isNotEmpty;
 
     return Stack(
       children: [
-        _buildMapContainer(orderData),
+        _buildMapContainer(orderData, driverLocation, rideStatus),
         DraggableScrollableSheet(
           initialChildSize: 0.65,
           minChildSize: 0.65,
@@ -718,7 +704,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     _buildStatusHeader(rideStatus, payMode),
                     const SizedBox(height: 16),
 
-                    // 🔥 SAFE NULL CHECK - Show searching OR driver info
                     if (isSearching)
                       _buildSearchingStatus()
                     else if (driverData != null)
@@ -744,7 +729,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     );
   }
 
-  // 🔥 LOADING PLACEHOLDER FOR DRIVER INFO
   Widget _buildDriverLoadingPlaceholder() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -838,7 +822,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   Widget _buildDriverInfo(Map<String, dynamic> driverData) {
-    print("driver Data:${driverData}");
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -849,49 +832,66 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 6),
         ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundImage: (driverData['owner_selfie'] != null &&
-                driverData['owner_selfie'].toString().isNotEmpty)
-                ? NetworkImage(driverData['owner_selfie'])
-                : AssetImage(Assets.assetsProfileyoyo),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextConst(
-                  title:
-                      "${driverData['vehicle_no']}",
-                  fontWeight: FontWeight.bold,
-                ),
-                TextConst(
-                  title:
-                      "${driverData['driver_name']} • ${driverData['phone']}",
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              final phone = driverData['phone']?.toString();
-              if (phone != null && phone.isNotEmpty) {
-                LauncherI.launchCall(phone);
-              }
-            },
-            child: Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.15),
-                shape: BoxShape.circle,
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundImage: (driverData['owner_selfie'] != null &&
+                    driverData['owner_selfie'].toString().isNotEmpty)
+                    ? NetworkImage(driverData['owner_selfie'])
+                    : AssetImage(Assets.assetsProfileyoyo),
               ),
-              child: Icon(Icons.call, color: Colors.green),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextConst(
+                      title:
+                          "${driverData['vehicle_no']}",
+                      fontWeight: FontWeight.bold,
+                    ),
+                    TextConst(
+                      title:
+                          "${driverData['driver_name']} • ${driverData['phone']}",
+                      color: Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  final phone = driverData['phone']?.toString();
+                  if (phone != null && phone.isNotEmpty) {
+                    LauncherI.launchCall(phone);
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.call, color: Colors.green),
+                ),
+              ),
+            ],
           ),
+          if (driverData['vehicle_image'] != null && driverData['vehicle_image'].toString().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                driverData['vehicle_image'],
+                height: 100,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const SizedBox(),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -973,7 +973,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       ),
       child: Row(
         children: [
-          /// LEFT INFO
           Expanded(
             child: Row(
               children:  [
@@ -992,7 +991,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             ),
           ),
 
-          /// 🔴 SOS BUTTON
           InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
@@ -1018,7 +1016,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
           const SizedBox(width: 8),
 
-          /// 🟡 CHAT SUPPORT
           InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
@@ -1139,20 +1136,6 @@ class CollectPaymentScreen extends StatelessWidget {
 
   const CollectPaymentScreen({super.key, required this.orderId});
 
-  /// 💰 Complete Cash Payment
-  // void _completeCashPayment(BuildContext context) {
-  //   final updateRideStatusVm = Provider.of<UpdateRideStatusViewModel>(
-  //     context,
-  //     listen: false,
-  //   );
-  //
-  //   // Update ride status to 6 (Completed Successfully)
-  //   updateRideStatusVm.updateRideApi(context, orderId, "6");
-  //
-  //   print("💵 Cash payment completed for order: $orderId");
-  // }
-
-  /// 💳 Complete Online Payment
   void _completeOnlinePayment(BuildContext context) {
 
     final paymentVm = Provider.of<PaymentViewModel>(context, listen: false);
@@ -1163,12 +1146,8 @@ class CollectPaymentScreen extends StatelessWidget {
 
     final amount = driverRideVm.currentRideData?['amount']?.toString() ?? "0";
 
-    // Call payment API with:
-    // paymode: 1 (for online payment)
-    // amount: ride amount
-    // orderId: firebase order ID
     paymentVm.paymentApi(
-      1, // paymode for online payment
+      1, 
       amount,
       orderId,
       context,
@@ -1210,7 +1189,6 @@ class CollectPaymentScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 🔥 Icon based on paymode
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -1227,7 +1205,6 @@ class CollectPaymentScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    // 🔥 Title
                     TextConst(
                       title:
                       payMode == 1 ? loc.cash_payment : loc.online_payment,
@@ -1237,7 +1214,6 @@ class CollectPaymentScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // 🔥 Amount Display
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -1270,9 +1246,7 @@ class CollectPaymentScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    // 🔥 Dynamic Content based on paymode
                     if (payMode == 1) ...[
-                      // ✅ CASH PAYMENT UI
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -1302,31 +1276,7 @@ class CollectPaymentScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 40),
 
-                      // COMPLETE PAYMENT BUTTON (Cash)
-                      // SizedBox(
-                      //   width: double.infinity,
-                      //   child: ElevatedButton(
-                      //     onPressed: () => _completeCashPayment(context),
-                      //     style: ElevatedButton.styleFrom(
-                      //       backgroundColor: Colors.green,
-                      //       padding: const EdgeInsets.symmetric(vertical: 16),
-                      //       shape: RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.circular(12),
-                      //       ),
-                      //       elevation: 0,
-                      //     ),
-                      //     child: const Text(
-                      //       "Payment Done",
-                      //       style: TextStyle(
-                      //         color: Colors.white,
-                      //         fontSize: 18,
-                      //         fontWeight: FontWeight.bold,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                     ] else ...[
-                      // ✅ ONLINE PAYMENT UI
                        TextConst(
                          title:
                         loc.complete_your_online_payment,
@@ -1408,27 +1358,23 @@ class AddressCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 📍 Pickup/Drop Icons with Dotted Line
           _buildLocationIndicator(),
 
           const SizedBox(width: 16),
 
-          // 📝 Address Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Pickup Address
                 _buildAddressDetail(
                   name: orderData?['sender_name'] ?? "",
                   phone: orderData?['sender_phone']?.toString() ?? "",
                   address: orderData?['pickup_address'] ?? "",
-                  orderType: int.tryParse(orderData?['order_type']?.toString() ?? '1') ?? 1, // ✅
+                  orderType: int.tryParse(orderData?['order_type']?.toString() ?? '1') ?? 1, 
                 ),
 
                 const SizedBox(height: 12),
 
-                // Drop Address
                 _buildAddressDetail(
                   name: orderData?['reciver_name'] ?? "",
                   phone: orderData?['reciver_phone']?.toString() ?? "",
@@ -1443,13 +1389,11 @@ class AddressCard extends StatelessWidget {
     );
   }
 
-  /// 📍 Location Indicator (Green -> Dotted Line -> Red)
   Widget _buildLocationIndicator() {
     final orderType = orderData?['order_type'] ?? 1;
 
     return Column(
       children: [
-        // Green Pickup Icon
         Container(
           width: 24,
           height: 24,
@@ -1460,7 +1404,6 @@ class AddressCard extends StatelessWidget {
           child: const Icon(Icons.arrow_upward, color: Colors.white, size: 14),
         ),
 
-        // Dotted Line
         Container(
           width: 2,
           height: orderType == 2 ? 25 : 45,
@@ -1468,7 +1411,6 @@ class AddressCard extends StatelessWidget {
           child: CustomPaint(painter: DottedLinePainter()),
         ),
 
-        // Red Drop Icon
         Container(
           width: 24,
           height: 24,
@@ -1486,9 +1428,6 @@ class AddressCard extends StatelessWidget {
     );
   }
 
-  /// 📝 Single Address Detail Widget
-  /// order_type: 1 → Name + Phone + Address
-  /// order_type: 2 → Only Address
   Widget _buildAddressDetail({
     required String name,
     required String phone,
@@ -1498,11 +1437,9 @@ class AddressCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ⭐ SHOW NAME & PHONE ONLY IF order_type == 1 (Ride)
         if (orderType == 1 && name.isNotEmpty) ...[
           Row(
             children: [
-              // Name
               Text(
                 name,
                 style: TextStyle(
@@ -1513,7 +1450,6 @@ class AddressCard extends StatelessWidget {
                 ),
               ),
 
-              // Phone (if available)
               if (phone.isNotEmpty) ...[
                 const SizedBox(width: 8),
                 Text(
@@ -1530,7 +1466,6 @@ class AddressCard extends StatelessWidget {
           const SizedBox(height: 4),
         ],
 
-        // ⭐ Address - ALWAYS VISIBLE
         Text(
           address,
           style: TextStyle(
@@ -1547,7 +1482,6 @@ class AddressCard extends StatelessWidget {
 
 }
 
-/// 🎨 Dotted Line Painter for Visual Separator
 class DottedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -1604,4 +1538,3 @@ void _openWhatsApp({
     debugPrint("❌ WhatsApp not installed");
   }
 }
-

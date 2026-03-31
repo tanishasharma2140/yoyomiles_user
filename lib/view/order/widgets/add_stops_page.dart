@@ -70,6 +70,17 @@ class _AddStopsPageState extends State<AddStopsPage> {
       longitude: double.tryParse(vm.dropData?["longitude"].toString() ?? ""),
     );
 
+    // If there are existing stops in VM, load them
+    if (vm.stops.isNotEmpty) {
+      _middleStops = vm.stops.map((s) => StopItem(
+        name: s["name"],
+        address: s["address"],
+        phone: s["phone"],
+        latitude: double.tryParse(s["latitude"].toString()),
+        longitude: double.tryParse(s["longitude"].toString()),
+      )).toList();
+    }
+
     _refreshMapData();
   }
 
@@ -412,7 +423,21 @@ class _AddStopsPageState extends State<AddStopsPage> {
                   vertical: screenHeight * 0.015),
               color: PortColor.white,
               child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  final vm = Provider.of<OrderViewModel>(context, listen: false);
+                  List<Map<String, dynamic>> stopsToSave = _middleStops
+                      .where((s) => s.address != null)
+                      .map((s) => {
+                    "name": s.name,
+                    "address": s.address,
+                    "phone": s.phone,
+                    "latitude": s.latitude,
+                    "longitude": s.longitude,
+                  }).toList();
+
+                  vm.setStops(stopsToSave);
+                  Navigator.pop(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: PortColor.gold,
                   shape: RoundedRectangleBorder(
