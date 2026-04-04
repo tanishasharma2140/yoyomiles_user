@@ -103,6 +103,7 @@ class OrderViewModel with ChangeNotifier {
     UserViewModel userViewModel = UserViewModel();
     String? userId = await userViewModel.getUser();
     setLoading(true);
+    print("🚨 BEFORE API _stops: $_stops");
 
     Map<String, dynamic> data = {
       "userid": userId,
@@ -127,14 +128,22 @@ class OrderViewModel with ChangeNotifier {
       "drop_save_as": dropSaveAs,
       "vehicle_body_details_type": vehicleBodyDetailType,
       "vehicle_body_type": vehicleBodyType,
-      "stops": _stops.map((e) => {
-        "name": e["name"],
-        "address": e["address"],
-        "phone": e["phone"],
-        "latitude": e["latitude"],     // 👈 SAME key bhej rahe hain
-        "longitude": e["longitude"],   // 👈 SAME key bhej rahe hain
+      "stops": _stops.map((e) {
+        print("🧩 MAPPING STOP 👉 $e");
+        return {
+          "name": e["name"],
+          "address": e["address"],
+          "phone": e["phone"],
+          "lat": e["latitude"],
+          "lng": e["longitude"],
+        };
       }).toList(), // Adding stops to orderApi as well if needed
     };
+
+    print("🚀 [OrderViewModel] orderApi() called");
+
+// 👇 YAHAN LAGAO
+    print("🚨 BEFORE API _stops: $_stops");
 
     setCurrentOrderData(data);
     print("📦 ---------------- ORDER DATA START ----------------");

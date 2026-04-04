@@ -476,8 +476,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get please_enter_sender => 'Please enter sender\'s name';
 
   @override
-  String get please_enter_valid =>
-      'Please enter a valid 10-digit mobile number';
+  String get please_enter_valid => 'Please enter a phone number';
 
   @override
   String get your_goods_will_be => 'Your goods will be picked up from here';
@@ -889,10 +888,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ride_completed => 'Ride Completed!🎉';
 
   @override
-  String get your_ride_has_been => 'Your ride has been cancelled by driver';
+  String get your_ride_has_been_completed =>
+      'Your ride has been completed successfully. Thank you!';
 
   @override
   String get ride_cancelled => 'Ride Cancelled!';
+
+  @override
+  String get your_ride_has_been => 'Your ride has been cancelled by driver';
 
   @override
   String get ride_status_waiting => 'Waiting for driver';
@@ -1025,4 +1028,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get are_you_sure_you_want_cancel =>
       'Are you sure you want to cancel the ride?';
+
+  @override
+  String get add_stops => 'Add Stops';
+
+  @override
+  String get max_two_stops => 'Maximum 2 stops allowed';
+
+  @override
+  String get max_two_stop_reach => 'Max 2 Stops Reached';
+
+  @override
+  String get where_is_stop => 'Where is your Stop ';
+
+  @override
+  String get detail => 'Details';
+
+  @override
+  String get enter_receiver_name => 'Enter receiver name';
+
+  @override
+  String get enter_ten_digit_mob => '\'Enter 10-digit phone number';
+
+  @override
+  String get phone_number_must_be => 'Phone number must be 10 digits';
+
+  @override
+  String get confirm_stop => 'Confirm Stop';
+
+  @override
+  String get search_location_for_stop => 'Search location for stop ';
+
+  @override
+  String get type_to_search => 'Type to search location';
+
+  @override
+  String get no_result_found => 'No results found';
+
+  @override
+  String get adds_stops => 'ADD STOPS';
+
+  @override
+  String get edit_stops => 'EDIT STOPS';
 }

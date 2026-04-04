@@ -477,8 +477,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get please_enter_sender => 'कृपया प्रेषक का नाम दर्ज करें';
 
   @override
-  String get please_enter_valid =>
-      'कृपया एक मान्य 10 अंकों का मोबाइल नंबर दर्ज करें';
+  String get please_enter_valid => 'कृपया एक वैध फोन नंबर दर्ज करें';
 
   @override
   String get your_goods_will_be => 'आपका सामान यहाँ से पिकअप किया जाएगा';
@@ -890,11 +889,14 @@ class AppLocalizationsHi extends AppLocalizations {
   String get ride_completed => 'राइड पूरी हुई! 🎉';
 
   @override
-  String get your_ride_has_been =>
+  String get your_ride_has_been_completed =>
       'आपकी राइड सफलतापूर्वक पूरी हो गई है। धन्यवाद!';
 
   @override
   String get ride_cancelled => 'राइड रद्द हो गई!';
+
+  @override
+  String get your_ride_has_been => 'आपकी राइड ड्राइवर द्वारा रद्द कर दी गई है';
 
   @override
   String get ride_status_waiting => 'ड्राइवर का इंतजार हो रहा है';
@@ -1027,4 +1029,46 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get are_you_sure_you_want_cancel =>
       'क्या आप वाकई राइड रद्द करना चाहते हैं?';
+
+  @override
+  String get add_stops => 'स्टॉप जोड़ें';
+
+  @override
+  String get max_two_stops => 'अधिकतम 2 स्टॉप की अनुमति है';
+
+  @override
+  String get max_two_stop_reach => 'अधिकतम 2 स्टॉप पूरे हो गए';
+
+  @override
+  String get where_is_stop => 'आपका स्टॉप कहाँ है';
+
+  @override
+  String get detail => 'विवरण';
+
+  @override
+  String get enter_receiver_name => 'प्राप्तकर्ता का नाम दर्ज करें';
+
+  @override
+  String get enter_ten_digit_mob => '10 अंकों का मोबाइल नंबर दर्ज करें';
+
+  @override
+  String get phone_number_must_be => 'फोन नंबर 10 अंकों का होना चाहिए';
+
+  @override
+  String get confirm_stop => 'स्टॉप की पुष्टि करें';
+
+  @override
+  String get search_location_for_stop => 'स्टॉप के लिए लोकेशन खोजें';
+
+  @override
+  String get type_to_search => 'लोकेशन खोजने के लिए टाइप करें';
+
+  @override
+  String get no_result_found => 'कोई परिणाम नहीं मिला';
+
+  @override
+  String get adds_stops => 'स्टॉप जोड़ें';
+
+  @override
+  String get edit_stops => 'स्टॉप संपादित करें';
 }

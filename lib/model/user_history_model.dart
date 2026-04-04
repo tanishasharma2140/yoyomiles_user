@@ -11,7 +11,7 @@ class UserHistoryModel {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
@@ -50,6 +50,7 @@ class Data {
   dynamic rideStatus;
   dynamic amount;
   dynamic paymode;
+  dynamic stops;
   dynamic vehicleType;
   dynamic vehicleBodyDetailsType;
   dynamic vehicleBodyType;
@@ -111,6 +112,7 @@ class Data {
         this.rideStatus,
         this.amount,
         this.paymode,
+        this.stops,
         this.vehicleType,
         this.vehicleBodyDetailsType,
         this.vehicleBodyType,
@@ -172,6 +174,7 @@ class Data {
     rideStatus = json['ride_status'];
     amount = json['amount'];
     paymode = json['paymode'];
+    stops = json['stops'];
     vehicleType = json['vehicle_type'];
     vehicleBodyDetailsType = json['vehicle_body_details_type'];
     vehicleBodyType = json['vehicle_body_type'];
@@ -235,6 +238,7 @@ class Data {
     data['ride_status'] = rideStatus;
     data['amount'] = amount;
     data['paymode'] = paymode;
+    data['stops'] = stops;
     data['vehicle_type'] = vehicleType;
     data['vehicle_body_details_type'] = vehicleBodyDetailsType;
     data['vehicle_body_type'] = vehicleBodyType;

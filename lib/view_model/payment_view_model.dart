@@ -135,7 +135,6 @@ class PaymentViewModel with ChangeNotifier {
             context,
             listen: false,
           );
-
           updateRideStatusVm.updateRideApi(
             context,
             firebaseOrderId, // ✅ REAL ORDER ID

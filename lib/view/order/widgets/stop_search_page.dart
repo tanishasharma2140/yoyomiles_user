@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 
-// ─────────────────────────────────────────────
-// Models
-// ─────────────────────────────────────────────
+
 class StopSearchResult {
   final String placeId;
   final String mainText;
@@ -35,9 +34,7 @@ class StopDetails {
   });
 }
 
-// ─────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────
+
 class StopSearchPage extends StatefulWidget {
   final int stopNumber;
 
@@ -178,6 +175,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    final loc = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -190,7 +188,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
             bottom: MediaQuery.of(ctx).viewInsets.bottom,
           ),
           child: Container(
-            decoration: const BoxDecoration(
+            decoration:  BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
@@ -219,7 +217,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
 
                   // ── Title ──
                   Text(
-                    'Stop ${widget.stopNumber} Details',
+                    'Stop ${widget.stopNumber} ${loc.detail}',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -253,7 +251,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
 
                   // ── Name field ──
                   Text(
-                    'Contact Name',
+                    loc.receiver_name,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -270,12 +268,12 @@ class _StopSearchPageState extends State<StopSearchPage> {
                       fontSize: 14,
                     ),
                     decoration: _inputDecoration(
-                      hint: 'Enter contact name',
+                      hint: loc.enter_receiver_name,
                       icon: Icons.person_outline,
                     ),
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
-                        return 'Please enter a name';
+                        return loc.please_enter_name;
                       }
                       return null;
                     },
@@ -285,7 +283,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
 
                   // ── Phone field ──
                   Text(
-                    'Phone Number',
+                    loc.receiver_mob_no,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -306,15 +304,15 @@ class _StopSearchPageState extends State<StopSearchPage> {
                       fontSize: 14,
                     ),
                     decoration: _inputDecoration(
-                      hint: 'Enter 10-digit phone number',
+                      hint: loc.enter_ten_digit_mob,
                       icon: Icons.phone_outlined,
                     ),
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
-                        return 'Please enter a phone number';
+                        return loc.please_enter_valid;
                       }
                       if (v.trim().length != 10) {
-                        return 'Phone number must be 10 digits';
+                        return loc.phone_number_must_be;
                       }
                       return null;
                     },
@@ -348,7 +346,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
                         ),
                       ),
                       child: Text(
-                        'Confirm Stop',
+                        loc.confirm_slot,
                         style: TextStyle(
                           color: PortColor.black,
                           fontSize: 15,
@@ -409,6 +407,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
   // ── Build ─────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -434,7 +433,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
                         ),
                         Expanded(
                           child: Text(
-                            'Add Stop ${widget.stopNumber}',
+                            '${loc.add_stops} ${widget.stopNumber}',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -467,7 +466,7 @@ class _StopSearchPageState extends State<StopSearchPage> {
                         ),
                         decoration: InputDecoration(
                           hintText:
-                          'Search location for stop ${widget.stopNumber}...',
+                          '${loc.search_location_for_stop} ${widget.stopNumber}...',
                           hintStyle: TextStyle(
                             color: Colors.grey.shade400,
                             fontFamily: AppFonts.poppinsReg,
@@ -517,8 +516,8 @@ class _StopSearchPageState extends State<StopSearchPage> {
                     SizedBox(height: screenHeight * 0.015),
                     Text(
                       _searchController.text.isEmpty
-                          ? 'Type to search location'
-                          : 'No results found',
+                          ? loc.type_to_search
+                          : loc.no_result_found,
                       style: TextStyle(
                         color: Colors.grey.shade400,
                         fontFamily: AppFonts.poppinsReg,

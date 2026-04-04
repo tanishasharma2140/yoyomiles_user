@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
@@ -19,6 +16,8 @@ class ConstWithPolylineMap extends StatefulWidget {
   final int? rideStatus;
   final bool? backIconAllowed;
   final LatLng? driverLocation;
+  final List<dynamic>? stops;
+  final String? vehicleImage;
 
   const ConstWithPolylineMap({
     super.key,
@@ -28,6 +27,8 @@ class ConstWithPolylineMap extends StatefulWidget {
     this.rideStatus,
     this.backIconAllowed = true,
     this.driverLocation,
+    this.stops,
+    this.vehicleImage,
   });
 
   @override
@@ -45,6 +46,8 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
   int? _previousRideStatus;
   LatLng? _previousDriverLocation;
+  String? _lastLoadedUrl;
+  BitmapDescriptor? _driverIcon;
 
   @override
   void initState() {
@@ -61,12 +64,13 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
     bool shouldUpdateRoute = false;
 
-    if (oldWidget.rideStatus != widget.rideStatus || oldWidget.data != widget.data) {
+    if (oldWidget.rideStatus != widget.rideStatus || oldWidget.data != widget.data || oldWidget.stops != widget.stops) {
       _previousRideStatus = widget.rideStatus;
+      _addBookingMarkers(); 
       shouldUpdateRoute = true;
     }
 
-    if (widget.driverLocation != null && widget.driverLocation != _previousDriverLocation) {
+    if (widget.driverLocation != null && (widget.driverLocation != _previousDriverLocation || widget.vehicleImage != oldWidget.vehicleImage)) {
       _previousDriverLocation = widget.driverLocation;
       _updateDriverMarker(widget.driverLocation!);
       shouldUpdateRoute = true; 
@@ -78,19 +82,42 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
   }
 
   Future<void> _updateDriverMarker(LatLng position) async {
-    final driverIcon = await resizeMarkerIcon(Assets.assetsTruck, 80);
+    if (_driverIcon == null || widget.vehicleImage != _lastLoadedUrl) {
+      if (widget.vehicleImage != null && widget.vehicleImage!.isNotEmpty) {
+        try {
+          _driverIcon = await getBytesFromUrl(widget.vehicleImage!, 100);
+          _lastLoadedUrl = widget.vehicleImage;
+        } catch (e) {
+          debugPrint("❌ Error loading dynamic driver marker: $e");
+          _driverIcon = await resizeMarkerIcon(Assets.assetsTruck, 80);
+          _lastLoadedUrl = null;
+        }
+      } else {
+        _driverIcon = await resizeMarkerIcon(Assets.assetsTruck, 80);
+        _lastLoadedUrl = null;
+      }
+    }
+
     setState(() {
       _markers.removeWhere((m) => m.markerId.value == "driverMarker");
       _markers.add(
         Marker(
           markerId: const MarkerId("driverMarker"),
           position: position,
-          icon: driverIcon,
+          icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
           anchor: const Offset(0.5, 0.5),
           infoWindow: const InfoWindow(title: "Driver"),
         ),
       );
     });
+  }
+
+  Future<BitmapDescriptor> getBytesFromUrl(String url, int targetWidth) async {
+    final http.Response response = await http.get(Uri.parse(url));
+    final ui.Codec codec = await ui.instantiateImageCodec(response.bodyBytes, targetWidth: targetWidth);
+    final ui.FrameInfo fi = await codec.getNextFrame();
+    final ByteData? byteData = await fi.image.toByteData(format: ui.ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
 
   Future<void> moveCameraOnPolyline(List<LatLng> points) async {
@@ -159,9 +186,15 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     } catch (e) {}
   }
 
-  Future<List<LatLng>> _getRoutePoints(LatLng origin, LatLng destination) async {
+  Future<List<LatLng>> _getRoutePoints(LatLng origin, LatLng destination, {List<LatLng>? waypoints}) async {
     const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
-    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey';
+    
+    String waypointsStr = "";
+    if (waypoints != null && waypoints.isNotEmpty) {
+      waypointsStr = "&waypoints=" + waypoints.map((w) => "${w.latitude},${w.longitude}").join('|');
+    }
+
+    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}$waypointsStr&key=$apiKey';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -206,8 +239,8 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
     LatLng? pickupLatLng;
     LatLng? dropLatLng;
+    List<LatLng> stopLatLngs = [];
 
-    // Coordination extraction based on multiple possible keys
     double? pLat = _safeToDouble(booking['pickup_latitute'] ?? booking['pickup_lat']);
     double? pLng = _safeToDouble(booking['pick_longitude'] ?? booking['pickup_lng']);
     double? dLat = _safeToDouble(booking['drop_latitute'] ?? booking['drop_lat']);
@@ -216,28 +249,39 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     if (pLat != null && pLng != null) pickupLatLng = LatLng(pLat, pLng);
     if (dLat != null && dLng != null) dropLatLng = LatLng(dLat, dLng);
 
+    if (widget.stops != null) {
+      for (var stop in widget.stops!) {
+        double? sLat = _safeToDouble(stop['lat'] ?? stop['latitude']);
+        double? sLng = _safeToDouble(stop['lng'] ?? stop['longitude']);
+        if (sLat != null && sLng != null) {
+          stopLatLngs.add(LatLng(sLat, sLng));
+        }
+      }
+    }
+
     final driverPos = widget.driverLocation ?? _currentPosition;
     List<LatLng> points = [];
     Color polyColor = PortColor.gold;
     String polyId = "route";
 
     if (widget.rideStatus! >= 1 && widget.rideStatus! <= 3) {
+      // Arriving to Pickup
       if (driverPos != null && pickupLatLng != null) {
         points = await _getRoutePoints(driverPos, pickupLatLng);
         polyColor = PortColor.gold;
         polyId = "driver_to_pickup";
       }
-    } else if (widget.rideStatus == 4) {
+    } else if (widget.rideStatus == 4 || widget.rideStatus! >= 5) {
+      // Picked up, going to Drop through Stops (Live Tracking)
       if (driverPos != null && dropLatLng != null) {
-        points = await _getRoutePoints(driverPos, dropLatLng);
-        polyColor = PortColor.buttonBlue;
-        polyId = "driver_to_drop";
-      }
-    } else if (widget.rideStatus! >= 5) {
-      if (pickupLatLng != null && dropLatLng != null) {
-        points = await _getRoutePoints(pickupLatLng, dropLatLng);
+        points = await _getRoutePoints(driverPos, dropLatLng, waypoints: stopLatLngs);
+        polyColor = widget.rideStatus == 4 ? PortColor.buttonBlue : Colors.green;
+        polyId = "driver_to_drop_via_stops";
+      } else if (pickupLatLng != null && dropLatLng != null) {
+        // Fallback to pickup origin if driver position unavailable
+        points = await _getRoutePoints(pickupLatLng, dropLatLng, waypoints: stopLatLngs);
         polyColor = Colors.green;
-        polyId = "pickup_to_drop";
+        polyId = "pickup_to_drop_via_stops";
       }
     }
 
@@ -274,13 +318,32 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
     final pickupIcon = await resizeMarkerIcon(Assets.assetsPicupYoyo, 65);
     final dropIcon = await resizeMarkerIcon(Assets.assetsDropYoyo, 65);
+    final stopIcon = await resizeMarkerIcon(Assets.assetsStops, 65);
 
     setState(() {
+      _markers.removeWhere((m) => m.markerId.value == "pickup" || m.markerId.value == "drop" || m.markerId.value.startsWith("stop_"));
+      
       if (pLat != null && pLng != null) {
         _markers.add(Marker(markerId: const MarkerId("pickup"), position: LatLng(pLat, pLng), icon: pickupIcon));
       }
       if (dLat != null && dLng != null) {
         _markers.add(Marker(markerId: const MarkerId("drop"), position: LatLng(dLat, dLng), icon: dropIcon));
+      }
+      
+      if (widget.stops != null) {
+        for (int i = 0; i < widget.stops!.length; i++) {
+          final stop = widget.stops![i];
+          double? sLat = _safeToDouble(stop['lat'] ?? stop['latitude']);
+          double? sLng = _safeToDouble(stop['lng'] ?? stop['longitude']);
+          if (sLat != null && sLng != null) {
+            _markers.add(Marker(
+              markerId: MarkerId("stop_$i"),
+              position: LatLng(sLat, sLng),
+              icon: stopIcon,
+              infoWindow: InfoWindow(title: "Stop ${i + 1}: ${stop['name'] ?? 'Stop'}"),
+            ));
+          }
+        }
       }
     });
   }

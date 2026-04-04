@@ -1025,7 +1025,7 @@ abstract class AppLocalizations {
   /// No description provided for @please_enter_valid.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid 10-digit mobile number'**
+  /// **'Please enter a phone number'**
   String get please_enter_valid;
 
   /// No description provided for @your_goods_will_be.
@@ -1820,17 +1820,23 @@ abstract class AppLocalizations {
   /// **'Ride Completed!🎉'**
   String get ride_completed;
 
-  /// No description provided for @your_ride_has_been.
+  /// No description provided for @your_ride_has_been_completed.
   ///
   /// In en, this message translates to:
-  /// **'Your ride has been cancelled by driver'**
-  String get your_ride_has_been;
+  /// **'Your ride has been completed successfully. Thank you!'**
+  String get your_ride_has_been_completed;
 
   /// No description provided for @ride_cancelled.
   ///
   /// In en, this message translates to:
   /// **'Ride Cancelled!'**
   String get ride_cancelled;
+
+  /// No description provided for @your_ride_has_been.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ride has been cancelled by driver'**
+  String get your_ride_has_been;
 
   /// No description provided for @ride_status_waiting.
   ///
@@ -2089,6 +2095,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to cancel the ride?'**
   String get are_you_sure_you_want_cancel;
+
+  /// No description provided for @add_stops.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Stops'**
+  String get add_stops;
+
+  /// No description provided for @max_two_stops.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum 2 stops allowed'**
+  String get max_two_stops;
+
+  /// No description provided for @max_two_stop_reach.
+  ///
+  /// In en, this message translates to:
+  /// **'Max 2 Stops Reached'**
+  String get max_two_stop_reach;
+
+  /// No description provided for @where_is_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Where is your Stop '**
+  String get where_is_stop;
+
+  /// No description provided for @detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get detail;
+
+  /// No description provided for @enter_receiver_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter receiver name'**
+  String get enter_receiver_name;
+
+  /// No description provided for @enter_ten_digit_mob.
+  ///
+  /// In en, this message translates to:
+  /// **'\'Enter 10-digit phone number'**
+  String get enter_ten_digit_mob;
+
+  /// No description provided for @phone_number_must_be.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be 10 digits'**
+  String get phone_number_must_be;
+
+  /// No description provided for @confirm_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Stop'**
+  String get confirm_stop;
+
+  /// No description provided for @search_location_for_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Search location for stop '**
+  String get search_location_for_stop;
+
+  /// No description provided for @type_to_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Type to search location'**
+  String get type_to_search;
+
+  /// No description provided for @no_result_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get no_result_found;
+
+  /// No description provided for @adds_stops.
+  ///
+  /// In en, this message translates to:
+  /// **'ADD STOPS'**
+  String get adds_stops;
+
+  /// No description provided for @edit_stops.
+  ///
+  /// In en, this message translates to:
+  /// **'EDIT STOPS'**
+  String get edit_stops;
 }
 
 class _AppLocalizationsDelegate

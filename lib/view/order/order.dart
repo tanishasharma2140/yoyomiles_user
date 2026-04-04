@@ -1,9 +1,7 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/l10n/app_localizations.dart';
@@ -16,7 +14,54 @@ import 'package:yoyomiles/view_model/driver_rating_view_model.dart';
 import 'package:yoyomiles/view_model/user_history_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
+
+// ─── Stop Model ──────────────────────────────────────────────────────────────
+
+class StopModel {
+  final String name;
+  final String phone;
+  final double lat;
+  final double lng;
+  final String address;
+  final int status; // 1 = reached, 0 = pending
+
+  StopModel({
+    required this.name,
+    required this.phone,
+    required this.lat,
+    required this.lng,
+    required this.address,
+    required this.status,
+  });
+
+  factory StopModel.fromJson(Map<String, dynamic> json) {
+    return StopModel(
+      name: json['name']?.toString() ?? '',
+      phone: json['phone']?.toString() ?? '',
+      lat: (json['lat'] as num?)?.toDouble() ?? 0.0,
+      lng: (json['lng'] as num?)?.toDouble() ?? 0.0,
+      address: json['address']?.toString() ?? '',
+      status: (json['status'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
+/// Parses the stops JSON string safely. Returns empty list on any error.
+List<StopModel> parseStops(dynamic stopsRaw) {
+  if (stopsRaw == null) return [];
+  try {
+    final String stopsStr = stopsRaw.toString().trim();
+    if (stopsStr.isEmpty || stopsStr == 'null') return [];
+    final List<dynamic> jsonList = jsonDecode(stopsStr);
+    return jsonList
+        .map((e) => StopModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } catch (_) {
+    return [];
+  }
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 class OrderPage extends StatefulWidget {
   const OrderPage({super.key});
@@ -46,7 +91,6 @@ class _OrderPageState extends State<OrderPage> {
       return dateTimeStr;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -80,11 +124,10 @@ class _OrderPageState extends State<OrderPage> {
             ),
           ),
         ),
-        // Expanded to fill remaining screen
         Expanded(
           child:
-              userHistoryViewModel.userHistoryModel != null &&
-                  userHistoryViewModel.userHistoryModel!.data!.isNotEmpty
+          userHistoryViewModel.userHistoryModel != null &&
+              userHistoryViewModel.userHistoryModel!.data!.isNotEmpty
               ? orderListUi()
               : noOrderFoundUi(),
         ),
@@ -107,6 +150,9 @@ class _OrderPageState extends State<OrderPage> {
         itemCount: userHistoryViewModel.userHistoryModel?.data?.length ?? 0,
         itemBuilder: (context, index) {
           final history = userHistoryViewModel.userHistoryModel!.data![index];
+
+          // ── Parse stops for this order ──
+          final List<StopModel> stops = parseStops(history.stops);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,8 +212,12 @@ class _OrderPageState extends State<OrderPage> {
                               borderRadius: BorderRadius.circular(15),
                               onTap: () {
                                 if (history.invoiceLink != null &&
-                                    history.invoiceLink.toString().isNotEmpty) {
-                                  openInvoicePdf(history.invoiceLink.toString());
+                                    history.invoiceLink
+                                        .toString()
+                                        .isNotEmpty) {
+                                  openInvoicePdf(
+                                    history.invoiceLink.toString(),
+                                  );
                                 }
                               },
                               child: Icon(
@@ -179,11 +229,10 @@ class _OrderPageState extends State<OrderPage> {
                           )
                         else
                           const SizedBox(),
-
                       ],
                     ),
 
-                    // Pickup & Drop Address Section
+                    // ── Pickup / Stops / Drop Section ──
                     Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: screenWidth * 0.02,
@@ -203,131 +252,126 @@ class _OrderPageState extends State<OrderPage> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // ── Left timeline column ──
                                 Padding(
-                                  padding: EdgeInsets.only(top: 10),
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: _buildTimeline(stops),
+                                ),
+
+                                SizedBox(width: screenWidth * 0.03),
+
+                                // ── Right address column ──
+                                Expanded(
                                   child: Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        width: screenWidth * 0.04,
-                                        height: screenHeight * 0.01,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.green,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      Column(
-                                        children: List.generate(
-                                          12,
-                                          (index) => Container(
-                                            width: screenWidth * 0.003,
-                                            height: screenHeight * 0.0025,
-                                            margin: const EdgeInsets.symmetric(
-                                              vertical: 1,
+                                      // PICKUP
+                                      if (history.orderType != 2) ...[
+                                        Row(
+                                          children: [
+                                            TextConst(
+                                              title:
+                                              history.senderName ?? "",
+                                              color: PortColor.black,
+                                              fontFamily: AppFonts.kanitReg,
                                             ),
+                                            SizedBox(
+                                                width: screenWidth * 0.015),
+                                            TextConst(
+                                              title: history.senderPhone
+                                                  .toString(),
+                                              color: PortColor.gray,
+                                              fontFamily:
+                                              AppFonts.poppinsReg,
+                                              size: 13,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth * 0.7,
+                                          child: TextConst(
+                                            title:
+                                            history.pickupAddress ?? "",
                                             color: PortColor.gray,
+                                            fontFamily: AppFonts.poppinsReg,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            size: 12,
                                           ),
                                         ),
-                                      ),
-                                      Icon(
-                                        Icons.location_on_rounded,
-                                        color: PortColor.red,
-                                        size: screenHeight * 0.024,
-                                      ),
+                                      ] else ...[
+                                        SizedBox(
+                                          width: screenWidth * 0.7,
+                                          child: TextConst(
+                                            title:
+                                            history.pickupAddress ?? "",
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.poppinsReg,
+                                            size: 12,
+                                          ),
+                                        ),
+                                      ],
+
+                                      // ── STOPS (if any) ──
+                                      if (stops.isNotEmpty) ...[
+                                        for (final stop in stops) ...[
+                                          SizedBox(
+                                              height: screenHeight * 0.02),
+                                          _buildStopRow(stop),
+                                        ],
+                                      ],
+
+                                      SizedBox(height: screenHeight * 0.02),
+
+                                      // DROP
+                                      if (history.orderType != 2) ...[
+                                        Row(
+                                          children: [
+                                            TextConst(
+                                              title:
+                                              history.reciverName ?? "",
+                                              color: PortColor.black,
+                                              fontFamily: AppFonts.kanitReg,
+                                            ),
+                                            SizedBox(
+                                                width: screenWidth * 0.015),
+                                            TextConst(
+                                              title: history.reciverPhone
+                                                  .toString(),
+                                              color: PortColor.gray,
+                                              fontFamily:
+                                              AppFonts.poppinsReg,
+                                              size: 13,
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth * 0.7,
+                                          child: TextConst(
+                                            title:
+                                            history.dropAddress ?? "",
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.poppinsReg,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            size: 12,
+                                          ),
+                                        ),
+                                      ] else ...[
+                                        SizedBox(
+                                          width: screenWidth * 0.7,
+                                          child: TextConst(
+                                            title:
+                                            history.dropAddress ?? "",
+                                            color: PortColor.gray,
+                                            fontFamily: AppFonts.poppinsReg,
+                                            size: 12,
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
-                                ),
-                                SizedBox(width: screenWidth * 0.03),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // ⭐ Sender Details
-                                    if (history.orderType != 2) ...[
-                                      Row(
-                                        children: [
-                                          TextConst(
-                                            title: history.senderName ?? "",
-                                            color: PortColor.black,
-                                            fontFamily: AppFonts.kanitReg,
-                                          ),
-                                          SizedBox(width: screenWidth * 0.015),
-                                          TextConst(
-                                            title: history.senderPhone
-                                                .toString(),
-                                            color: PortColor.gray,
-                                            fontFamily: AppFonts.poppinsReg,
-                                            size: 13,
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth * 0.7,
-                                        child: TextConst(
-                                          title: history.pickupAddress ?? "",
-                                          color: PortColor.gray,
-                                          fontFamily: AppFonts.poppinsReg,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          size: 12,
-                                        ),
-                                      ),
-                                    ] else ...[
-                                      // ⭐ order_type = 2 → NO NAME/NUMBER
-                                      SizedBox(
-                                        width: screenWidth * 0.7,
-                                        child: TextConst(
-                                          title: history.pickupAddress ?? "",
-                                          color: PortColor.gray,
-                                          fontFamily: AppFonts.poppinsReg,
-                                          size: 12,
-                                        ),
-                                      ),
-                                    ],
-
-                                    SizedBox(height: screenHeight * 0.02),
-
-                                    // ⭐ Receiver Details
-                                    if (history.orderType != 2) ...[
-                                      Row(
-                                        children: [
-                                          TextConst(
-                                            title: history.reciverName ?? "",
-                                            color: PortColor.black,
-                                            fontFamily: AppFonts.kanitReg,
-                                          ),
-                                          SizedBox(width: screenWidth * 0.015),
-                                          TextConst(
-                                            title: history.reciverPhone
-                                                .toString(),
-                                            color: PortColor.gray,
-                                            fontFamily: AppFonts.poppinsReg,
-                                            size: 13,
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        width: screenWidth * 0.7,
-                                        child: TextConst(
-                                          title: history.dropAddress ?? "",
-                                          color: PortColor.gray,
-                                          fontFamily: AppFonts.poppinsReg,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          size: 12,
-                                        ),
-                                      ),
-                                    ] else ...[
-                                      // ⭐ order_type = 2 → NO NAME/NUMBER (ONLY Address)
-                                      SizedBox(
-                                        width: screenWidth * 0.7,
-                                        child: TextConst(
-                                          title: history.dropAddress ?? "",
-                                          color: PortColor.gray,
-                                          fontFamily: AppFonts.poppinsReg,
-                                          size: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
                                 ),
                               ],
                             ),
@@ -386,7 +430,6 @@ class _OrderPageState extends State<OrderPage> {
                                     fontFamily: AppFonts.poppinsReg,
                                     size: 12,
                                   ),
-
                                 ],
                               ),
                             ),
@@ -444,77 +487,75 @@ class _OrderPageState extends State<OrderPage> {
                           ),
                           const Spacer(),
 
-                          // ⭐ Rating / Rate Ride Button
-                          // ⭐ rating show only when ride is completed (not cancelled)
                           (history.userRating != null &&
-                                  history.rideStatus != 7 &&
-                                  history.rideStatus != 8)
+                              history.rideStatus != 7 &&
+                              history.rideStatus != 8)
                               ? Row(
-                                  children: [
-                                    Row(
-                                      children: List.generate(5, (index) {
-                                        double rating =
-                                            double.tryParse(
-                                              history.userRating.toString(),
-                                            ) ??
-                                            0.0;
-                                        return Icon(
-                                          index < rating.round()
-                                              ? Icons.star
-                                              : Icons.star_border,
-                                          color: Colors.amber,
-                                          size: 18,
-                                        );
-                                      }),
-                                    ),
-                                    SizedBox(width: 5),
-                                    TextConst(
-                                      title: '${history.userRating}/5',
-                                      color: Colors.black,
-                                      fontFamily: AppFonts.kanitReg,
-                                      size: 14,
-                                    ),
-                                  ],
-                                )
+                            children: [
+                              Row(
+                                children: List.generate(5, (index) {
+                                  double rating =
+                                      double.tryParse(
+                                        history.userRating.toString(),
+                                      ) ??
+                                          0.0;
+                                  return Icon(
+                                    index < rating.round()
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                    size: 18,
+                                  );
+                                }),
+                              ),
+                              SizedBox(width: 5),
+                              TextConst(
+                                title: '${history.userRating}/5',
+                                color: Colors.black,
+                                fontFamily: AppFonts.kanitReg,
+                                size: 14,
+                              ),
+                            ],
+                          )
                               : (history.rideStatus == 7 ||
-                                    history.rideStatus == 8)
-                              ? const SizedBox() // ⭐ hide completely for cancelled ride
+                              history.rideStatus == 8)
+                              ? const SizedBox()
                               : GestureDetector(
-                                  onTap: () {
-                                    _showRatingDialog(
-                                      context,
-                                      history.id.toString(),
-                                      history.driverId.toString(),
-                                    );
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: screenHeight * 0.04,
-                                    width: screenWidth * 0.42,
-                                    decoration: BoxDecoration(
-                                      color: Colors.amber,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.star,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                        SizedBox(width: 6),
-                                        TextConst(
-                                          title: loc.rate_ride,
-                                          color: Colors.white,
-                                          fontFamily: AppFonts.kanitReg,
-                                          size: 14,
-                                        ),
-                                      ],
-                                    ),
+                            onTap: () {
+                              _showRatingDialog(
+                                context,
+                                history.id.toString(),
+                                history.driverId.toString(),
+                              );
+                            },
+                            child: Container(
+                              alignment: Alignment.center,
+                              height: screenHeight * 0.04,
+                              width: screenWidth * 0.42,
+                              decoration: BoxDecoration(
+                                color: Colors.amber,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.white,
+                                    size: 16,
                                   ),
-                                ),
+                                  SizedBox(width: 6),
+                                  TextConst(
+                                    title: loc.rate_ride,
+                                    color: Colors.white,
+                                    fontFamily: AppFonts.kanitReg,
+                                    size: 14,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -525,6 +566,135 @@ class _OrderPageState extends State<OrderPage> {
           );
         },
       ),
+    );
+  }
+
+  // ── Timeline dots + dashes for pickup → stops → drop ──────────────────────
+  Widget _buildTimeline(List<StopModel> stops) {
+    // Total segments = 1 (pickup→first stop or drop) + stops count
+    // We draw: green dot → dashes → (orange dot → dashes) × stops → red pin
+
+    return Column(
+      children: [
+        // Pickup green dot
+        Container(
+          width: screenWidth * 0.04,
+          height: screenHeight * 0.012,
+          decoration: const BoxDecoration(
+            color: Colors.green,
+            shape: BoxShape.circle,
+          ),
+        ),
+        // Dashes from pickup to first stop (or drop)
+        _dashes(),
+
+        // For each stop: orange dot + dashes
+        for (int i = 0; i < stops.length; i++) ...[
+          Container(
+            width: screenWidth * 0.035,
+            height: screenWidth * 0.035,
+            decoration: BoxDecoration(
+              color: stops[i].status == 1
+                  ? Colors.orange
+                  : Colors.orange.shade200,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              stops[i].status == 1 ? Icons.check : Icons.more_horiz,
+              color: Colors.white,
+              size: 12,
+            ),
+          ),
+          _dashes(),
+        ],
+
+        // Drop red pin
+        Icon(
+          Icons.location_on_rounded,
+          color: PortColor.red,
+          size: screenHeight * 0.024,
+        ),
+      ],
+    );
+  }
+
+  Widget _dashes() {
+    return Column(
+      children: List.generate(
+        14,
+            (index) => Container(
+          width: screenWidth * 0.003,
+          height: screenHeight * 0.0025,
+          margin: const EdgeInsets.symmetric(vertical: 1),
+          color: PortColor.gray,
+        ),
+      ),
+    );
+  }
+
+  // ── Single stop row ────────────────────────────────────────────────────────
+  Widget _buildStopRow(StopModel stop) {
+    final bool reached = stop.status == 1;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            // Name - flexible so it shrinks if needed
+            Flexible(
+              child: TextConst(
+                title: stop.name,
+                color: PortColor.black,
+                fontFamily: AppFonts.kanitReg,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(width: screenWidth * 0.015),
+            TextConst(
+              title: stop.phone,
+              color: PortColor.gray,
+              fontFamily: AppFonts.poppinsReg,
+              size: 13,
+            ),
+            SizedBox(width: screenWidth * 0.015),
+            // Status badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: reached
+                    ? Colors.green.withOpacity(0.12)
+                    : Colors.orange.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: reached ? Colors.green : Colors.orange,
+                  width: 0.8,
+                ),
+              ),
+              child: Text(
+                reached ? "Reached" : "Pending",
+                style: TextStyle(
+                  fontSize: 10,
+                  color: reached ? Colors.green : Colors.orange,
+                  fontFamily: AppFonts.poppinsReg,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          width: screenWidth * 0.7,
+          child: TextConst(
+            title: stop.address,
+            color: PortColor.gray,
+            fontFamily: AppFonts.poppinsReg,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            size: 12,
+          ),
+        ),
+      ],
     );
   }
 
@@ -553,7 +723,6 @@ class _OrderPageState extends State<OrderPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Title
                     Text(
                       loc.rate_your_ride,
                       style: TextStyle(
@@ -562,10 +731,7 @@ class _OrderPageState extends State<OrderPage> {
                         color: Colors.black87,
                       ),
                     ),
-
                     SizedBox(height: 20),
-
-                    // Stars
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (index) {
@@ -583,25 +749,18 @@ class _OrderPageState extends State<OrderPage> {
                         );
                       }),
                     ),
-
                     SizedBox(height: 12),
-
-                    // Rating Text
                     Text(
                       _rating == 0
                           ? loc.tap_to_rate_your
                           : '${_rating.toInt()} ${loc.point_zero}',
                       style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
-
                     SizedBox(height: 24),
-
-                    // Buttons Container
                     SizedBox(
                       height: 50,
                       child: Row(
                         children: [
-                          // Cancel Button
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
@@ -623,21 +782,18 @@ class _OrderPageState extends State<OrderPage> {
                               ),
                             ),
                           ),
-
                           SizedBox(width: 12),
-
-                          // Submit Button
                           Expanded(
                             child: GestureDetector(
                               onTap: _rating > 0
                                   ? () {
-                                      driverRating.driverRatingApi(
-                                        context,
-                                        driverId,
-                                        id,
-                                        _rating.toString(),
-                                      );
-                                    }
+                                driverRating.driverRatingApi(
+                                  context,
+                                  driverId,
+                                  id,
+                                  _rating.toString(),
+                                );
+                              }
                                   : null,
                               child: Container(
                                 alignment: Alignment.center,
@@ -649,19 +805,19 @@ class _OrderPageState extends State<OrderPage> {
                                 ),
                                 child: driverRating.loading
                                     ? Center(
-                                        child: CupertinoActivityIndicator(
-                                          radius: 14,
-                                          color: PortColor.white,
-                                        ),
-                                      )
+                                  child: CupertinoActivityIndicator(
+                                    radius: 14,
+                                    color: PortColor.white,
+                                  ),
+                                )
                                     : Text(
-                                        loc.submit,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                                  loc.submit,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -745,15 +901,12 @@ class _OrderPageState extends State<OrderPage> {
   }
 }
 
+// ─── Invoice PDF opener ───────────────────────────────────────────────────────
 
 Future<void> openInvoicePdf(String url) async {
   final Uri uri = Uri.parse(url);
-
   if (await canLaunchUrl(uri)) {
-    await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication, // browser / pdf viewer
-    );
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   } else {
     debugPrint("Could not open PDF");
   }

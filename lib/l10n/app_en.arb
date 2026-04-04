@@ -301,7 +301,7 @@
 "cancel_ride" : "Cancel Ride",
 "go_back" : "Go Back",
 "ride_completed" : "Ride Completed!🎉",
-"your_ride_has_been" : "Your ride has been completed successfully. Thank you!",
+"your_ride_has_been_completed" : "Your ride has been completed successfully. Thank you!",
 "ride_cancelled" : "Ride Cancelled!",
 "your_ride_has_been" : "Your ride has been cancelled by driver",
 "ride_status_waiting": "Waiting for driver",
@@ -347,13 +347,20 @@
 "english" : "English",
 "eng_united_king" : "English (United Kingdom)",
 "hindi" : "Hindi (भारत)",
-"are_you_sure_you_want_cancel" : "Are you sure you want to cancel the ride?"
-
-
-
-
-
-
-
-
+"are_you_sure_you_want_cancel" : "Are you sure you want to cancel the ride?",
+"add_stops" : "Add Stops",
+"max_two_stops" : "Maximum 2 stops allowed",
+"max_two_stop_reach" : "Max 2 Stops Reached",
+"where_is_stop" : "Where is your Stop ",
+"detail" : "Details",
+"enter_receiver_name" : "Enter receiver name",
+"enter_ten_digit_mob" : "'Enter 10-digit phone number",
+"please_enter_valid" : "Please enter a phone number",
+"phone_number_must_be" : "Phone number must be 10 digits",
+"confirm_stop" : "Confirm Stop",
+"search_location_for_stop" : "Search location for stop ",
+"type_to_search" : "Type to search location",
+"no_result_found" : "No results found",
+"adds_stops" : "ADD STOPS",
+"edit_stops" : "EDIT STOPS"
 }

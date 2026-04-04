@@ -2,17 +2,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/main.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/constant_color.dart';
 import 'package:yoyomiles/res/constant_text.dart';
+import 'package:yoyomiles/utils/utils.dart';
 import 'package:yoyomiles/view/order/widgets/stop_search_page.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
 import 'package:provider/provider.dart';
 
-// ─────────────────────────────────────────────
-// Model
-// ─────────────────────────────────────────────
 class StopItem {
   String? name;
   String? address;
@@ -23,9 +22,7 @@ class StopItem {
   StopItem({this.name, this.address, this.phone, this.latitude, this.longitude});
 }
 
-// ─────────────────────────────────────────────
-// Page
-// ─────────────────────────────────────────────
+
 class AddStopsPage extends StatefulWidget {
   const AddStopsPage({super.key});
 
@@ -276,6 +273,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
   // ── Build ─────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -299,7 +297,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
                           onPressed: () => Navigator.pop(context),
                         ),
                         TextConst(title:
-                          'Add Stops',
+                           loc.add_stops,
                           size: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -311,7 +309,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
                   _buildFixedRow(
                     indicator: const CircleAvatar(
                         radius: 8, backgroundColor: Colors.green),
-                    name: pickupStop.name ?? 'Pickup',
+                    name: pickupStop.name ?? loc.pickup,
                     phone: pickupStop.phone ?? '',
                     address: pickupStop.address ?? '',
                   ),
@@ -324,7 +322,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
                   // Drop (fixed, badge = 1)
                   _buildFixedRow(
                     indicator: _badge(1, Colors.red),
-                    name: dropStop.name ?? 'Drop',
+                    name: dropStop.name ?? loc.drop,
                     phone: dropStop.phone ?? '',
                     address: dropStop.address ?? '',
                   ),
@@ -335,15 +333,9 @@ class _AddStopsPageState extends State<AddStopsPage> {
                         horizontal: screenWidth * 0.04,
                         vertical: screenHeight * 0.01),
                     child: GestureDetector(
-                      onTap: _middleStops.length >= 3
+                      onTap: _middleStops.length >= 2
                           ? () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Maximum 3 stops allowed'),
-                            backgroundColor: Colors.red,
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                        Utils.showErrorMessage(context, loc.max_two_stops);
                       }
                           : () => _openStopSearch(_middleStops.length + 1),
                       child: Row(
@@ -362,11 +354,11 @@ class _AddStopsPageState extends State<AddStopsPage> {
                           ),
                           SizedBox(width: screenWidth * 0.03),
                           Text(
-                            _middleStops.length >= 3
-                                ? 'Max 3 Stops Reached'
-                                : 'ADD STOP',
+                            _middleStops.length >= 2
+                                ? loc.max_two_stop_reach
+                                : loc.add_stops,
                             style: TextStyle(
-                              color: _middleStops.length >= 3
+                              color: _middleStops.length >= 2
                                   ? Colors.grey.shade400
                                   : PortColor.gold,
                               fontWeight: FontWeight.bold,
@@ -447,7 +439,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
                 ),
                 child: TextConst(
                   title:
-                  'Select Vehicle',
+                  loc.select_vehicle,
                   fontFamily: AppFonts.kanitReg,
                   color: PortColor.black,
                   size: 16,
@@ -591,6 +583,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
   }
 
   Widget _emptyCard(int stopNumber) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
@@ -608,7 +601,7 @@ class _AddStopsPageState extends State<AddStopsPage> {
         children: [
           Expanded(
             child: Text(
-              'Where is your Stop $stopNumber?',
+              '${loc.where_is_stop} $stopNumber?',
               style: TextStyle(
                   color: Colors.grey.shade400,
                   fontSize: 13,

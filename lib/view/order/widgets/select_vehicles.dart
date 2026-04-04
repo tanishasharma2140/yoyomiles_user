@@ -33,6 +33,9 @@ class _SelectVehiclesState extends State<SelectVehicles> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final orderViewModel = Provider.of<OrderViewModel>(context, listen: false);
+
+      orderViewModel.stops.clear();
       _fetchDistanceAndVehicles();
     });
   }
@@ -105,15 +108,15 @@ class _SelectVehiclesState extends State<SelectVehicles> {
     );
   }
 
-  String getVehicleName(int vehicleId) {
-    switch (vehicleId) {
-      case 1: return "Tata Ace";
-      case 2: return "3 Wheeler";
-      case 3: return "2 Wheeler";
-      case 4: return "Taxi";
-      default: return "Vehicle $vehicleId";
-    }
-  }
+  // String getVehicleName(int vehicleId) {
+  //   switch (vehicleId) {
+  //     case 1: return "Tata Ace";
+  //     case 2: return "3 Wheeler";
+  //     case 3: return "2 Wheeler";
+  //     case 4: return "Taxi";
+  //     default: return "Vehicle $vehicleId";
+  //   }
+  // }
 
   List<dynamic> getOtherVehicles(SelectVehiclesViewModel viewModel) {
     return viewModel.selectVehicleModel?.data
@@ -196,22 +199,29 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 5),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5),
                       child: Column(
                         children: [
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 8,
                             backgroundColor: Colors.green,
                           ),
                           Column(
-                            children: [
-                              SizedBox(height: 2),
-                              Icon(Icons.more_vert, color: PortColor.gray, size: 16),
-                              Icon(Icons.more_vert, color: PortColor.gray, size: 16),
-                            ],
-                          ),
-                          Icon(
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(9, (index) {
+                              return  Container(
+                                margin: const EdgeInsets.symmetric(vertical: 2),
+                                width: 4,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: PortColor.gray,
+                                  shape: BoxShape.circle,
+                                ),
+                              );
+                            }),
+                          )
+                          ,Icon(
                             Icons.location_on_rounded,
                             color: PortColor.red,
                             size: 20,
@@ -252,7 +262,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                             size: 12,
                           ),
                           if (orderViewModel.stops.isNotEmpty) ...[
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 5),
                             ...orderViewModel.stops.map((stop) => Padding(
                               padding: const EdgeInsets.only(bottom: 4),
                               child: Row(
@@ -272,7 +282,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                               ),
                             )),
                           ],
-                          SizedBox(height: screenHeight * 0.01),
+                          SizedBox(height: screenHeight * 0.008),
                           Row(
                             children: [
                               Expanded(
@@ -349,7 +359,7 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                                     ),
                                     SizedBox(width: screenWidth * 0.01),
                                     TextConst(
-                                      title: orderViewModel.stops.isEmpty ? "ADD STOPS" : "EDIT STOPS",
+                                      title: orderViewModel.stops.isEmpty ? loc.adds_stops : loc.edit_stops,
                                       color: PortColor.black,
                                       fontFamily: AppFonts.poppinsReg,
                                       size: 13,

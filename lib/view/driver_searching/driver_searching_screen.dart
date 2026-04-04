@@ -285,7 +285,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => Navigator.pop(context),
-                            child:  Text(loc.go_back),
+                            child:  Text(loc.go_back,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.black),),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -310,7 +310,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                             ),
-                            child:  Text(loc.submit),
+                            child:  Text(loc.submit,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
                           ),
                         ),
                       ],
@@ -357,7 +357,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 ),
                 const SizedBox(height: 10),
                  Text(
-                  loc.your_ride_has_been,
+                  loc.your_ride_has_been_completed,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
                 ),
@@ -388,7 +388,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           ),
         ),
       ),
-    ).then((_) => _showRideCompletedDialog = false);
+    ); 
   }
 
   void _showRideCancelledDialogMethod(String orderId) {
@@ -456,7 +456,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           ),
         ),
       ),
-    ).then((_) => _showRideCancelledDialog = false);
+    ); 
   }
 
   String _getRideStatusText(int rideStatus) {
@@ -486,7 +486,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     }
   }
 
-  Widget _buildMapContainer(Map<String, dynamic>? orderData, LatLng? driverLocation, int rideStatus) {
+  Widget _buildMapContainer(Map<String, dynamic>? orderData, LatLng? driverLocation, int rideStatus, List<dynamic>? stops) {
     return SizedBox(
       height: screenHeight* 0.4,
       child: ConstWithPolylineMap(
@@ -507,6 +507,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         rideStatus: rideStatus,
         backIconAllowed: false,
         driverLocation: driverLocation,
+        stops: stops,
         onAddressFetched: (address) {
           if (_currentAddress != address && mounted) {
             setState(() => _currentAddress = address);
@@ -654,6 +655,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               payMode: payMode,
               otp: driverRideVm.otp,
               driverLocation: driverRideVm.driverLocation,
+              stops: driverRideVm.stops,
             );
           },
         ),
@@ -668,14 +670,24 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     required int payMode,
     required String otp,
     LatLng? driverLocation,
+    List<dynamic>? stops,
   }) {
     final isSearching = driverData == null && rideStatus == 0;
     final showOtpAndCancel = rideStatus >= 1 && rideStatus <= 3;
     final showOtp = showOtpAndCancel && otp != "N/A" && otp.isNotEmpty;
 
+    String? reachedStopMessage;
+    if (stops != null && stops.isNotEmpty) {
+      for (int i = 0; i < stops.length; i++) {
+        if (stops[i]['status'] == 1 || stops[i]['status'] == '1') {
+          reachedStopMessage = "Reached at stop ${i + 1}";
+        }
+      }
+    }
+
     return Stack(
       children: [
-        _buildMapContainer(orderData, driverLocation, rideStatus),
+        _buildMapContainer(orderData, driverLocation, rideStatus, stops),
         DraggableScrollableSheet(
           initialChildSize: 0.65,
           minChildSize: 0.65,
@@ -702,6 +714,23 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     ),
                     const SizedBox(height: 16),
                     _buildStatusHeader(rideStatus, payMode),
+
+                    if (reachedStopMessage != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.green.withOpacity(0.5)),
+                        ),
+                        child: Text(
+                          reachedStopMessage,
+                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 16),
 
                     if (isSearching)
@@ -713,6 +742,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
                     if (showOtp) _buildOtpSection(otp),
                     AddressCard(orderData: orderData),
+
+                    if (stops != null && stops.isNotEmpty) _buildStopsUI(stops),
+
                     _buildPaymentContainer(payMode, orderData),
                     if (showOtpAndCancel) _buildCancelButton(),
                     _buildEmergencySection(),
@@ -726,6 +758,72 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildStopsUI(List<dynamic> stops) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Stops",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
+          ),
+          const SizedBox(height: 8),
+          ...stops.asMap().entries.map((entry) {
+            int idx = entry.key;
+            var stop = entry.value;
+            bool isReached = stop['status'] == 1 || stop['status'] == '1';
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Row(
+                children: [
+                  Icon(
+                    isReached ? Icons.check_circle : Icons.location_on,
+                    size: 18,
+                    color: isReached ? Colors.green : PortColor.gold,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Stop ${idx + 1}: ${stop['name']}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: isReached ? Colors.green : Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          stop['address'] ?? "",
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isReached)
+                    const Text(
+                      "Reached",
+                      style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
     );
   }
 
@@ -879,19 +977,19 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               ),
             ],
           ),
-          if (driverData['vehicle_image'] != null && driverData['vehicle_image'].toString().isNotEmpty) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                driverData['vehicle_image'],
-                height: 100,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const SizedBox(),
-              ),
-            ),
-          ],
+          // if (driverData['vehicle_image'] != null && driverData['vehicle_image'].toString().isNotEmpty) ...[
+          //   const SizedBox(height: 12),
+          //   ClipRRect(
+          //     borderRadius: BorderRadius.circular(8),
+          //     child: Image.network(
+          //       driverData['vehicle_image'],
+          //       height: 100,
+          //       width: double.infinity,
+          //       fit: BoxFit.cover,
+          //       errorBuilder: (context, error, stackTrace) => const SizedBox(),
+          //     ),
+          //   ),
+          // ],
         ],
       ),
     );
@@ -1054,7 +1152,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         ? loc.wallet
         : loc.cash;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1147,7 +1245,7 @@ class CollectPaymentScreen extends StatelessWidget {
     final amount = driverRideVm.currentRideData?['amount']?.toString() ?? "0";
 
     paymentVm.paymentApi(
-      1, 
+      1,
       amount,
       orderId,
       context,
