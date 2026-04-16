@@ -61,6 +61,7 @@ class Data {
   dynamic extraCharges;
   dynamic walletApplied;
   dynamic amountWalletApplied;
+  dynamic vehicleImage;
 
   Data(
       {this.id,
@@ -100,7 +101,9 @@ class Data {
         this.cancelByAdmin,
         this.extraCharges,
         this.walletApplied,
-        this.amountWalletApplied});
+        this.amountWalletApplied,
+         this.vehicleImage
+      });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -141,6 +144,7 @@ class Data {
     extraCharges = json['extra_charges'];
     walletApplied = json['wallet_applied'];
     amountWalletApplied = json['amount_wallet_applied'];
+    vehicleImage = json['vehicle_image'];
   }
 
   Map<String, dynamic> toJson() {
@@ -183,6 +187,7 @@ class Data {
     data['extra_charges'] = extraCharges;
     data['wallet_applied'] = walletApplied;
     data['amount_wallet_applied'] = amountWalletApplied;
+    data['vehicle_image'] = vehicleImage;
     return data;
   }
 }

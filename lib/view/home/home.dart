@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
 
       final activeRideVM = Provider.of<ActiveRideViewModel>(context, listen: false);
 
-      await activeRideVM.activeRideApi(userId.toString()); // <<< await important
+      await activeRideVM.activeRideApi(userId.toString(),context); // <<< await important
 
       final ride = activeRideVM.activeRideModel;
 

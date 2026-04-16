@@ -117,7 +117,7 @@ class DriverRideViewModel extends ChangeNotifier {
       final newPayMode = int.tryParse(orderMap['paymode']?.toString() ?? '1') ?? 1;
       final newOtp = orderMap['otp']?.toString() ?? "";
 
-      // ✅ FIXED LINE
+
       final newStops = safeList(orderMap['stops']);
 
       orderMap['document_id'] = orderMap['id']?.toString() ?? '';
@@ -131,7 +131,6 @@ class DriverRideViewModel extends ChangeNotifier {
           'vehicle_no': orderMap['vehicle_no'] ?? '',
           'vehicle_type_name': orderMap['driver_vehicle_type'] ?? '',
           'owner_selfie': orderMap['owner_selfie'] ?? '',
-          'vehicle_image': orderMap['vehicle_image'] ?? '',
         };
 
         double? dLat = double.tryParse(orderMap['driver_lat']?.toString() ?? '');

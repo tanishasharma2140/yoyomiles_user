@@ -369,6 +369,12 @@ class _SelectVehiclesState extends State<SelectVehicles> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 5,),
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: TextConst(
+                                title: "Distance : $distance km",size: 12,),
+                          ),
                         ],
                       ),
                     ),

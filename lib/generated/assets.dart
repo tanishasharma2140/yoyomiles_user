@@ -82,6 +82,7 @@ class Assets {
   static const String assetsSpeaker = 'assets/speaker.png';
   static const String assetsStops = 'assets/stops.png';
   static const String assetsTruck = 'assets/truck.png';
+  static const String assetsVehicleDummy = 'assets/vehicle_dummy.png';
   static const String assetsWashing = 'assets/washing.png';
   static const String assetsWhatsappIcon = 'assets/whatsapp_icon.png';
   static const String assetsWhatsappcolor = 'assets/whatsappcolor.png';

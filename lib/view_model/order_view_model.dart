@@ -73,6 +73,15 @@ class OrderViewModel with ChangeNotifier {
     _currentOrderData = data;
     notifyListeners();
   }
+  String _vehicleImage='';
+  String get vehicleImage=>_vehicleImage;
+  setVehicleImage(String value){
+    print("setting vehicle image: $value");
+    _vehicleImage=value;
+    print("setted value: $_vehicleImage");
+    notifyListeners();
+  }
+
 
   Future<void> orderApi(
       dynamic vehicle,
@@ -158,14 +167,18 @@ class OrderViewModel with ChangeNotifier {
       if (response["status"] == 200) {
         final documentId = response["documentId"] ?? response["id"] ?? "";
         final orderTypeFromApi = response["order_type"] ?? "";
+        final vehicleImage = response["vehicle_image"] ?? "";
+        print("📦 FULL RESPONSE: $response");
+        print("🚗 Vehicle Image: ${response["vehicle_image"]}");
 
         final updatedOrderData = {
           ...?_currentOrderData,
           "document_id": documentId.toString(),
           "order_type": orderTypeFromApi,
           "userid": userId,
+          "vehicle_image" : vehicleImage,
         };
-
+        setVehicleImage(vehicleImage);
         final driverRideVm = Provider.of<DriverRideViewModel>(
           context,
           listen: false,

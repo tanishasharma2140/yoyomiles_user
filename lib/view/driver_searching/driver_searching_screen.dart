@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -50,15 +51,17 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startListening();
-      Provider.of<ContactListViewModel>(context, listen: false)
-          .contactListApi();
+      Provider.of<ContactListViewModel>(
+        context,
+        listen: false,
+      ).contactListApi();
     });
   }
 
   void _startListening() {
     final orderId =
         widget.orderData?['document_id']?.toString() ??
-            widget.orderData?['id']?.toString();
+        widget.orderData?['id']?.toString();
 
     final userId = widget.orderData?['userid']?.toString();
 
@@ -138,17 +141,12 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: PortColor.gold,
-                ),
+                Icon(Icons.error_outline, size: 48, color: PortColor.gold),
                 const SizedBox(height: 12),
 
                 // TITLE
-                 TextConst(
-                  title:
-                  loc.we_couldnot_find,
+                TextConst(
+                  title: loc.we_couldnot_find,
                   textAlign: TextAlign.center,
                   fontWeight: FontWeight.w700,
                   size: 14,
@@ -159,10 +157,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
                 // MESSAGE
                 TextConst(
-                  title:
-                  loc.it_seems_there_are_no_drivers,
+                  title: loc.it_seems_there_are_no_drivers,
                   textAlign: TextAlign.center,
-                    size: 11, color: Colors.grey.shade600                ),
+                  size: 11,
+                  color: Colors.grey.shade600,
+                ),
 
                 const SizedBox(height: 20),
 
@@ -193,7 +192,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child:  Text(
+                    child: Text(
                       loc.oK,
                       style: TextStyle(fontSize: 15, color: Colors.white),
                     ),
@@ -285,7 +284,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => Navigator.pop(context),
-                            child:  Text(loc.go_back,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.black),),
+                            child: Text(
+                              loc.go_back,
+                              style: TextStyle(
+                                fontFamily: AppFonts.kanitReg,
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -310,7 +315,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                             ),
-                            child:  Text(loc.submit,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
+                            child: Text(
+                              loc.submit,
+                              style: TextStyle(
+                                fontFamily: AppFonts.kanitReg,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -356,7 +367,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                 Text(
+                Text(
                   loc.your_ride_has_been_completed,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
@@ -381,14 +392,14 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       (route) => false,
                     );
                   },
-                  child:  Text(loc.oK,style: TextStyle(color: Colors.white),),
+                  child: Text(loc.oK, style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
           ),
         ),
       ),
-    ); 
+    );
   }
 
   void _showRideCancelledDialogMethod(String orderId) {
@@ -412,19 +423,17 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               children: [
                 Icon(Icons.cancel, color: Colors.red, size: 50),
                 const SizedBox(height: 15),
-                 TextConst(
-                  title:
-                  loc.ride_cancelled,
+                TextConst(
+                  title: loc.ride_cancelled,
                   size: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.red,
                 ),
                 const SizedBox(height: 10),
-                 TextConst(
-                  title:
-                  loc.your_ride_has_been,
+                TextConst(
+                  title: loc.your_ride_has_been,
                   textAlign: TextAlign.center,
-                    color: Colors.grey
+                  color: Colors.grey,
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
@@ -441,28 +450,29 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     );
                     driverRideVm.stopListening();
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (_) => BottomNavigationPage(),
-
-
-                      ),
-                          (route) => false,
+                      MaterialPageRoute(builder: (_) => BottomNavigationPage()),
+                      (route) => false,
                     );
                   },
-                  child:  Text(loc.oK,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
+                  child: Text(
+                    loc.oK,
+                    style: TextStyle(
+                      fontFamily: AppFonts.kanitReg,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
-    ); 
+    );
   }
 
   String _getRideStatusText(int rideStatus) {
     final loc = AppLocalizations.of(context)!;
     switch (rideStatus) {
-
       case 0:
         return loc.ride_status_waiting;
       case 1:
@@ -486,9 +496,26 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     }
   }
 
-  Widget _buildMapContainer(Map<String, dynamic>? orderData, LatLng? driverLocation, int rideStatus, List<dynamic>? stops) {
+  Widget _buildMapContainer(
+    Map<String, dynamic>? orderData,
+    LatLng? driverLocation,
+    int rideStatus,
+    List<dynamic>? stops,
+  ) {
+    log("📦 ORDER DATA => $orderData");
+
+    if (orderData != null) {
+      print(
+        "🚗 VEHICLE IMAGE (from orderData) => ${orderData['vehicle_image']}",
+      );
+    } else {
+      print("❌ orderData is NULL");
+    }
+
+    print("📤 VEHICLE IMAGE (direct param) => ${orderData?['vehicle_image']}");
+
     return SizedBox(
-      height: screenHeight* 0.4,
+      height: screenHeight * 0.4,
       child: ConstWithPolylineMap(
         data: orderData != null
             ? [
@@ -501,6 +528,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   'drop_latitute': orderData['drop_latitute'],
                   'drop_logitute': orderData['drop_logitute'],
                   'ride_status': rideStatus,
+                  'vehicle_image': orderData['vehicle_image'],
                 },
               ]
             : null,
@@ -508,6 +536,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         backIconAllowed: false,
         driverLocation: driverLocation,
         stops: stops,
+        // vehicleImage: orderData!['vehicle_image'],
         onAddressFetched: (address) {
           if (_currentAddress != address && mounted) {
             setState(() => _currentAddress = address);
@@ -531,15 +560,14 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.red, size: 42),
               const SizedBox(height: 18),
-               TextConst(
-                title:
-                 loc.exit_ride,
-                  size: 20, fontWeight: FontWeight.w700
+              TextConst(
+                title: loc.exit_ride,
+                size: 20,
+                fontWeight: FontWeight.w700,
               ),
               const SizedBox(height: 10),
-               TextConst(
-                title:
-                loc.are_you_sure_you_want,
+              TextConst(
+                title: loc.are_you_sure_you_want,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 26),
@@ -548,7 +576,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context, false),
-                      child:  Text(loc.no,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.black),),
+                      child: Text(
+                        loc.no,
+                        style: TextStyle(
+                          fontFamily: AppFonts.kanitReg,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -573,7 +607,13 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      child:  Text(loc.yes,style: TextStyle(fontFamily: AppFonts.kanitReg,color:Colors.white)),
+                      child: Text(
+                        loc.yes,
+                        style: TextStyle(
+                          fontFamily: AppFonts.kanitReg,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -602,7 +642,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               if (await _onBackPressed()) Navigator.pop(context);
             },
           ),
-          title:  Text(
+          title: Text(
             loc.trip_status,
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
@@ -630,7 +670,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
               return CollectPaymentScreen(orderId: orderId);
             }
 
-            if (rideStatus == 6 && (payMode == 1 || payMode == 3) && !_showRideCompletedDialog) {
+            if (rideStatus == 6 &&
+                (payMode == 1 || payMode == 3) &&
+                !_showRideCompletedDialog) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 print("✅ Cash Payment - Showing Ride Completed Dialog NOW");
                 _showRideCompletedDialogMethod();
@@ -718,15 +760,24 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     if (reachedStopMessage != null) ...[
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.green.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.green.withOpacity(0.5)),
+                          border: Border.all(
+                            color: Colors.green.withOpacity(0.5),
+                          ),
                         ),
                         child: Text(
                           reachedStopMessage,
-                          style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ],
@@ -775,7 +826,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         children: [
           const Text(
             "Stops",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black87),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 8),
           ...stops.asMap().entries.map((entry) {
@@ -806,7 +861,10 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                         ),
                         Text(
                           stop['address'] ?? "",
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -816,7 +874,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   if (isReached)
                     const Text(
                       "Reached",
-                      style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                 ],
               ),
@@ -905,10 +967,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
-          TextConst(
-            title: loc.searching_for_driver,
-            color: PortColor.gold,
-          ),
+          TextConst(title: loc.searching_for_driver, color: PortColor.gold),
           const SizedBox(height: 16),
           LinearProgressIndicator(
             backgroundColor: Colors.grey[300],
@@ -936,8 +995,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundImage: (driverData['owner_selfie'] != null &&
-                    driverData['owner_selfie'].toString().isNotEmpty)
+                backgroundImage:
+                    (driverData['owner_selfie'] != null &&
+                        driverData['owner_selfie'].toString().isNotEmpty)
                     ? NetworkImage(driverData['owner_selfie'])
                     : AssetImage(Assets.assetsProfileyoyo),
               ),
@@ -947,8 +1007,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextConst(
-                      title:
-                          "${driverData['vehicle_no']}",
+                      title: "${driverData['vehicle_no']}",
                       fontWeight: FontWeight.bold,
                     ),
                     TextConst(
@@ -1047,8 +1106,10 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
   Widget _buildEmergencySection() {
     final loc = AppLocalizations.of(context)!;
-    final contactListVm =
-    Provider.of<ContactListViewModel>(context, listen: false);
+    final contactListVm = Provider.of<ContactListViewModel>(
+      context,
+      listen: false,
+    );
 
     final String supportNumber =
         contactListVm.contactListModel?.sosNumber ?? "6306513131";
@@ -1073,12 +1134,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         children: [
           Expanded(
             child: Row(
-              children:  [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.red,
-                  size: 22,
-                ),
+              children: [
+                Icon(Icons.warning_amber_rounded, color: Colors.red, size: 22),
                 SizedBox(width: 6),
                 TextConst(
                   title: loc.emergency,
@@ -1092,10 +1149,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
-              _openWhatsApp(
-                phone: supportNumber,
-                message: sosMessage,
-              );
+              _openWhatsApp(phone: supportNumber, message: sosMessage);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -1103,7 +1157,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child:  TextConst(
+              child: TextConst(
                 title: loc.sos,
                 color: Colors.white,
                 size: 13,
@@ -1117,10 +1171,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () {
-              _openWhatsApp(
-                phone: supportNumber,
-                message: loc.hello_support,
-              );
+              _openWhatsApp(phone: supportNumber, message: loc.hello_support);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -1139,9 +1190,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       ),
     );
   }
-
-
-
 
   Widget _buildPaymentContainer(int payMode, Map<String, dynamic> orderData) {
     final loc = AppLocalizations.of(context)!;
@@ -1167,7 +1215,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(method, style: const TextStyle(fontWeight: FontWeight.bold)),
-               Text(
+              Text(
                 loc.payment_method,
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
@@ -1230,12 +1278,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 class CollectPaymentScreen extends StatelessWidget {
   final String orderId;
 
-
-
   const CollectPaymentScreen({super.key, required this.orderId});
 
   void _completeOnlinePayment(BuildContext context) {
-
     final paymentVm = Provider.of<PaymentViewModel>(context, listen: false);
     final driverRideVm = Provider.of<DriverRideViewModel>(
       context,
@@ -1244,12 +1289,7 @@ class CollectPaymentScreen extends StatelessWidget {
 
     final amount = driverRideVm.currentRideData?['amount']?.toString() ?? "0";
 
-    paymentVm.paymentApi(
-      1,
-      amount,
-      orderId,
-      context,
-    );
+    paymentVm.paymentApi(1, amount, orderId, context);
 
     print("💳 Online payment initiated for order: $orderId, amount: ₹$amount");
   }
@@ -1283,7 +1323,7 @@ class CollectPaymentScreen extends StatelessWidget {
             ),
             body: SafeArea(
               child: Padding(
-                padding:  EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -1304,8 +1344,9 @@ class CollectPaymentScreen extends StatelessWidget {
                     const SizedBox(height: 24),
 
                     TextConst(
-                      title:
-                      payMode == 1 ? loc.cash_payment : loc.online_payment,
+                      title: payMode == 1
+                          ? loc.cash_payment
+                          : loc.online_payment,
                       size: 24,
                       fontWeight: FontWeight.bold,
                       color: payMode == 1 ? Colors.green : Colors.orange,
@@ -1373,25 +1414,21 @@ class CollectPaymentScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 40),
-
                     ] else ...[
-                       TextConst(
-                         title:
-                        loc.complete_your_online_payment,
+                      TextConst(
+                        title: loc.complete_your_online_payment,
                         textAlign: TextAlign.center,
-                           color: Colors.grey, size: 16
+                        color: Colors.grey,
+                        size: 16,
                       ),
                       const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () =>
-                              _completeOnlinePayment(context),
+                          onPressed: () => _completeOnlinePayment(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: PortColor.gold,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -1399,16 +1436,11 @@ class CollectPaymentScreen extends StatelessWidget {
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children:  [
-                              Icon(
-                                Icons.lock,
-                                color: Colors.white,
-                                size: 20,
-                              ),
+                            children: [
+                              Icon(Icons.lock, color: Colors.white, size: 20),
                               SizedBox(width: 8),
                               TextConst(
-                                title:
-                                loc.pay_now,
+                                title: loc.pay_now,
                                 color: Colors.white,
                                 size: 16,
                                 fontWeight: FontWeight.bold,
@@ -1468,7 +1500,11 @@ class AddressCard extends StatelessWidget {
                   name: orderData?['sender_name'] ?? "",
                   phone: orderData?['sender_phone']?.toString() ?? "",
                   address: orderData?['pickup_address'] ?? "",
-                  orderType: int.tryParse(orderData?['order_type']?.toString() ?? '1') ?? 1, 
+                  orderType:
+                      int.tryParse(
+                        orderData?['order_type']?.toString() ?? '1',
+                      ) ??
+                      1,
                 ),
 
                 const SizedBox(height: 12),
@@ -1477,7 +1513,11 @@ class AddressCard extends StatelessWidget {
                   name: orderData?['reciver_name'] ?? "",
                   phone: orderData?['reciver_phone']?.toString() ?? "",
                   address: orderData?['drop_address'] ?? "",
-                  orderType: int.tryParse(orderData?['order_type']?.toString() ?? '1') ?? 1,
+                  orderType:
+                      int.tryParse(
+                        orderData?['order_type']?.toString() ?? '1',
+                      ) ??
+                      1,
                 ),
               ],
             ),
@@ -1577,7 +1617,6 @@ class AddressCard extends StatelessWidget {
       ],
     );
   }
-
 }
 
 class DottedLinePainter extends CustomPainter {
@@ -1611,11 +1650,7 @@ class LauncherI {
   }
 }
 
-
-void _openWhatsApp({
-  required String phone,
-  String message = "",
-}) async {
+void _openWhatsApp({required String phone, String message = ""}) async {
   final cleanNumber = phone
       .replaceAll("+", "")
       .replaceAll(" ", "")
@@ -1628,10 +1663,7 @@ void _openWhatsApp({
   );
 
   if (await canLaunchUrl(whatsappUrl)) {
-    await launchUrl(
-      whatsappUrl,
-      mode: LaunchMode.externalApplication,
-    );
+    await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
   } else {
     debugPrint("❌ WhatsApp not installed");
   }

@@ -6,8 +6,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/res/constant_color.dart';
+import 'package:yoyomiles/view_model/order_view_model.dart';
+
+import '../view_model/driver_ride_view_model.dart';
 
 class ConstWithPolylineMap extends StatefulWidget {
   final double? height;
@@ -17,7 +21,7 @@ class ConstWithPolylineMap extends StatefulWidget {
   final bool? backIconAllowed;
   final LatLng? driverLocation;
   final List<dynamic>? stops;
-  final String? vehicleImage;
+  // final String? vehicleImage;
 
   const ConstWithPolylineMap({
     super.key,
@@ -28,7 +32,7 @@ class ConstWithPolylineMap extends StatefulWidget {
     this.backIconAllowed = true,
     this.driverLocation,
     this.stops,
-    this.vehicleImage,
+    // this.vehicleImage,
   });
 
   @override
@@ -41,8 +45,8 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
   final LatLng _initialPosition = LatLng(26.8467, 80.9462);
   LatLng? _currentPosition;
 
-  Set<Marker> _markers = {};
-  Set<Polyline> _polylines = {};
+  final Set<Marker> _markers = {};
+  final Set<Polyline> _polylines = {};
 
   int? _previousRideStatus;
   LatLng? _previousDriverLocation;
@@ -54,26 +58,45 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     super.initState();
     _getCurrentLocation();
     _addBookingMarkers();
+    // print("🟢 INIT STATE VEHICLE IMAGE => ${widget.vehicleImage}");
+    // print("🟢 INIT DATA => ${widget.data}");
+
+    if (widget.driverLocation != null) {
+      _updateDriverMarker(widget.driverLocation!);
+    }
     _previousRideStatus = widget.rideStatus;
     _previousDriverLocation = widget.driverLocation;
   }
 
+  String? vehicleImg;
   @override
   void didUpdateWidget(ConstWithPolylineMap oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // print("🟡 UPDATED VEHICLE IMAGE => ${widget.vehicleImage}");
+    // print("🟡 OLD VEHICLE IMAGE => ${oldWidget.vehicleImage}");
+    final vehicleImage = Provider.of<OrderViewModel>(
+      context,
+      listen: false,
+    ).vehicleImage;
+    setState(() {
+      vehicleImg ??= vehicleImage;
+    });
 
     bool shouldUpdateRoute = false;
 
-    if (oldWidget.rideStatus != widget.rideStatus || oldWidget.data != widget.data || oldWidget.stops != widget.stops) {
+    if (oldWidget.rideStatus != widget.rideStatus ||
+        oldWidget.data != widget.data ||
+        oldWidget.stops != widget.stops) {
       _previousRideStatus = widget.rideStatus;
-      _addBookingMarkers(); 
+      _addBookingMarkers();
       shouldUpdateRoute = true;
     }
 
-    if (widget.driverLocation != null && (widget.driverLocation != _previousDriverLocation || widget.vehicleImage != oldWidget.vehicleImage)) {
+    if (widget.driverLocation != null &&
+        (widget.driverLocation != _previousDriverLocation)) {
       _previousDriverLocation = widget.driverLocation;
       _updateDriverMarker(widget.driverLocation!);
-      shouldUpdateRoute = true; 
+      shouldUpdateRoute = true;
     }
 
     if (shouldUpdateRoute) {
@@ -82,41 +105,137 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
   }
 
   Future<void> _updateDriverMarker(LatLng position) async {
-    if (_driverIcon == null || widget.vehicleImage != _lastLoadedUrl) {
-      if (widget.vehicleImage != null && widget.vehicleImage!.isNotEmpty) {
-        try {
-          _driverIcon = await getBytesFromUrl(widget.vehicleImage!, 100);
-          _lastLoadedUrl = widget.vehicleImage;
-        } catch (e) {
-          debugPrint("❌ Error loading dynamic driver marker: $e");
-          _driverIcon = await resizeMarkerIcon(Assets.assetsTruck, 80);
-          _lastLoadedUrl = null;
+    // print("🚙 Calling _updateDriverMarker. vehicleImage: ${widget.vehicleImage}");
+    final vehicleImage = Provider.of<OrderViewModel>(
+      context,
+      listen: false,
+    ).vehicleImage;
+    print("🚙 Calling _updateDriverMarker. vehicleImage: $vehicleImg");
+    if (_driverIcon == null || vehicleImg != _lastLoadedUrl) {
+      try {
+        if (vehicleImg != '') {
+          String imageUrl = vehicleImg!;
+
+          /// ✅ URL normalization
+          if (!imageUrl.startsWith('http')) {
+            // Prepend base URL if relative
+            // Assuming base URL from DriverRideViewModel
+            const String baseUrl = "https://dev.yoyomiles.com/";
+            if (imageUrl.startsWith('/')) {
+              imageUrl = baseUrl + imageUrl.substring(1);
+            } else {
+              imageUrl = baseUrl + imageUrl;
+            }
+          }
+
+          imageUrl = imageUrl.replaceAll('//uploads', '/uploads');
+
+          print("🚗 Attempting to load Vehicle Image Marker: $imageUrl");
+
+          _driverIcon = await getBytesFromUrl(imageUrl, 100);
+          _lastLoadedUrl = vehicleImg!;
+          print("✅ Marker Loaded successfully from URL: $imageUrl");
+        } else {
+          print("⚠️ No vehicle image URL provided, using dummy");
+          throw Exception("No vehicle image URL provided");
         }
-      } else {
-        _driverIcon = await resizeMarkerIcon(Assets.assetsTruck, 80);
-        _lastLoadedUrl = null;
+      } catch (e) {
+        print("❌ Image load failed for marker: $e");
+
+        /// ✅ fallback icon
+        // _driverIcon = await resizeMarkerIcon(Assets.assetsVehicleDummy, 80);
+        _lastLoadedUrl =
+            vehicleImg!; // set so we don't retry every time if it fails
       }
     }
 
-    setState(() {
-      _markers.removeWhere((m) => m.markerId.value == "driverMarker");
-      _markers.add(
-        Marker(
-          markerId: const MarkerId("driverMarker"),
-          position: position,
-          icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
-          anchor: const Offset(0.5, 0.5),
-          infoWindow: const InfoWindow(title: "Driver"),
-        ),
-      );
-    });
+    if (mounted) {
+      setState(() {
+        _markers.removeWhere((m) => m.markerId.value == "driverMarker");
+
+        _markers.add(
+          Marker(
+            markerId: const MarkerId("driverMarker"),
+            position: position,
+            icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
+            anchor: const Offset(0.5, 0.5),
+          ),
+        );
+      });
+    }
   }
+
+  // Future<void> _updateDriverMarker(LatLng position) async {
+  //   print("🚙 Calling _updateDriverMarker. vehicleImage: ${widget.vehicleImage}");
+  //
+  //   if (_driverIcon == null || widget.vehicleImage != _lastLoadedUrl) {
+  //     try {
+  //       if (widget.vehicleImage != null && widget.vehicleImage!.isNotEmpty) {
+  //
+  //         String imageUrl = widget.vehicleImage!;
+  //
+  //         /// ✅ URL normalization
+  //         if (!imageUrl.startsWith('http')) {
+  //            // Prepend base URL if relative
+  //            // Assuming base URL from DriverRideViewModel
+  //            const String baseUrl = "https://dev.yoyomiles.com/";
+  //            if (imageUrl.startsWith('/')) {
+  //              imageUrl = baseUrl + imageUrl.substring(1);
+  //            } else {
+  //              imageUrl = baseUrl + imageUrl;
+  //            }
+  //         }
+  //
+  //         imageUrl = imageUrl.replaceAll('//uploads', '/uploads');
+  //
+  //         print("🚗 Attempting to load Vehicle Image Marker: $imageUrl");
+  //
+  //         _driverIcon = await getBytesFromUrl(imageUrl, 100);
+  //         _lastLoadedUrl = widget.vehicleImage;
+  //         print("✅ Marker Loaded successfully from URL: $imageUrl");
+  //
+  //       } else {
+  //         print("⚠️ No vehicle image URL provided, using dummy");
+  //         throw Exception("No vehicle image URL provided");
+  //       }
+  //     } catch (e) {
+  //       print("❌ Image load failed for marker: $e");
+  //
+  //       /// ✅ fallback icon
+  //       // _driverIcon = await resizeMarkerIcon(Assets.assetsVehicleDummy, 80);
+  //       _lastLoadedUrl = widget.vehicleImage; // set so we don't retry every time if it fails
+  //     }
+  //   }
+  //
+  //   if (mounted) {
+  //     setState(() {
+  //       _markers.removeWhere((m) => m.markerId.value == "driverMarker");
+  //
+  //       _markers.add(
+  //         Marker(
+  //           markerId: const MarkerId("driverMarker"),
+  //           position: position,
+  //           icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
+  //           anchor: const Offset(0.5, 0.5),
+  //         ),
+  //       );
+  //     });
+  //   }
+  // }
 
   Future<BitmapDescriptor> getBytesFromUrl(String url, int targetWidth) async {
     final http.Response response = await http.get(Uri.parse(url));
-    final ui.Codec codec = await ui.instantiateImageCodec(response.bodyBytes, targetWidth: targetWidth);
+    if (response.statusCode != 200) {
+      throw Exception("Failed to load image: Status ${response.statusCode}");
+    }
+    final ui.Codec codec = await ui.instantiateImageCodec(
+      response.bodyBytes,
+      targetWidth: targetWidth,
+    );
     final ui.FrameInfo fi = await codec.getNextFrame();
-    final ByteData? byteData = await fi.image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData = await fi.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
 
@@ -144,7 +263,9 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     try {
       await controller.animateCamera(CameraUpdate.newLatLngBounds(bounds, 70));
     } catch (e) {
-      await controller.animateCamera(CameraUpdate.newLatLngZoom(points.first, 14));
+      await controller.animateCamera(
+        CameraUpdate.newLatLngZoom(points.first, 14),
+      );
     }
   }
 
@@ -161,11 +282,13 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     final currentIcon = await resizeMarkerIcon(Assets.assetsHueCurrent, 85);
 
     setState(() {
-      _markers.add(Marker(
-        markerId: const MarkerId("currentLocation"),
-        position: _currentPosition!,
-        icon: currentIcon,
-      ));
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("currentLocation"),
+          position: _currentPosition!,
+          icon: currentIcon,
+        ),
+      );
     });
 
     _fetchAddress(position.latitude, position.longitude);
@@ -174,34 +297,46 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
   Future<void> _fetchAddress(double latitude, double longitude) async {
     const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
-    final url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
+    final url =
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['results'] != null && data['results'].isNotEmpty) {
-          widget.onAddressFetched?.call(data['results'][0]['formatted_address']);
+          widget.onAddressFetched?.call(
+            data['results'][0]['formatted_address'],
+          );
         }
       }
     } catch (e) {}
   }
 
-  Future<List<LatLng>> _getRoutePoints(LatLng origin, LatLng destination, {List<LatLng>? waypoints}) async {
+  Future<List<LatLng>> _getRoutePoints(
+    LatLng origin,
+    LatLng destination, {
+    List<LatLng>? waypoints,
+  }) async {
     const String apiKey = 'AIzaSyB0mG3CGok9-9RZau5J_VThUP4OTbQ_SFM';
-    
+
     String waypointsStr = "";
     if (waypoints != null && waypoints.isNotEmpty) {
-      waypointsStr = "&waypoints=" + waypoints.map((w) => "${w.latitude},${w.longitude}").join('|');
+      waypointsStr =
+          "&waypoints=" +
+          waypoints.map((w) => "${w.latitude},${w.longitude}").join('|');
     }
 
-    final url = 'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}$waypointsStr&key=$apiKey';
+    final url =
+        'https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}$waypointsStr&key=$apiKey';
 
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['status'] == 'OK') {
-          return _decodePolyline(data['routes'][0]['overview_polyline']['points']);
+          return _decodePolyline(
+            data['routes'][0]['overview_polyline']['points'],
+          );
         }
       }
     } catch (e) {}
@@ -213,10 +348,19 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     int index = 0, len = encoded.length, lat = 0, lng = 0;
     while (index < len) {
       int b, shift = 0, result = 0;
-      do { b = encoded.codeUnitAt(index++) - 63; result |= (b & 0x1F) << shift; shift += 5; } while (b >= 0x20);
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
       lat += ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-      shift = 0; result = 0;
-      do { b = encoded.codeUnitAt(index++) - 63; result |= (b & 0x1F) << shift; shift += 5; } while (b >= 0x20);
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1F) << shift;
+        shift += 5;
+      } while (b >= 0x20);
       lng += ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
       polyline.add(LatLng(lat / 1e5, lng / 1e5));
     }
@@ -241,10 +385,18 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     LatLng? dropLatLng;
     List<LatLng> stopLatLngs = [];
 
-    double? pLat = _safeToDouble(booking['pickup_latitute'] ?? booking['pickup_lat']);
-    double? pLng = _safeToDouble(booking['pick_longitude'] ?? booking['pickup_lng']);
-    double? dLat = _safeToDouble(booking['drop_latitute'] ?? booking['drop_lat']);
-    double? dLng = _safeToDouble(booking['drop_logitute'] ?? booking['drop_lng']);
+    double? pLat = _safeToDouble(
+      booking['pickup_latitute'] ?? booking['pickup_lat'],
+    );
+    double? pLng = _safeToDouble(
+      booking['pick_longitude'] ?? booking['pickup_lng'],
+    );
+    double? dLat = _safeToDouble(
+      booking['drop_latitute'] ?? booking['drop_lat'],
+    );
+    double? dLng = _safeToDouble(
+      booking['drop_logitute'] ?? booking['drop_lng'],
+    );
 
     if (pLat != null && pLng != null) pickupLatLng = LatLng(pLat, pLng);
     if (dLat != null && dLng != null) dropLatLng = LatLng(dLat, dLng);
@@ -274,12 +426,22 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     } else if (widget.rideStatus == 4 || widget.rideStatus! >= 5) {
       // Picked up, going to Drop through Stops (Live Tracking)
       if (driverPos != null && dropLatLng != null) {
-        points = await _getRoutePoints(driverPos, dropLatLng, waypoints: stopLatLngs);
-        polyColor = widget.rideStatus == 4 ? PortColor.buttonBlue : Colors.green;
+        points = await _getRoutePoints(
+          driverPos,
+          dropLatLng,
+          waypoints: stopLatLngs,
+        );
+        polyColor = widget.rideStatus == 4
+            ? PortColor.buttonBlue
+            : Colors.green;
         polyId = "driver_to_drop_via_stops";
       } else if (pickupLatLng != null && dropLatLng != null) {
         // Fallback to pickup origin if driver position unavailable
-        points = await _getRoutePoints(pickupLatLng, dropLatLng, waypoints: stopLatLngs);
+        points = await _getRoutePoints(
+          pickupLatLng,
+          dropLatLng,
+          waypoints: stopLatLngs,
+        );
         polyColor = Colors.green;
         polyId = "pickup_to_drop_via_stops";
       }
@@ -288,22 +450,32 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     if (points.isNotEmpty) {
       setState(() {
         _polylines.clear();
-        _polylines.add(Polyline(
-          polylineId: PolylineId(polyId),
-          points: points,
-          color: polyColor,
-          width: 5,
-        ));
+        _polylines.add(
+          Polyline(
+            polylineId: PolylineId(polyId),
+            points: points,
+            color: polyColor,
+            width: 5,
+          ),
+        );
       });
       await moveCameraOnPolyline(points);
     }
   }
 
-  Future<BitmapDescriptor> resizeMarkerIcon(String assetPath, int targetWidth) async {
+  Future<BitmapDescriptor> resizeMarkerIcon(
+    String assetPath,
+    int targetWidth,
+  ) async {
     final ByteData data = await rootBundle.load(assetPath);
-    final ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: targetWidth);
+    final ui.Codec codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: targetWidth,
+    );
     final ui.FrameInfo fi = await codec.getNextFrame();
-    final ByteData? byteData = await fi.image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData = await fi.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
 
@@ -311,37 +483,66 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     if (widget.data == null || widget.data!.isEmpty) return;
     final booking = widget.data!.first;
 
-    double? pLat = _safeToDouble(booking['pickup_latitute'] ?? booking['pickup_lat']);
-    double? pLng = _safeToDouble(booking['pick_longitude'] ?? booking['pickup_lng']);
-    double? dLat = _safeToDouble(booking['drop_latitute'] ?? booking['drop_lat']);
-    double? dLng = _safeToDouble(booking['drop_logitute'] ?? booking['drop_lng']);
+    double? pLat = _safeToDouble(
+      booking['pickup_latitute'] ?? booking['pickup_lat'],
+    );
+    double? pLng = _safeToDouble(
+      booking['pick_longitude'] ?? booking['pickup_lng'],
+    );
+    double? dLat = _safeToDouble(
+      booking['drop_latitute'] ?? booking['drop_lat'],
+    );
+    double? dLng = _safeToDouble(
+      booking['drop_logitute'] ?? booking['drop_lng'],
+    );
 
     final pickupIcon = await resizeMarkerIcon(Assets.assetsPicupYoyo, 65);
     final dropIcon = await resizeMarkerIcon(Assets.assetsDropYoyo, 65);
     final stopIcon = await resizeMarkerIcon(Assets.assetsStops, 65);
 
     setState(() {
-      _markers.removeWhere((m) => m.markerId.value == "pickup" || m.markerId.value == "drop" || m.markerId.value.startsWith("stop_"));
-      
+      _markers.removeWhere(
+        (m) =>
+            m.markerId.value == "pickup" ||
+            m.markerId.value == "drop" ||
+            m.markerId.value.startsWith("stop_"),
+      );
+
       if (pLat != null && pLng != null) {
-        _markers.add(Marker(markerId: const MarkerId("pickup"), position: LatLng(pLat, pLng), icon: pickupIcon));
+        _markers.add(
+          Marker(
+            markerId: const MarkerId("pickup"),
+            position: LatLng(pLat, pLng),
+            icon: pickupIcon,
+          ),
+        );
       }
       if (dLat != null && dLng != null) {
-        _markers.add(Marker(markerId: const MarkerId("drop"), position: LatLng(dLat, dLng), icon: dropIcon));
+        _markers.add(
+          Marker(
+            markerId: const MarkerId("drop"),
+            position: LatLng(dLat, dLng),
+            icon: dropIcon,
+          ),
+        );
       }
-      
+
       if (widget.stops != null) {
         for (int i = 0; i < widget.stops!.length; i++) {
           final stop = widget.stops![i];
           double? sLat = _safeToDouble(stop['lat'] ?? stop['latitude']);
           double? sLng = _safeToDouble(stop['lng'] ?? stop['longitude']);
           if (sLat != null && sLng != null) {
-            _markers.add(Marker(
-              markerId: MarkerId("stop_$i"),
-              position: LatLng(sLat, sLng),
-              icon: stopIcon,
-              infoWindow: InfoWindow(title: "Stop ${i + 1}: ${stop['name'] ?? 'Stop'}"),
-            ));
+            _markers.add(
+              Marker(
+                markerId: MarkerId("stop_$i"),
+                position: LatLng(sLat, sLng),
+                icon: stopIcon,
+                infoWindow: InfoWindow(
+                  title: "Stop ${i + 1}: ${stop['name'] ?? 'Stop'}",
+                ),
+              ),
+            );
           }
         }
       }
@@ -356,7 +557,10 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
         if (!completer.isCompleted) completer.complete(controller);
         _updatePolylinesBasedOnStatus();
       },
-      initialCameraPosition: CameraPosition(target: widget.driverLocation ?? _initialPosition, zoom: 12),
+      initialCameraPosition: CameraPosition(
+        target: widget.driverLocation ?? _initialPosition,
+        zoom: 12,
+      ),
       myLocationEnabled: true,
       markers: _markers,
       polylines: _polylines,
