@@ -1,9 +1,11 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:yoyomiles/model/profile_model.dart';
 import 'package:yoyomiles/repo/profile_repo.dart';
 import 'package:yoyomiles/utils/routes/routes.dart';
 import 'package:yoyomiles/view_model/user_view_model.dart';
+
 class ProfileViewModel with ChangeNotifier {
   final _profileRepo = ProfileRepo();
   bool _loading = false;
@@ -21,29 +23,64 @@ class ProfileViewModel with ChangeNotifier {
     _profileModel = value;
     notifyListeners();
   }
-  Future<void> profileApi(context) async {
+
+  Future<void> profileApi(BuildContext context) async {
     setLoading(true);
+    try {
       UserViewModel userViewModel = UserViewModel();
       String? userId = await userViewModel.getUser();
-       _profileRepo.profileApi(userId).then((value){
-         print('value:$value');
-         if (value.success == true) {
-           setModelData(value);
-           if (value.data!.status == 2) {
-             userViewModel.remove();
-             Navigator.pushNamedAndRemoveUntil(
-                 context,
-                 RoutesName.login,
-             (route) => false,
-             );
-           }
-         }
-       }).onError((error, stackTrace) {
-         setLoading(false);
-         if (kDebugMode) {
-           print('error: $error');
-         }
-       });
-  }
-}
 
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+      final response = await _profileRepo.profileApi(
+        userId.toString(),
+        fcmToken ?? "",
+      );
+
+      if (response.success == true) {
+        setModelData(response);
+
+        if (response.data?.status == 2) {
+          await userViewModel.remove();
+
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            RoutesName.login,
+            (route) => false,
+          );
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error in profileApi: $e');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Future<void> profileApi(context) async {
+  //   setLoading(true);
+  //     UserViewModel userViewModel = UserViewModel();
+  //     String? userId = await userViewModel.getUser();
+  //      _profileRepo.profileApi(userId).then((value){
+  //        print('value:$value');
+  //        if (value.success == true) {
+  //          setModelData(value);
+  //          if (value.data!.status == 2) {
+  //            userViewModel.remove();
+  //            Navigator.pushNamedAndRemoveUntil(
+  //                context,
+  //                RoutesName.login,
+  //            (route) => false,
+  //            );
+  //          }
+  //        }
+  //      }).onError((error, stackTrace) {
+  //        setLoading(false);
+  //        if (kDebugMode) {
+  //          print('error: $error');
+  //        }
+  //      });
+  // }
+}
