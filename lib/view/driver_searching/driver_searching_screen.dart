@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
 import 'package:yoyomiles/view_model/payment_view_model.dart';
+import 'package:yoyomiles/view_model/profile_view_model.dart';
 import 'package:yoyomiles/view_model/update_ride_status_view_model.dart';
 import 'package:yoyomiles/res/app_fonts.dart';
 import 'package:yoyomiles/res/const_with_polyline_map.dart';
@@ -51,6 +53,8 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startListening();
+      final profile = Provider.of<ProfileViewModel>(context,listen: false);
+      profile.profileApi(context);
       Provider.of<ContactListViewModel>(
         context,
         listen: false,
@@ -791,11 +795,12 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     else
                       _buildDriverLoadingPlaceholder(),
 
+
                     if (showOtp) _buildOtpSection(otp),
                     AddressCard(orderData: orderData),
 
                     if (stops != null && stops.isNotEmpty) _buildStopsUI(stops),
-
+                    _buildShareRideButton(orderData),
                     _buildPaymentContainer(payMode, orderData),
                     if (showOtpAndCancel) _buildCancelButton(),
                     _buildEmergencySection(),
@@ -809,6 +814,87 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildShareRideButton(Map<String, dynamic> orderData) {
+    final profile = Provider.of<ProfileViewModel>(context);
+    return GestureDetector(
+      onTap: () {
+        String? rideLink = orderData['tracking_url'];
+
+        if (rideLink == null || rideLink.isEmpty) {
+          print("❌ Tracking URL not found");
+          return;
+        }
+
+        Share.share(
+          "Hi, This is ${profile.profileModel?.data?.firstName} on Yoyomiles\nView my ride details here\n$rideLink",
+          subject: "My Ride Link",
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          gradient:  LinearGradient(
+            colors: [PortColor.gold.withAlpha(200), PortColor.gold.withAlpha(70) ],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: PortColor.gold.withOpacity(0.2)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration:  BoxDecoration(
+                color: PortColor.white,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.share_rounded,
+                color: Colors.black,
+                size: 20,
+              ),
+            ),
+
+            const SizedBox(width: 12),
+
+            // 📝 Text
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    "Share Ride",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Color(0xFF1A1D2E),
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    "Let others track your ride live",
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.black38,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ➡️ Arrow
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 14,
+              color: Colors.black38,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

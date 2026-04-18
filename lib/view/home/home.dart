@@ -16,6 +16,7 @@ import 'package:yoyomiles/view/coins/coins.dart';
 import 'package:yoyomiles/view/driver_searching/driver_searching_screen.dart';
 import 'package:yoyomiles/view/home/widgets/category_Grid.dart';
 import 'package:yoyomiles/view/home/widgets/pickup/deliver_by_truck.dart';
+import 'package:yoyomiles/view/sharing_live_ride.dart';
 import 'package:yoyomiles/view_model/active_ride_view_model.dart';
 import 'package:yoyomiles/view_model/port_banner_view_model.dart';
 import 'package:yoyomiles/view_model/profile_view_model.dart';
@@ -398,6 +399,7 @@ class _HomePageState extends State<HomePage> {
                             name: 'yoyomiles_reward_page',
                           );
                          Navigator.push(context, CupertinoPageRoute(builder: (context)=>CoinsPage()));
+                         // Navigator.push(context, CupertinoPageRoute(builder: (context)=>SharingLiveRide()));
                         },
                         child: Container(
                           width: screenWidth * 0.9,

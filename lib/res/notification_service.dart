@@ -57,7 +57,7 @@ class NotificationService {
 
   // get fcm(device) token
   Future<String> getDeviceToken() async {
-    // NotificationSettings settings =
+    
     await messaging.requestPermission(
       alert: true,
       announcement: true,

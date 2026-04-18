@@ -35,7 +35,6 @@ import 'package:yoyomiles/view_model/login_view_model.dart';
 import 'package:yoyomiles/view_model/moving_detail_view_model.dart';
 import 'package:yoyomiles/view_model/on_boarding_view_model.dart';
 import 'package:yoyomiles/view_model/order_view_model.dart';
-import 'package:yoyomiles/view_model/otp_count_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_call_back_viewmodel.dart';
 import 'package:yoyomiles/view_model/packer_mover_order_history_view_model.dart';
 import 'package:yoyomiles/view_model/packer_mover_terms_view_model.dart';
@@ -134,17 +133,27 @@ class _MyAppState extends State<MyApp> {
   void navigateIfDeepLinkAvailable() {
     if (pendingDeepLinkData != null && !_deepLinkNavigated) {
       _deepLinkNavigated = true;
-      // ✅ 3 second wait — profile + home screen load hone do
+
       Future.delayed(const Duration(milliseconds: 3000), () {
         if (navigatorKey.currentState == null) {
           _deepLinkNavigated = false;
           return;
         }
+
         print("🚀 Navigating with: $pendingDeepLinkData");
+
+        // 🔥 yahi main change hai
+        String routeName = RoutesName.deliveryByTruck;
+
+        if (pendingDeepLinkData?["type"] == "tracking") {
+          routeName = RoutesName.shareLiveRide;
+        }
+
         navigatorKey.currentState?.pushNamed(
-          RoutesName.deliveryByTruck,
+          routeName,
           arguments: pendingDeepLinkData,
         );
+
         pendingDeepLinkData = null;
         _deepLinkNavigated = false;
       });
@@ -187,15 +196,11 @@ class _MyAppState extends State<MyApp> {
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
 
-  // ===============================
-  // 🔥 DEEP LINK LOGIC START
-  // ===============================
 
   Future<void> initDeepLinks() async {
     try {
       final Uri? initialUri = await _appLinks.getInitialLink();
       if (initialUri != null) {
-        // Cold start pe thoda zyada wait karo
         await Future.delayed(const Duration(milliseconds: 300));
         handleUri(initialUri);
       }
@@ -241,6 +246,19 @@ class _MyAppState extends State<MyApp> {
 
       navigateIfDeepLinkAvailable();   // 🔥 ADD THIS
     }
+    if (uri.host.contains("yoyomiles.com") && uri.path.contains("tracking")) {
+      String token = uri.pathSegments.last;
+
+      print("🔗 Tracking Token: $token");
+
+      pendingDeepLinkData = {
+        "type": "tracking",
+        "token": token,
+      };
+
+      navigateIfDeepLinkAvailable();
+      return;
+    }
   }
 
 
@@ -251,9 +269,6 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  // ===============================
-  // 🔥 DEEP LINK LOGIC END
-  // ===============================
 
   @override
   Widget build(BuildContext context) {
@@ -322,7 +337,6 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> GstPercentageViewModel()),
           ChangeNotifierProvider(create: (context)=> LanguageController()),
           ChangeNotifierProvider(create: (context)=> SettingsViewModel()),
-
         ],
         child: Consumer<LanguageController>(
           builder: (context, provider, child) {
@@ -330,20 +344,9 @@ class _MyAppState extends State<MyApp> {
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               initialRoute: RoutesName.splash,
-              onGenerateRoute: (settings) {
-                if (settings.name != null) {
-                  return MaterialPageRoute(
-                    builder: Routers.generateRoute(settings.name!),
-                    settings: settings,
-                  );
-                }
-                return null;
-              },
 
-              // builder: (context, child) {
-              //   checkPendingNavigation(context);
-              //   return child!;
-              // },
+              onGenerateRoute: Routers.generateRoute,
+
               title: AppConstant.appName,
               locale: provider.appLocale,
               localizationsDelegates: const [
@@ -357,11 +360,9 @@ class _MyAppState extends State<MyApp> {
                 Locale('hi'),
               ],
               theme: ThemeData(
-                colorScheme:
-                ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
                 useMaterial3: true,
               ),
-
             );
           },
         ),
