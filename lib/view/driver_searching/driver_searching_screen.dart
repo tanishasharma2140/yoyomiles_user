@@ -800,7 +800,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     AddressCard(orderData: orderData),
 
                     if (stops != null && stops.isNotEmpty) _buildStopsUI(stops),
-                    _buildShareRideButton(orderData),
+                    // _buildShareRideButton(orderData),
                     _buildPaymentContainer(payMode, orderData),
                     if (showOtpAndCancel) _buildCancelButton(),
                     _buildEmergencySection(),
@@ -817,86 +817,86 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
     );
   }
 
-  Widget _buildShareRideButton(Map<String, dynamic> orderData) {
-    final profile = Provider.of<ProfileViewModel>(context);
-    return GestureDetector(
-      onTap: () {
-        String? rideLink = orderData['tracking_url'];
-
-        if (rideLink == null || rideLink.isEmpty) {
-          print("❌ Tracking URL not found");
-          return;
-        }
-
-        Share.share(
-          "Hi, This is ${profile.profileModel?.data?.firstName} on Yoyomiles\nView my ride details here\n$rideLink",
-          subject: "My Ride Link",
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          gradient:  LinearGradient(
-            colors: [PortColor.gold.withAlpha(200), PortColor.gold.withAlpha(70) ],
-          ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: PortColor.gold.withOpacity(0.2)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration:  BoxDecoration(
-                color: PortColor.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.share_rounded,
-                color: Colors.black,
-                size: 20,
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            // 📝 Text
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    "Share Ride",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: Color(0xFF1A1D2E),
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    "Let others track your ride live",
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.black38,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ➡️ Arrow
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 14,
-              color: Colors.black38,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildShareRideButton(Map<String, dynamic> orderData) {
+  //   final profile = Provider.of<ProfileViewModel>(context);
+  //   return GestureDetector(
+  //     onTap: () {
+  //       String? rideLink = orderData['tracking_url'];
+  //
+  //       if (rideLink == null || rideLink.isEmpty) {
+  //         print("❌ Tracking URL not found");
+  //         return;
+  //       }
+  //
+  //       Share.share(
+  //         "Hi, This is ${profile.profileModel?.data?.firstName} on Yoyomiles\nView my ride details here\n$rideLink",
+  //         subject: "My Ride Link",
+  //       );
+  //     },
+  //     child: Container(
+  //       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  //       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  //       decoration: BoxDecoration(
+  //         gradient:  LinearGradient(
+  //           colors: [PortColor.gold.withAlpha(200), PortColor.gold.withAlpha(70) ],
+  //         ),
+  //         borderRadius: BorderRadius.circular(14),
+  //         border: Border.all(color: PortColor.gold.withOpacity(0.2)),
+  //       ),
+  //       child: Row(
+  //         children: [
+  //           Container(
+  //             width: 38,
+  //             height: 38,
+  //             decoration:  BoxDecoration(
+  //               color: PortColor.white,
+  //               shape: BoxShape.circle,
+  //             ),
+  //             child: const Icon(
+  //               Icons.share_rounded,
+  //               color: Colors.black,
+  //               size: 20,
+  //             ),
+  //           ),
+  //
+  //           const SizedBox(width: 12),
+  //
+  //           // 📝 Text
+  //           Expanded(
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: const [
+  //                 Text(
+  //                   "Share Ride",
+  //                   style: TextStyle(
+  //                     fontWeight: FontWeight.w700,
+  //                     fontSize: 14,
+  //                     color: Color(0xFF1A1D2E),
+  //                   ),
+  //                 ),
+  //                 SizedBox(height: 2),
+  //                 Text(
+  //                   "Let others track your ride live",
+  //                   style: TextStyle(
+  //                     fontSize: 11,
+  //                     color: Colors.black38,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //
+  //           // ➡️ Arrow
+  //           const Icon(
+  //             Icons.arrow_forward_ios_rounded,
+  //             size: 14,
+  //             color: Colors.black38,
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildStopsUI(List<dynamic> stops) {
     return Container(
