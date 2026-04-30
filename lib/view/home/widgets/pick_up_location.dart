@@ -35,7 +35,6 @@ class _PickUpLocationState extends State<PickUpLocation> {
                 horizontal: screenWidth * 0.06,
                 vertical: screenHeight * 0.03,
               ),
-              height: screenHeight * 0.2,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
@@ -82,9 +81,9 @@ class _PickUpLocationState extends State<PickUpLocation> {
                             placeSearchApi(value);
                           },
                           decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                              maxHeight: screenHeight * 0.055,
-                            ),
+                            // constraints: BoxConstraints(
+                            //   // maxHeight: screenHeight * 0.055,
+                            // ),
                             hintText: loc.where_is_pickup,
                             hintStyle: TextStyle(
                               color: PortColor.gray.withOpacity(0.5),

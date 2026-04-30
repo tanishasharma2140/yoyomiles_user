@@ -145,9 +145,9 @@ class _MyAppState extends State<MyApp> {
         // 🔥 yahi main change hai
         String routeName = RoutesName.deliveryByTruck;
 
-        if (pendingDeepLinkData?["type"] == "tracking") {
-          routeName = RoutesName.shareLiveRide;
-        }
+        // if (pendingDeepLinkData?["type"] == "tracking") {
+        //   routeName = RoutesName.shareLiveRide;
+        // }
 
         navigatorKey.currentState?.pushNamed(
           routeName,
@@ -246,19 +246,19 @@ class _MyAppState extends State<MyApp> {
 
       navigateIfDeepLinkAvailable();   // 🔥 ADD THIS
     }
-    if (uri.host.contains("yoyomiles.com") && uri.path.contains("tracking")) {
-      String token = uri.pathSegments.last;
-
-      print("🔗 Tracking Token: $token");
-
-      pendingDeepLinkData = {
-        "type": "tracking",
-        "token": token,
-      };
-
-      navigateIfDeepLinkAvailable();
-      return;
-    }
+    // if (uri.host.contains("yoyomiles.com") && uri.path.contains("tracking")) {
+    //   String token = uri.pathSegments.last;
+    //
+    //   print("🔗 Tracking Token: $token");
+    //
+    //   pendingDeepLinkData = {
+    //     "type": "tracking",
+    //     "token": token,
+    //   };
+    //
+    //   navigateIfDeepLinkAvailable();
+    //   return;
+    // }
   }
 
 

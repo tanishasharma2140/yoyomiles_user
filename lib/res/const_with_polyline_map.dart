@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +53,10 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
   LatLng? _previousDriverLocation;
   String? _lastLoadedUrl;
   BitmapDescriptor? _driverIcon;
+  Timer? _driverAnimationTimer;
+  LatLng? _animatedDriverPosition;
+  DateTime? _lastCameraUpdateAt;
+  LatLng? _lastCameraTarget;
 
   @override
   void initState() {
@@ -78,9 +83,17 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
       context,
       listen: false,
     ).vehicleImage;
-    setState(() {
-      vehicleImg ??= vehicleImage;
-    });
+    if (vehicleImg != vehicleImage) {
+      vehicleImg = vehicleImage;
+      _driverIcon = null;
+      _lastLoadedUrl = null;
+      final currentDriverMarker = _markers
+          .where((m) => m.markerId.value == "driverMarker")
+          .toList();
+      if (currentDriverMarker.isNotEmpty) {
+        _updateDriverMarker(currentDriverMarker.first.position);
+      }
+    }
 
     bool shouldUpdateRoute = false;
 
@@ -106,14 +119,14 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
   Future<void> _updateDriverMarker(LatLng position) async {
     // print("🚙 Calling _updateDriverMarker. vehicleImage: ${widget.vehicleImage}");
-    final vehicleImage = Provider.of<OrderViewModel>(
+    vehicleImg = Provider.of<OrderViewModel>(
       context,
       listen: false,
     ).vehicleImage;
     print("🚙 Calling _updateDriverMarker. vehicleImage: $vehicleImg");
     if (_driverIcon == null || vehicleImg != _lastLoadedUrl) {
       try {
-        if (vehicleImg != '') {
+        if (vehicleImg != null && vehicleImg!.isNotEmpty) {
           String imageUrl = vehicleImg!;
 
           /// ✅ URL normalization
@@ -145,25 +158,152 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
         /// ✅ fallback icon
         // _driverIcon = await resizeMarkerIcon(Assets.assetsVehicleDummy, 80);
         _lastLoadedUrl =
-            vehicleImg!; // set so we don't retry every time if it fails
+            vehicleImg; // set so we don't retry every time if it fails
       }
     }
 
-    if (mounted) {
-      setState(() {
-        _markers.removeWhere((m) => m.markerId.value == "driverMarker");
-
-        _markers.add(
-          Marker(
-            markerId: const MarkerId("driverMarker"),
-            position: position,
-            icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
-            anchor: const Offset(0.5, 0.5),
-          ),
-        );
-      });
-    }
+    _animateDriverMarker(position);
   }
+
+  void _animateDriverMarker(LatLng targetPosition) {
+    final LatLng? startPosition = _animatedDriverPosition ?? _previousDriverLocation;
+
+    if (startPosition == null) {
+      _animatedDriverPosition = targetPosition;
+      _setDriverMarker(targetPosition);
+      _followDriverOnMap(targetPosition);
+      return;
+    }
+
+    final distanceMeters = Geolocator.distanceBetween(
+      startPosition.latitude,
+      startPosition.longitude,
+      targetPosition.latitude,
+      targetPosition.longitude,
+    );
+
+    // Adaptive duration keeps movement natural for both short and long jumps.
+    final int totalDurationMs = distanceMeters < 6
+        ? 700
+        : distanceMeters < 20
+            ? 1000
+            : distanceMeters < 60
+                ? 1400
+                : 1800;
+    final int totalSteps = (totalDurationMs / 30).round().clamp(24, 64);
+    final int stepDurationMs = (totalDurationMs / totalSteps).round();
+
+    _driverAnimationTimer?.cancel();
+    int currentStep = 0;
+
+    _driverAnimationTimer = Timer.periodic(
+      Duration(milliseconds: stepDurationMs),
+      (timer) {
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+
+        currentStep++;
+        final t = (currentStep / totalSteps).clamp(0.0, 1.0);
+        final easedT = Curves.easeInOutCubic.transform(t);
+
+        final interpolated = LatLng(
+          _lerp(startPosition.latitude, targetPosition.latitude, easedT),
+          _lerp(startPosition.longitude, targetPosition.longitude, easedT),
+        );
+
+        _animatedDriverPosition = interpolated;
+        _setDriverMarker(interpolated);
+
+        if (currentStep % 2 == 0 || currentStep == totalSteps) {
+          _followDriverOnMap(interpolated);
+        }
+
+        if (currentStep >= totalSteps) {
+          timer.cancel();
+          _animatedDriverPosition = targetPosition;
+          _setDriverMarker(targetPosition);
+          _followDriverOnMap(targetPosition);
+        }
+      },
+    );
+  }
+
+  void _setDriverMarker(LatLng position) {
+    if (!mounted) return;
+    final referencePosition = _animatedDriverPosition ?? _previousDriverLocation;
+    final rotation = referencePosition == null
+        ? 0.0
+        : _calculateBearing(referencePosition, position);
+    setState(() {
+      _markers.removeWhere((m) => m.markerId.value == "driverMarker");
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("driverMarker"),
+          position: position,
+          icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
+          anchor: const Offset(0.5, 0.5),
+          rotation: rotation,
+          flat: true,
+        ),
+      );
+    });
+  }
+
+  Future<void> _followDriverOnMap(LatLng position) async {
+    if (!completer.isCompleted) return;
+    final now = DateTime.now();
+    final msFromLast = _lastCameraUpdateAt == null
+        ? 9999
+        : now.difference(_lastCameraUpdateAt!).inMilliseconds;
+    if (msFromLast < 120) return;
+
+    if (_lastCameraTarget != null) {
+      final cameraDelta = Geolocator.distanceBetween(
+        _lastCameraTarget!.latitude,
+        _lastCameraTarget!.longitude,
+        position.latitude,
+        position.longitude,
+      );
+      if (cameraDelta < 1.5) return;
+    }
+
+    try {
+      final controller = await completer.future;
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: position,
+            zoom: 16.5,
+            bearing: 0,
+            tilt: 0,
+          ),
+        ),
+      );
+      _lastCameraUpdateAt = now;
+      _lastCameraTarget = position;
+    } catch (_) {}
+  }
+
+  double _lerp(double start, double end, double t) {
+    return start + (end - start) * t;
+  }
+
+  double _calculateBearing(LatLng from, LatLng to) {
+    final lat1 = _degToRad(from.latitude);
+    final lat2 = _degToRad(to.latitude);
+    final dLon = _degToRad(to.longitude - from.longitude);
+    final y = math.sin(dLon) * math.cos(lat2);
+    final x =
+        math.cos(lat1) * math.sin(lat2) -
+        math.sin(lat1) * math.cos(lat2) * math.cos(dLon);
+    final bearing = math.atan2(y, x);
+    return (_radToDeg(bearing) + 360) % 360;
+  }
+
+  double _degToRad(double deg) => deg * (math.pi / 180);
+  double _radToDeg(double rad) => rad * (180 / math.pi);
 
   // Future<void> _updateDriverMarker(LatLng position) async {
   //   print("🚙 Calling _updateDriverMarker. vehicleImage: ${widget.vehicleImage}");
@@ -566,5 +706,11 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
       polylines: _polylines,
       zoomControlsEnabled: false,
     );
+  }
+
+  @override
+  void dispose() {
+    _driverAnimationTimer?.cancel();
+    super.dispose();
   }
 }

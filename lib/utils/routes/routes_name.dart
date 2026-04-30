@@ -55,13 +55,13 @@ class Routers {
           builder: (_) => const DeliverByTruck(),
         );
 
-      case RoutesName.shareLiveRide:
-        final args = settings.arguments as Map;
-        return MaterialPageRoute(
-          builder: (_) => ShareLiveRide(
-            trackingToken: args['token'],
-          ),
-        );
+      // case RoutesName.shareLiveRide:
+      //   final args = settings.arguments as Map;
+      //   return MaterialPageRoute(
+      //     builder: (_) => ShareLiveRide(
+      //       trackingToken: args['token'],
+      //     ),
+      //   );
 
       default:
         return MaterialPageRoute(

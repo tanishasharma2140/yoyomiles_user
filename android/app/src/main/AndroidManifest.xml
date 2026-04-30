@@ -65,10 +65,6 @@
                     android:scheme="https"
                     android:host="yoyomiles.com"
                     android:pathPattern=".*"/>
-                <data
-                    android:scheme="https"
-                    android:host="yoyomiles.com"
-                    android:pathPrefix="/tracking"/>
             </intent-filter>
 
             <!-- ========================= -->
