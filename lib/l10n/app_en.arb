@@ -362,5 +362,9 @@
 "type_to_search" : "Type to search location",
 "no_result_found" : "No results found",
 "adds_stops" : "ADD STOPS",
-"edit_stops" : "EDIT STOPS"
+"edit_stops" : "EDIT STOPS",
+"share_ride" : "Share Ride",
+"let_other_track" : "Let others track your ride live",
+"hi_this_is" : "Hi, This is ",
+"on_yoyomiles_view_my" : " on Yoyomiles\nView my ride details here"
 }

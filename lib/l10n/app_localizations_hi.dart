@@ -1071,4 +1071,17 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get edit_stops => 'स्टॉप संपादित करें';
+
+  @override
+  String get share_ride => 'राइड साझा करें';
+
+  @override
+  String get let_other_track => 'दूसरों को आपकी राइड लाइव ट्रैक करने दें';
+
+  @override
+  String get hi_this_is => 'नमस्ते, यह हैं ';
+
+  @override
+  String get on_yoyomiles_view_my =>
+      ' Yoyomiles पर\nमेरी राइड की जानकारी यहां देखें';
 }

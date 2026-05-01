@@ -21,6 +21,7 @@ import 'package:yoyomiles/view_model/add_wallet_view_model.dart';
 import 'package:yoyomiles/view_model/address_delete_view_model.dart';
 import 'package:yoyomiles/view_model/address_show_view_model.dart';
 import 'package:yoyomiles/view_model/apply_coupon_view_model.dart';
+import 'package:yoyomiles/view_model/cancel_reason_view_model.dart';
 import 'package:yoyomiles/view_model/claim_reward_view_model.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/coupon_list_view_model.dart';
@@ -337,6 +338,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context)=> GstPercentageViewModel()),
           ChangeNotifierProvider(create: (context)=> LanguageController()),
           ChangeNotifierProvider(create: (context)=> SettingsViewModel()),
+          ChangeNotifierProvider(create: (context)=> CancelReasonViewModel()),
         ],
         child: Consumer<LanguageController>(
           builder: (context, provider, child) {

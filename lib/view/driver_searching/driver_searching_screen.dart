@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:yoyomiles/generated/assets.dart';
 import 'package:yoyomiles/l10n/app_localizations.dart';
 import 'package:yoyomiles/utils/utils.dart';
+import 'package:yoyomiles/view_model/cancel_reason_view_model.dart';
 import 'package:yoyomiles/view_model/contact_list_view_model.dart';
 import 'package:yoyomiles/view_model/driver_ride_view_model.dart';
 import 'package:yoyomiles/view_model/payment_view_model.dart';
@@ -60,6 +61,11 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         context,
         listen: false,
       ).contactListApi();
+      final cabCancelReasonVm = Provider.of<CancelReasonViewModel>(
+        context,
+        listen: false,
+      );
+      cabCancelReasonVm.cancelReasonApi("1");
     });
   }
 
@@ -96,17 +102,6 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
   }
 
   int? _selectedIndex;
-  final List<String> _reasons = [
-    "Wrong/Inappropriate Vehicle",
-    "My reason is not listed",
-    "Driver asked me to cancel",
-    "Changed my mind",
-    "Driver issue - delaying to come",
-    "Unable to contact driver",
-    "Expected a shorter arrival time",
-    "Driver asking for extra money",
-    "Driver not moving",
-  ];
 
   void _startSearchTimeoutTimer() {
     if (_searchTimer != null || _noDriverDialogShown) return;
@@ -216,6 +211,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
       context,
       listen: false,
     );
+    final cancelReasonVm = Provider.of<CancelReasonViewModel>(context,listen: false);
     final loc = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
@@ -259,10 +255,17 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
-                      height: (_reasons.length * 50).toDouble().clamp(150, 300),
+                      height: ((cancelReasonVm.cancelReasonModel?.data?.length ?? 0) * 50)
+                          .toDouble()
+                          .clamp(150, 300),
                       child: ListView.builder(
-                        itemCount: _reasons.length,
+                        itemCount:
+                        cancelReasonVm.cancelReasonModel?.data?.length ?? 0,
                         itemBuilder: (context, index) {
+                          final reason = cancelReasonVm
+                              .cancelReasonModel
+                              ?.data?[index];
+
                           return GestureDetector(
                             onTap: () => setState(() => _selectedIndex = index),
                             child: Padding(
@@ -275,7 +278,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                                     onChanged: (value) =>
                                         setState(() => _selectedIndex = value),
                                   ),
-                                  Expanded(child: Text(_reasons[index])),
+                                  Expanded(
+                                    child: Text(reason?.reasonText ?? ""),
+                                  ),
                                 ],
                               ),
                             ),
@@ -304,10 +309,15 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                             onPressed: _selectedIndex == null
                                 ? null
                                 : () {
+                              final selectedReason = cancelReasonVm
+                                  .cancelReasonModel
+                                  ?.data?[_selectedIndex!];
                                     updateRideStatusVm.updateRideApi(
                                       context,
                                       widget.orderData?['document_id'],
                                       "7",
+                                      cancelReason: selectedReason?.reasonText,
+
                                     );
                                     _cancelSearchTimeoutTimer();
                                     final driverRideVm =
@@ -800,7 +810,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                     if (showOtp) _buildOtpSection(otp),
                     AddressCard(orderData: orderData),
                     if (stops != null && stops.isNotEmpty) _buildStopsUI(stops),
-                    if (rideStatus >= 3 && rideStatus <= 5)
+                    if (rideStatus >= 4 && rideStatus <= 5)
                       _buildShareRideButton(orderData),
                     _buildPaymentContainer(payMode, orderData),
                     if (showOtpAndCancel) _buildCancelButton(),
@@ -820,6 +830,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
 
   Widget _buildShareRideButton(Map<String, dynamic> orderData) {
     final profile = Provider.of<ProfileViewModel>(context);
+    final loc = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () {
         String? rideLink = orderData['tracking_url'];
@@ -831,7 +842,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
         }
 
         Share.share(
-          "Hi, This is ${profile.profileModel?.data?.firstName} on Yoyomiles\nView my ride details here\n$rideLink",
+          "${loc.hi_this_is} ${profile.profileModel?.data?.firstName} ${loc.on_yoyomiles_view_my}\n$rideLink",
           subject: "My Ride Link",
         );
       },
@@ -867,9 +878,9 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children:  [
                   Text(
-                    "Share Ride",
+                    loc.share_ride,
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -878,7 +889,7 @@ class _DriverSearchingScreenState extends State<DriverSearchingScreen> {
                   ),
                   SizedBox(height: 2),
                   Text(
-                    "Let others track your ride live",
+                    loc.let_other_track,
                     style: TextStyle(
                       fontSize: 11,
                       color: Colors.black38,

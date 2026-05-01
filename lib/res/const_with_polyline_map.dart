@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
@@ -41,6 +42,9 @@ class ConstWithPolylineMap extends StatefulWidget {
 }
 
 class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
+  static final Map<String, BitmapDescriptor> _driverIconMemoryCache = {};
+  static final Map<String, Future<BitmapDescriptor>> _driverIconInFlight = {};
+
   GoogleMapController? mapController;
   final Completer<GoogleMapController> completer = Completer();
   final LatLng _initialPosition = LatLng(26.8467, 80.9462);
@@ -55,6 +59,8 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
   BitmapDescriptor? _driverIcon;
   Timer? _driverAnimationTimer;
   LatLng? _animatedDriverPosition;
+  LatLng? _lastRenderedDriverPosition;
+  double _driverRotation = 0.0;
   DateTime? _lastCameraUpdateAt;
   LatLng? _lastCameraTarget;
 
@@ -124,30 +130,13 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
       listen: false,
     ).vehicleImage;
     print("🚙 Calling _updateDriverMarker. vehicleImage: $vehicleImg");
-    if (_driverIcon == null || vehicleImg != _lastLoadedUrl) {
+    final normalizedVehicleUrl = _normalizeVehicleImageUrl(vehicleImg);
+    if (_driverIcon == null || normalizedVehicleUrl != _lastLoadedUrl) {
       try {
-        if (vehicleImg != null && vehicleImg!.isNotEmpty) {
-          String imageUrl = vehicleImg!;
-
-          /// ✅ URL normalization
-          if (!imageUrl.startsWith('http')) {
-            // Prepend base URL if relative
-            // Assuming base URL from DriverRideViewModel
-            const String baseUrl = "https://dev.yoyomiles.com/";
-            if (imageUrl.startsWith('/')) {
-              imageUrl = baseUrl + imageUrl.substring(1);
-            } else {
-              imageUrl = baseUrl + imageUrl;
-            }
-          }
-
-          imageUrl = imageUrl.replaceAll('//uploads', '/uploads');
-
-          print("🚗 Attempting to load Vehicle Image Marker: $imageUrl");
-
-          _driverIcon = await getBytesFromUrl(imageUrl, 100);
-          _lastLoadedUrl = vehicleImg!;
-          print("✅ Marker Loaded successfully from URL: $imageUrl");
+        if (normalizedVehicleUrl != null) {
+          _driverIcon = await _loadDriverIconWithCache(normalizedVehicleUrl, 100);
+          _lastLoadedUrl = normalizedVehicleUrl;
+          print("✅ Marker loaded from cache/network: $normalizedVehicleUrl");
         } else {
           print("⚠️ No vehicle image URL provided, using dummy");
           throw Exception("No vehicle image URL provided");
@@ -157,12 +146,44 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
         /// ✅ fallback icon
         // _driverIcon = await resizeMarkerIcon(Assets.assetsVehicleDummy, 80);
-        _lastLoadedUrl =
-            vehicleImg; // set so we don't retry every time if it fails
+        _lastLoadedUrl = normalizedVehicleUrl;
       }
     }
 
     _animateDriverMarker(position);
+  }
+
+  String? _normalizeVehicleImageUrl(String? rawUrl) {
+    if (rawUrl == null || rawUrl.isEmpty) return null;
+    var imageUrl = rawUrl.trim();
+    if (!imageUrl.startsWith('http')) {
+      const String baseUrl = "https://dev.yoyomiles.com/";
+      imageUrl = imageUrl.startsWith('/')
+          ? "$baseUrl${imageUrl.substring(1)}"
+          : "$baseUrl$imageUrl";
+    }
+    return imageUrl.replaceAll('//uploads', '/uploads');
+  }
+
+  Future<BitmapDescriptor> _loadDriverIconWithCache(
+    String imageUrl,
+    int targetWidth,
+  ) async {
+    final cachedIcon = _driverIconMemoryCache[imageUrl];
+    if (cachedIcon != null) return cachedIcon;
+
+    final inFlightRequest = _driverIconInFlight[imageUrl];
+    if (inFlightRequest != null) return inFlightRequest;
+
+    final future = getBytesFromUrl(imageUrl, targetWidth).then((icon) {
+      _driverIconMemoryCache[imageUrl] = icon;
+      return icon;
+    }).whenComplete(() {
+      _driverIconInFlight.remove(imageUrl);
+    });
+
+    _driverIconInFlight[imageUrl] = future;
+    return future;
   }
 
   void _animateDriverMarker(LatLng targetPosition) {
@@ -170,6 +191,7 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
     if (startPosition == null) {
       _animatedDriverPosition = targetPosition;
+      _lastRenderedDriverPosition = targetPosition;
       _setDriverMarker(targetPosition);
       _followDriverOnMap(targetPosition);
       return;
@@ -232,10 +254,20 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
 
   void _setDriverMarker(LatLng position) {
     if (!mounted) return;
-    final referencePosition = _animatedDriverPosition ?? _previousDriverLocation;
-    final rotation = referencePosition == null
-        ? 0.0
-        : _calculateBearing(referencePosition, position);
+    final referencePosition = _lastRenderedDriverPosition ?? _previousDriverLocation;
+    if (referencePosition != null) {
+      final movementMeters = Geolocator.distanceBetween(
+        referencePosition.latitude,
+        referencePosition.longitude,
+        position.latitude,
+        position.longitude,
+      );
+      if (movementMeters > 0.8) {
+        _driverRotation = _calculateBearing(referencePosition, position);
+      }
+    }
+
+    _lastRenderedDriverPosition = position;
     setState(() {
       _markers.removeWhere((m) => m.markerId.value == "driverMarker");
       _markers.add(
@@ -244,7 +276,7 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
           position: position,
           icon: _driverIcon ?? BitmapDescriptor.defaultMarker,
           anchor: const Offset(0.5, 0.5),
-          rotation: rotation,
+          rotation: _driverRotation,
           flat: true,
         ),
       );
@@ -364,12 +396,12 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
   // }
 
   Future<BitmapDescriptor> getBytesFromUrl(String url, int targetWidth) async {
-    final http.Response response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception("Failed to load image: Status ${response.statusCode}");
-    }
+    final imageFile = await DefaultCacheManager()
+        .getSingleFile(url)
+        .timeout(const Duration(seconds: 6));
+    final imageBytes = await imageFile.readAsBytes();
     final ui.Codec codec = await ui.instantiateImageCodec(
-      response.bodyBytes,
+      imageBytes,
       targetWidth: targetWidth,
     );
     final ui.FrameInfo fi = await codec.getNextFrame();
@@ -419,17 +451,7 @@ class _ConstWithPolylineMapState extends State<ConstWithPolylineMap> {
     Position position = await Geolocator.getCurrentPosition();
     _currentPosition = LatLng(position.latitude, position.longitude);
 
-    final currentIcon = await resizeMarkerIcon(Assets.assetsHueCurrent, 85);
 
-    setState(() {
-      _markers.add(
-        Marker(
-          markerId: const MarkerId("currentLocation"),
-          position: _currentPosition!,
-          icon: currentIcon,
-        ),
-      );
-    });
 
     _fetchAddress(position.latitude, position.longitude);
     _updatePolylinesBasedOnStatus();

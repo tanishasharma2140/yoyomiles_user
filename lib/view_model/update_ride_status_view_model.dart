@@ -5,7 +5,6 @@ import 'package:yoyomiles/utils/utils.dart';
 import 'package:yoyomiles/view/bottom_nav_bar.dart';
 import 'package:yoyomiles/view/home/home.dart';
 
-
 class UpdateRideStatusViewModel with ChangeNotifier {
   final _updateRideStatusRepo = UpdateRideStatusRepo();
   bool _loading = false;
@@ -16,26 +15,46 @@ class UpdateRideStatusViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateRideApi(context, String id, String rideStatus) async {
+  Future<void> updateRideApi(
+    context,
+    String id,
+    String rideStatus,
+      {
+        dynamic cancelReason,
+      }
+  ) async {
     setLoading(true);
 
-    Map data = {"id": id, "ride_status": rideStatus};
+    Map data = {
+      "id": id,
+      "ride_status": rideStatus,
+    };
+    if (cancelReason != null) {
+      data["cancel_reason"] = cancelReason;
+    }
     print("hybyby");
     print(data);
 
-    _updateRideStatusRepo.updateRideApi(data).then((value) async {
-      setLoading(false);
-      if (value['success'] == true) {
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>BottomNavigationPage()),    (route) => false,);
-        debugPrint(value["message"]);
-      } else {
-        Utils.showErrorMessage(context, value["message"]);
-      }
-    }).onError((error, stackTrace) {
-      setLoading(false);
-      if (kDebugMode) {
-        print('error: $error');
-      }
-    });
+    _updateRideStatusRepo
+        .updateRideApi(data)
+        .then((value) async {
+          setLoading(false);
+          if (value['success'] == true) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => BottomNavigationPage()),
+              (route) => false,
+            );
+            debugPrint(value["message"]);
+          } else {
+            Utils.showErrorMessage(context, value["message"]);
+          }
+        })
+        .onError((error, stackTrace) {
+          setLoading(false);
+          if (kDebugMode) {
+            print('error: $error');
+          }
+        });
   }
 }

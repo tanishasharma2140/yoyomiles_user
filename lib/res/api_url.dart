@@ -44,8 +44,9 @@ class ApiUrl{
   static const String claimedRewardUrl ="${baseUrl}claim-reward";
   static const String gstPercentageUrl ="${baseUrl}gst-percentage";
   static const String settingsUrl ="${baseUrl}settings/";
+  static const String cancelReasonUrl ="${baseUrl}cancel-reasons?";
 
-  static const String sendOtpUrl ="https://dev.yoyomiles.com/api/send_otp?mode=live&digit=4&mobile=";
+  static const String sendOtpUrl ="https://dev.yoyomiles.com/api/send_otp?mode=test&digit=4&mobile=";
   static const String verifyOtpUrl ="https://dev.yoyomiles.com/api/verifyotp?mobile=";
   // static const String countOtpUrl ="${baseUrl}count_otp";
 

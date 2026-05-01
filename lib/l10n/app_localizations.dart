@@ -2179,6 +2179,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'EDIT STOPS'**
   String get edit_stops;
+
+  /// No description provided for @share_ride.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Ride'**
+  String get share_ride;
+
+  /// No description provided for @let_other_track.
+  ///
+  /// In en, this message translates to:
+  /// **'Let others track your ride live'**
+  String get let_other_track;
+
+  /// No description provided for @hi_this_is.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, This is '**
+  String get hi_this_is;
+
+  /// No description provided for @on_yoyomiles_view_my.
+  ///
+  /// In en, this message translates to:
+  /// **' on Yoyomiles\nView my ride details here'**
+  String get on_yoyomiles_view_my;
 }
 
 class _AppLocalizationsDelegate

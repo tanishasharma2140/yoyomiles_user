@@ -1070,4 +1070,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get edit_stops => 'EDIT STOPS';
+
+  @override
+  String get share_ride => 'Share Ride';
+
+  @override
+  String get let_other_track => 'Let others track your ride live';
+
+  @override
+  String get hi_this_is => 'Hi, This is ';
+
+  @override
+  String get on_yoyomiles_view_my => ' on Yoyomiles\nView my ride details here';
 }
